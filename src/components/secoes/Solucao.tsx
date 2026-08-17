@@ -3,17 +3,23 @@ import type { Solucao as Dados } from "@/lib/proposta/schema";
 
 export function Solucao({ dados }: { dados: Dados }) {
   return (
-    <Secao id="solucao" etiqueta="02" titulo={dados.titulo ?? "A solução proposta"}>
+    <Secao
+      id="solucao"
+      etiqueta="02"
+      titulo={dados.titulo ?? "A solução proposta"}
+      superficie
+    >
       <p className="text-lg leading-relaxed text-salvia" data-reveal>
         {dados.resumo}
       </p>
 
-      {/* Stagger vem da posição no DOM (nth-child), não de JS. */}
+      {/* Stagger conduzido por --i no range da timeline, não por JS. */}
       <div className="mt-12 grid gap-px overflow-hidden border border-linha sm:grid-cols-2" data-stagger>
-        {dados.pilares.map((pilar) => (
+        {dados.pilares.map((pilar, i) => (
           <article
             key={pilar.titulo}
-            className="cartao-luz bg-fundo p-6 outline outline-linha sm:p-8"
+            style={{ ["--i" as string]: i }}
+            className="cartao-luz bg-fundo/60 p-6 outline outline-linha sm:p-8"
           >
             <h3 className="tipo-display text-xl leading-tight text-osso">
               {pilar.titulo}

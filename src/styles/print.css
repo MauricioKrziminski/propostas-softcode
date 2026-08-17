@@ -24,12 +24,24 @@
     will-change: auto !important;
   }
 
-  /* 2. Tudo que só apareceria via reveal nasce revelado. */
+  /* 2. Tudo que só apareceria via reveal nasce revelado.
+        Qualquer efeito novo que anime PRECISA entrar nesta lista. */
   [data-reveal],
   [data-stagger] > *,
+  .palavra-sobe,
   .etapa-luz,
+  .etapa-numero,
+  .etapa-borda,
   .barra-fase,
+  .ponto-fase,
+  .linha-tempo,
   .filete-processo,
+  .filete-secao,
+  .borda-topo,
+  .borda-dir,
+  .borda-base,
+  .borda-esq,
+  .aspas-grande,
   .assinatura-nome,
   .camada-parallax {
     opacity: 1 !important;
@@ -37,14 +49,32 @@
     visibility: visible !important;
   }
 
-  /* 3. Nada fixo ou grudado: no papel isso vira elemento repetido ou sobreposto. */
+  /* O recorte das palavras do título não pode esconder nada no papel. */
+  .palavra-clip {
+    overflow: visible !important;
+  }
+
+  /* O <details> volta a ter altura automática, sem a transição. */
+  details::details-content {
+    block-size: auto !important;
+    overflow: visible !important;
+  }
+
+  /* 3. Nada fixo ou grudado: no papel isso vira elemento repetido ou sobreposto.
+        Inclui o fundo em movimento e o grão — no papel o fundo é branco. */
   .cabecalho-fixo,
-  .so-tela {
+  .so-tela,
+  .camada-mata {
     display: none !important;
   }
+  [data-sticky],
   [class*="sticky"],
   [class*="fixed"] {
     position: static !important;
+    backdrop-filter: none !important;
+  }
+  .veu-superficie::before {
+    display: none !important;
   }
 
   /* 4. Blocos expansíveis abertos. O listener beforeprint marca `open` em todos;

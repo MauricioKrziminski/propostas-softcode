@@ -12,15 +12,20 @@ export function BlocoExpansivel({
   titulo,
   resumo,
   indice,
+  ordem = 0,
   children,
 }: {
   titulo: string;
   resumo?: string;
   indice: number;
+  ordem?: number;
   children: ReactNode;
 }) {
   return (
-    <details className="group border-b border-linha" data-reveal>
+    <details
+      className="group border-b border-linha"
+      style={{ ["--i" as string]: ordem }}
+    >
       <summary className="alvo-toque flex cursor-pointer list-none items-start gap-4 py-6 pr-2 [&::-webkit-details-marker]:hidden">
         <span className="numero mt-1 shrink-0 text-xs text-latao">
           {String(indice).padStart(2, "0")}

@@ -62,6 +62,13 @@ PDF em `.playwright/`.
   os dois juntos, senão suporte parcial trava o reveal invisível. Nenhum
   listener de evento `scroll`. Efeito de mouse só sob
   `(hover: hover) and (pointer: fine)`; no touch quem conduz é o scroll.
+- **Estado de repouso vem ANTES do `@supports`.** Mesma especificidade dentro e
+  fora do bloco: quem é declarado depois vence. Um `display: none` escrito
+  abaixo do bloco anula o `display: flex` de dentro dele e o elemento nunca
+  aparece — foi exatamente assim que o cabeçalho fixo ficou invisível por uma
+  fase inteira sem ninguém notar.
+- **Nada de divisor em onda ou blob.** Separação entre seções é por gradiente,
+  filete de latão e ritmo de espaçamento.
 - **`@media print` é o PDF do cliente**, não sobra de CSS. Qualquer elemento
   novo que anime precisa entrar no reset de `src/styles/print.css`.
 - **Dinheiro é inteiro em centavos.** Nunca float.

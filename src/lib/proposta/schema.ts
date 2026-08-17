@@ -254,6 +254,14 @@ export const propostaSchema = z
       nome: textoCurto.describe("Pessoa de contato"),
       empresa: textoCurto.describe("Empresa — vai em escala gigante no hero"),
       email: z.email().optional().describe("E-mail do contato"),
+      logoUrl: z
+        .string()
+        .trim()
+        .min(1)
+        .optional()
+        .describe(
+          "Logo do cliente (SVG/PNG). Renderizado monocromático em osso, via máscara — a cor não é customizável",
+        ),
     }),
     tituloProjeto: textoCurto.describe("Nome do projeto"),
     status: z.enum(STATUS_PROPOSTA).default("rascunho").describe("Status"),

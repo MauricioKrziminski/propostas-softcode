@@ -9,25 +9,44 @@ import type { Entendimento as Dados } from "@/lib/proposta/schema";
  */
 export function Entendimento({ dados }: { dados: Dados }) {
   return (
-    <Secao id="entendimento" etiqueta="01" titulo={dados.titulo ?? "O que entendemos"}>
+    <Secao
+      id="entendimento"
+      etiqueta="01"
+      titulo={dados.titulo ?? "O que entendemos"}
+      ritmo="respiro"
+    >
       <div className="space-y-6" data-stagger>
         {dados.paragrafos.map((p, i) => (
-          <p key={i} className="text-lg leading-relaxed text-salvia">
+          <p
+            key={i}
+            className="text-lg leading-relaxed text-salvia"
+            style={{ ["--i" as string]: i }}
+          >
             {p}
           </p>
         ))}
       </div>
 
+      {/* A citação é o coração da seção: entra em destaque, com a aspa em
+          latão em escala grande servindo de âncora visual. */}
       {dados.citacaoCliente && (
-        <figure className="mt-12 border-l-2 border-latao pl-6 sm:pl-8" data-reveal>
-          <blockquote className="tipo-display text-secao leading-tight text-osso">
-            “{dados.citacaoCliente.texto}”
+        <figure className="relative mt-16 sm:mt-20" data-reveal>
+          <span
+            aria-hidden
+            className="aspas-grande tipo-display pointer-events-none absolute -left-1 -top-10 origin-bottom-left select-none text-[8rem] leading-none text-latao/25 sm:-left-6 sm:text-[12rem]"
+          >
+            &ldquo;
+          </span>
+          <blockquote className="relative border-l-2 border-latao pl-6 sm:pl-10">
+            <p className="tipo-display text-secao leading-tight text-osso">
+              {dados.citacaoCliente.texto}
+            </p>
+            {dados.citacaoCliente.autor && (
+              <figcaption className="mt-5 text-sm text-salvia">
+                — {dados.citacaoCliente.autor}
+              </figcaption>
+            )}
           </blockquote>
-          {dados.citacaoCliente.autor && (
-            <figcaption className="mt-4 text-sm text-salvia">
-              — {dados.citacaoCliente.autor}
-            </figcaption>
-          )}
         </figure>
       )}
     </Secao>

@@ -14,6 +14,10 @@
   --color-latao: #c79a3b;
   --color-linha: rgb(244 242 236 / 0.12);
 
+  /* Superfície translúcida: deixa o gradiente de fundo atravessar, para a
+     alternância entre seções não virar um bloco chapado sobre outro. */
+  --color-veu: rgb(18 58 47 / 0.55);
+
   --font-archivo: var(--fonte-archivo), ui-sans-serif, system-ui, sans-serif;
 
   /* Escala fluida: o primeiro valor é o de 390px, o teto é o de desktop. */
@@ -22,7 +26,13 @@
   --text-secao: clamp(1.375rem, 4.5vw, 2rem);
   --text-corpo: clamp(1rem, 1.2vw, 1.125rem);
 
-  --spacing-secao: clamp(4rem, 12vw, 9rem);
+  /* Ritmo vertical variado: seção densa respira menos, seção de respiro
+     respira mais. Ritmo, não grid uniforme. */
+  --spacing-denso: clamp(3rem, 8vw, 5.5rem);
+  --spacing-normal: clamp(4.5rem, 12vw, 9rem);
+  --spacing-respiro: clamp(6.5rem, 18vw, 14rem);
+
+  --altura-cabecalho: 3.25rem;
 }
 
 /* ─────────────────────────── base ─────────────────────────── */
@@ -43,8 +53,10 @@ body {
   font-variation-settings: "wght" 400, "wdth" 100;
   font-size: var(--text-corpo);
   line-height: 1.65;
-  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  /* SEM overflow-x aqui: overflow em body cria contexto de rolagem e quebra
+     `position: sticky` dos títulos de seção. O overflow horizontal é evitado
+     na origem — e conferido a cada fase por `npm run valida:mobile`. */
 }
 
 /* As duas únicas faces do projeto: dois pesos, uma família, um arquivo. */
@@ -63,14 +75,12 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-/* Foco sempre visível — nunca outline:none. */
 :focus-visible {
   outline: 2px solid var(--color-latao);
   outline-offset: 3px;
   border-radius: 2px;
 }
 
-/* Alvo de toque mínimo garantido no componente, não no uso. */
 .alvo-toque {
   min-block-size: 44px;
   min-inline-size: 44px;
@@ -79,6 +89,27 @@ body {
 ::selection {
   background-color: var(--color-latao);
   color: var(--color-fundo);
+}
+
+/* ─────────── alternância de superfície, com borda por gradiente ───────────
+   Nunca linha dura, nunca divisor de onda/blob: a seção par surge e some por
+   gradiente vertical sobre o fundo que já está em movimento. */
+.veu-superficie {
+  position: relative;
+  isolation: isolate;
+}
+.veu-superficie::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    var(--color-veu) 12%,
+    var(--color-veu) 88%,
+    transparent 100%
+  );
 }
 
 /* ═══════════════════════ sistema de movimento ═══════════════════════
@@ -100,6 +131,15 @@ body {
   }
 }
 
+@keyframes subir-linha {
+  from {
+    transform: translateY(105%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
 @keyframes encolher-nome {
   to {
     transform: scale(0.42) translateY(-6%);
@@ -116,21 +156,21 @@ body {
   }
 }
 
-@keyframes desenhar-filete {
-  from {
-    transform: scaleY(0);
-  }
-  to {
-    transform: scaleY(1);
-  }
-}
-
-@keyframes crescer-barra {
+@keyframes desenhar-x {
   from {
     transform: scaleX(0);
   }
   to {
     transform: scaleX(1);
+  }
+}
+
+@keyframes desenhar-y {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
   }
 }
 
@@ -149,31 +189,57 @@ body {
   }
 }
 
+@keyframes brotar {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Estado de repouso do cabeçalho fixo. Precisa vir ANTES do @supports:
+   mesma especificidade, então quem vem depois vence — e declarado depois este
+   `display: none` anulava o `display: flex` de dentro do bloco, deixando o
+   cabeçalho invisível para sempre. */
+.cabecalho-fixo {
+  display: none;
+}
+
 @supports ((animation-timeline: view()) and (animation-range: 0% 100%)) {
   @media (prefers-reduced-motion: no-preference) {
-    /* Reveal padrão — o movimento discreto que serve o texto. */
+    /* ── fundo em movimento ── */
+    .camada-mata {
+      animation: deslocar linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 100%;
+      --deslocamento: -66%;
+      will-change: transform;
+    }
+
+    /* ── reveal padrão ── */
     [data-reveal] {
       animation: revelar linear both;
       animation-timeline: view();
       animation-range: entry 8% cover 30%;
     }
 
-    /* Stagger sem JS: o atraso vem da posição, não de um observer. */
     [data-stagger] > * {
       animation: revelar linear both;
       animation-timeline: view();
+      animation-range: entry calc(4% + var(--i, 0) * 4%) cover calc(26% + var(--i, 0) * 5%);
     }
-    [data-stagger] > *:nth-child(1) {
-      animation-range: entry 4% cover 26%;
-    }
-    [data-stagger] > *:nth-child(2) {
-      animation-range: entry 8% cover 32%;
-    }
-    [data-stagger] > *:nth-child(3) {
-      animation-range: entry 12% cover 38%;
-    }
-    [data-stagger] > *:nth-child(n + 4) {
-      animation-range: entry 16% cover 44%;
+
+    /* ── títulos: reveal por linha, com clip ──
+       Cada palavra tem seu próprio recorte e sobe de dentro dele. O atraso vem
+       do índice via `animation-range`, não de `animation-delay` (que não existe
+       em timeline de scroll). */
+    .palavra-sobe {
+      animation: subir-linha linear both;
+      animation-timeline: view();
+      animation-range: entry calc(2% + var(--i, 0) * 2.5%) cover calc(22% + var(--i, 0) * 2.5%);
     }
 
     /* ── elemento assinatura ──
@@ -195,42 +261,135 @@ body {
       animation-range: 55svh 72svh;
     }
 
-    /* Parallax do hero: duas camadas, transform apenas. */
     .camada-parallax {
       animation: deslocar linear both;
       animation-timeline: scroll(root);
       animation-range: 0 100svh;
     }
 
-    /* Processo: o filete de latão que se desenha ao longo das 6 etapas. */
-    .filete-processo {
-      transform-origin: top center;
-      animation: desenhar-filete linear both;
+    /* ── filete horizontal da seção: desenha da esquerda para a direita ── */
+    .filete-secao {
+      transform-origin: left center;
+      animation: desenhar-x linear both;
       animation-timeline: view();
-      animation-range: entry 60% exit 40%;
+      animation-range: entry 20% cover 35%;
     }
 
-    /* Cada etapa acende ao entrar — no touch é isto que ocupa o lugar do mouse. */
+    /* ── processo ── */
+    .filete-processo {
+      transform-origin: top center;
+      animation: desenhar-y linear both;
+      animation-timeline: view();
+      animation-range: entry 50% exit 45%;
+    }
+
     .etapa-luz {
       animation: acender linear both;
       animation-timeline: view();
-      animation-range: entry 55% cover 62%;
+      animation-range: entry 55% cover 58%;
     }
 
-    /* Cronograma: scaleX, nunca width. */
+    .etapa-numero {
+      animation: brotar linear both;
+      animation-timeline: view();
+      animation-range: entry 45% cover 60%;
+    }
+
+    .etapa-borda {
+      transform-origin: top center;
+      animation: desenhar-y linear both;
+      animation-timeline: view();
+      animation-range: entry 50% cover 70%;
+    }
+
+    /* ── cronograma: a linha do tempo se desenha, e as barras crescem ── */
+    .linha-tempo {
+      transform-origin: top center;
+      animation: desenhar-y linear both;
+      animation-timeline: view();
+      animation-range: entry 40% exit 40%;
+    }
+
     .barra-fase {
       transform-origin: left center;
-      animation: crescer-barra linear both;
+      animation: desenhar-x linear both;
+      animation-timeline: view();
+      animation-range: entry 25% cover 45%;
+    }
+
+    .ponto-fase {
+      animation: brotar linear both;
+      animation-timeline: view();
+      animation-range: entry 30% cover 45%;
+    }
+
+    /* ── investimento: a borda do cartão se desenha ── */
+    .borda-topo,
+    .borda-base {
+      transform-origin: left center;
+      animation: desenhar-x linear both;
+      animation-timeline: view();
+    }
+    .borda-esq,
+    .borda-dir {
+      transform-origin: top center;
+      animation: desenhar-y linear both;
+      animation-timeline: view();
+    }
+    .borda-topo {
+      animation-range: entry 18% cover 32%;
+    }
+    .borda-dir {
+      animation-range: entry 24% cover 40%;
+    }
+    .borda-base {
+      animation-range: entry 30% cover 46%;
+    }
+    .borda-esq {
+      animation-range: entry 36% cover 52%;
+    }
+
+    /* ── aspas da citação ── */
+    .aspas-grande {
+      animation: brotar linear both;
       animation-timeline: view();
       animation-range: entry 25% cover 45%;
     }
   }
 }
 
-/* Sem suporte a scroll-driven: o cabeçalho fixo simplesmente não existe.
-   É cromo decorativo — o nome do cliente continua no hero. */
-.cabecalho-fixo {
-  display: none;
+/* Fora do @supports: estados de repouso legíveis.
+   Sem suporte a scroll-driven, tudo isto nasce no estado final. */
+.palavra-clip {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  /* espaço para descendentes (g, y, p) não serem cortados pelo recorte */
+  padding-block-end: 0.12em;
+  margin-block-end: -0.12em;
+}
+
+.palavra-sobe {
+  display: inline-block;
+}
+
+/* ── transição real do <details> do escopo ── */
+@supports (interpolate-size: allow-keywords) {
+  @media (prefers-reduced-motion: no-preference) {
+    :root {
+      interpolate-size: allow-keywords;
+    }
+    details::details-content {
+      block-size: 0;
+      overflow: clip;
+      transition:
+        block-size 420ms cubic-bezier(0.2, 0, 0, 1),
+        content-visibility 420ms allow-discrete;
+    }
+    details[open]::details-content {
+      block-size: auto;
+    }
+  }
 }
 
 /* ── reduced-motion: mata TUDO, não só os reveals ── */
@@ -247,23 +406,29 @@ body {
     scroll-behavior: auto !important;
   }
   [data-reveal],
-  [data-stagger] > * {
+  [data-stagger] > *,
+  .assinatura-nome,
+  .etapa-luz,
+  .aspas-grande,
+  .etapa-numero,
+  .ponto-fase {
     opacity: 1 !important;
     transform: none !important;
   }
-  .assinatura-nome {
-    opacity: 1 !important;
-    transform: none !important;
-  }
+  .palavra-sobe,
+  .filete-secao,
   .filete-processo,
-  .barra-fase {
+  .linha-tempo,
+  .barra-fase,
+  .etapa-borda,
+  .borda-topo,
+  .borda-base,
+  .borda-esq,
+  .borda-dir,
+  .camada-parallax,
+  .camada-mata {
     transform: none !important;
-  }
-  .etapa-luz {
     opacity: 1 !important;
-  }
-  .camada-parallax {
-    transform: none !important;
   }
 }
 

@@ -3,16 +3,22 @@ import type { Sobre as Dados } from "@/lib/proposta/schema";
 
 export function Sobre({ dados }: { dados: Dados }) {
   return (
-    <Secao id="sobre" etiqueta="08" titulo={dados.titulo ?? "Sobre a SoftCode"}>
+    <Secao
+      id="sobre"
+      etiqueta="08"
+      titulo={dados.titulo ?? "Sobre a SoftCode"}
+      superficie
+    >
       <p className="text-lg leading-relaxed text-salvia" data-reveal>
         {dados.texto}
       </p>
 
       {dados.cases && dados.cases.length > 0 && (
         <div className="mt-12 space-y-px" data-stagger>
-          {dados.cases.map((caso) => (
+          {dados.cases.map((caso, i) => (
             <article
               key={caso.cliente}
+              style={{ ["--i" as string]: i }}
               className="case-item cartao-luz border border-linha p-6"
             >
               <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">

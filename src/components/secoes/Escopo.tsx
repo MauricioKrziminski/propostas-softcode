@@ -8,18 +8,26 @@ import type { Escopo as Dados } from "@/lib/proposta/schema";
  */
 export function Escopo({ dados }: { dados: Dados }) {
   return (
-    <Secao id="escopo" etiqueta="03" titulo={dados.titulo ?? "Escopo detalhado"}>
+    <Secao
+      id="escopo"
+      etiqueta="03"
+      titulo={dados.titulo ?? "Escopo detalhado"}
+      ritmo="denso"
+    >
       {dados.introducao && (
         <p className="mb-10 text-lg leading-relaxed text-salvia" data-reveal>
           {dados.introducao}
         </p>
       )}
 
-      <div className="border-t border-linha">
+      {/* Stagger na entrada dos módulos; a abertura em si tem transição real
+          de altura (globals.css, via ::details-content + interpolate-size). */}
+      <div className="border-t border-linha" data-stagger>
         {dados.modulos.map((modulo, i) => (
           <BlocoExpansivel
             key={modulo.titulo}
             indice={i + 1}
+            ordem={i}
             titulo={modulo.titulo}
             resumo={modulo.resumo}
           >

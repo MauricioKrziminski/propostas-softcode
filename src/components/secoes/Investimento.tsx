@@ -1,12 +1,30 @@
 import { Secao } from "@/components/ui/Secao";
-import { formatarValor } from "@/lib/proposta/formatar";
+import { Contador } from "@/components/motion/Contador";
 import type { Investimento as Dados } from "@/lib/proposta/schema";
 
 /**
- * De 1 a 3 opções lado a lado: cliente escolhendo QUAL fecha mais que cliente
- * decidindo SE. No celular viram cartões empilhados, com o destaque primeiro na
- * ordem visual — sem depender de hover para nada.
+ * De 1 a 3 opções: cliente escolhendo QUAL fecha mais que cliente decidindo SE.
+ *
+ * A borda de cada cartão se desenha ao entrar — quatro filetes de 1px animados
+ * em `scaleX`/`scaleY` com atrasos encadeados, formando o retângulo. É por isso
+ * que são elementos e não `border`: `border` não se anima com transform.
+ *
+ * O cartão em destaque tem tratamento estruturalmente diferente, não só mais
+ * claro: superfície elevada, régua de latão de 3px no topo, selo deslocado para
+ * fora da caixa e escala levemente maior no desktop.
  */
+function BordaDesenhada({ destaque }: { destaque: boolean }) {
+  const cor = destaque ? "bg-latao" : "bg-linha";
+  return (
+    <span aria-hidden className="pointer-events-none absolute inset-0">
+      <span className={`borda-topo absolute left-0 top-0 h-px w-full ${cor}`} />
+      <span className={`borda-dir absolute right-0 top-0 h-full w-px ${cor}`} />
+      <span className={`borda-base absolute bottom-0 left-0 h-px w-full ${cor}`} />
+      <span className={`borda-esq absolute left-0 top-0 h-full w-px ${cor}`} />
+    </span>
+  );
+}
+
 export function Investimento({ dados }: { dados: Dados }) {
   const colunas =
     dados.opcoes.length === 1
@@ -21,25 +39,38 @@ export function Investimento({ dados }: { dados: Dados }) {
       etiqueta="06"
       titulo={dados.titulo ?? "Investimento"}
       largura="ampla"
+      ritmo="denso"
+      superficie
     >
       {dados.introducao && (
-        <p className="mb-10 max-w-3xl text-lg leading-relaxed text-salvia" data-reveal>
+        <p className="mb-12 max-w-3xl text-lg leading-relaxed text-salvia" data-reveal>
           {dados.introducao}
         </p>
       )}
 
-      <div className={`grid gap-6 ${colunas}`} data-stagger>
-        {dados.opcoes.map((opcao) => (
+      <div className={`grid items-start gap-6 ${colunas}`} data-stagger>
+        {dados.opcoes.map((opcao, i) => (
           <article
             key={opcao.id}
-            className={`cartao-investimento cartao-luz flex flex-col border p-6 sm:p-8 ${
+            style={{ ["--i" as string]: i }}
+            className={`cartao-investimento cartao-luz relative flex flex-col p-6 sm:p-8 ${
               opcao.destaque
-                ? "border-latao bg-superficie"
-                : "border-linha bg-fundo"
+                ? "bg-superficie sm:-mt-4 sm:pb-12 sm:pt-10"
+                : "bg-fundo/40"
             }`}
           >
+            <BordaDesenhada destaque={opcao.destaque} />
+
+            {/* régua grossa de latão: a marca estrutural do destaque */}
             {opcao.destaque && (
-              <p className="mb-4 text-xs uppercase tracking-[0.2em] text-latao">
+              <span
+                aria-hidden
+                className="borda-topo absolute inset-x-0 top-0 h-[3px] origin-left bg-latao"
+              />
+            )}
+
+            {opcao.destaque && (
+              <p className="absolute -top-3 left-6 bg-latao px-3 py-1 text-[0.65rem] uppercase tracking-[0.2em] text-fundo">
                 Recomendada
               </p>
             )}
@@ -49,9 +80,13 @@ export function Investimento({ dados }: { dados: Dados }) {
             </h3>
             <p className="mt-2 text-sm text-salvia">{opcao.resumo}</p>
 
-            <p className="numero tipo-display mt-6 text-3xl text-osso">
-              {formatarValor(opcao.valorCentavos)}
-            </p>
+            <Contador
+              valorCentavos={opcao.valorCentavos}
+              className={`tipo-display mt-6 block ${
+                opcao.destaque ? "text-4xl text-latao" : "text-3xl text-osso"
+              }`}
+            />
+
             {opcao.formaPagamento && (
               <p className="mt-2 text-xs leading-relaxed text-salvia">
                 {opcao.formaPagamento}
@@ -62,8 +97,8 @@ export function Investimento({ dados }: { dados: Dados }) {
             )}
 
             <ul className="mt-6 flex-1 space-y-2.5 border-t border-linha pt-6 text-sm">
-              {opcao.itens.map((item, i) => (
-                <li key={i} className="flex gap-3 text-salvia">
+              {opcao.itens.map((item, j) => (
+                <li key={j} className="flex gap-3 text-salvia">
                   <span aria-hidden className="mt-2 h-px w-3 shrink-0 bg-latao" />
                   <span>{item}</span>
                 </li>
@@ -74,7 +109,7 @@ export function Investimento({ dados }: { dados: Dados }) {
       </div>
 
       {dados.observacoes && dados.observacoes.length > 0 && (
-        <ul className="mt-8 space-y-2 text-sm text-salvia" data-reveal>
+        <ul className="mt-10 space-y-2 text-sm text-salvia" data-reveal>
           {dados.observacoes.map((o, i) => (
             <li key={i}>{o}</li>
           ))}

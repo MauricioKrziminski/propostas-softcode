@@ -44,7 +44,13 @@ export function Aceite({
     .join("\n");
 
   return (
-    <Secao id="aceite" etiqueta="09" titulo={dados.titulo ?? "Aceite"} largura="ampla">
+    <Secao
+      id="aceite"
+      etiqueta="09"
+      titulo={dados.titulo ?? "Aceite"}
+      largura="ampla"
+      ritmo="respiro"
+    >
       {dados.texto && (
         <p className="mb-8 max-w-3xl text-lg leading-relaxed text-salvia">
           {dados.texto}

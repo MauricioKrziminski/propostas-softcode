@@ -7,6 +7,7 @@ import { caminhoPublico, type ChaveSecao } from "@/lib/proposta/schema";
 import { estaExpirada } from "@/lib/proposta/formatar";
 
 import { Hero, CabecalhoFixo } from "@/components/secoes/Hero";
+import { FundoMata } from "@/components/motion/FundoMata";
 import { Entendimento } from "@/components/secoes/Entendimento";
 import { Solucao } from "@/components/secoes/Solucao";
 import { Escopo } from "@/components/secoes/Escopo";
@@ -107,7 +108,8 @@ export default async function PaginaProposta({ params }: Props) {
 
   return (
     <>
-      <CabecalhoFixo empresa={cliente.empresa} />
+      <FundoMata />
+      <CabecalhoFixo empresa={cliente.empresa} logoCliente={cliente.logoUrl} />
 
       <Hero
         empresa={cliente.empresa}

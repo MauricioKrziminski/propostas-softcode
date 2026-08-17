@@ -4,15 +4,17 @@
  *   npm run valida:mobile            (usa http://localhost:3000)
  *   npm run valida:mobile -- <url>
  *
- * Verifica, num viewport real de 390×844:
+ * Verifica, num viewport real de 390×844 (iPhone 14):
  *   1. overflow horizontal
  *   2. alvos de toque abaixo de 44px (links inline em frase são isentos — WCAG 2.5.8)
- *   3. `100vh` em qualquer regra de estilo (o projeto usa só `dvh`)
+ *   3. `100vh` em qualquer regra (o projeto usa só `dvh`)
  *   4. reveals travados invisíveis
- *   5. prefers-reduced-motion: nada animado e tudo visível
- *   6. mídia print: nenhuma seção em branco e todos os <details> abertos
- *   7. foco de teclado visível
- * e salva screenshots em .playwright/ para conferência visual.
+ *   5. as animações scroll-driven realmente instanciadas (e não o fallback)
+ *   6. títulos de seção sticky funcionando
+ *   7. prefers-reduced-motion: nada animado e tudo visível
+ *   8. mídia print: nenhuma seção em branco, <details> abertos, paleta invertida
+ *   9. foco de teclado visível
+ * e salva screenshots e um PDF em .playwright/ para conferência visual.
  */
 import { chromium, devices } from "@playwright/test";
 import { mkdir } from "node:fs/promises";
@@ -21,19 +23,23 @@ const BASE = process.argv[2] ?? "http://localhost:3000";
 const CAMINHO = "/barba-log-7fk2m9x4qd";
 const SAIDA = ".playwright";
 
-const iPhone = devices["iPhone 14"]; // 390×844, DPR 3, touch, sem hover
+const iPhone = devices["iPhone 14"];
 let falhas = 0;
 
-const ok = (t) => console.log(`  ok    ${t}`);
-const falhou = (t, extra = "") => {
-  falhas++;
-  console.log(`  FALHA ${t}${extra ? `\n        ${extra}` : ""}`);
-};
+/** Encapsula a asserção numa chamada de função — mantém o ESLint feliz. */
+function checar(condicao, textoOk, textoFalha = textoOk, extra = "") {
+  if (condicao) {
+    console.log(`  ok    ${textoOk}`);
+  } else {
+    falhas++;
+    console.log(`  FALHA ${textoFalha}${extra ? `\n        ${extra}` : ""}`);
+  }
+}
 
 await mkdir(SAIDA, { recursive: true });
 const navegador = await chromium.launch();
 
-/* ───────────── 1. viewport 390 × 844, sem reduced-motion ───────────── */
+/* ───────────── 1. viewport 390×844, sem reduced-motion ───────────── */
 console.log(`\n▸ 390×844 (iPhone 14) — ${BASE}${CAMINHO}`);
 const ctx = await navegador.newContext({ ...iPhone });
 const pg = await ctx.newPage();
@@ -42,10 +48,8 @@ pg.on("console", (m) => m.type() === "error" && erros.push(m.text()));
 pg.on("pageerror", (e) => erros.push(String(e)));
 await pg.goto(BASE + CAMINHO, { waitUntil: "networkidle" });
 
-const viewport = pg.viewportSize();
-viewport.width === 390
-  ? ok(`viewport real de ${viewport.width}×${viewport.height}`)
-  : falhou(`viewport inesperado: ${viewport.width}`);
+const vp = pg.viewportSize();
+checar(vp.width === 390, `viewport real de ${vp.width}×${vp.height}`, `viewport inesperado: ${vp.width}`);
 
 const overflow = await pg.evaluate(() => {
   const d = document.documentElement;
@@ -55,9 +59,7 @@ const overflow = await pg.evaluate(() => {
     .map((e) => `${e.tagName.toLowerCase()}.${(e.className || "").toString().split(" ")[0]}`);
   return { estoura: d.scrollWidth > d.clientWidth + 1, largura: d.scrollWidth, culpados };
 });
-overflow.estoura
-  ? falhou(`overflow horizontal (${overflow.largura}px)`, overflow.culpados.join(", "))
-  : ok("sem overflow horizontal");
+checar(!overflow.estoura, "sem overflow horizontal", `overflow horizontal (${overflow.largura}px)`, overflow.culpados.join(", "));
 
 const alvos = await pg.evaluate(() => {
   // Link inline no meio de uma frase é isento (WCAG 2.5.8) — aumentá-lo
@@ -67,8 +69,7 @@ const alvos = await pg.evaluate(() => {
     const pai = e.parentElement;
     return !!pai && /^(P|LI|SPAN|STRONG|EM)$/.test(pai.tagName) && (pai.textContent ?? "").trim().length > e.textContent.trim().length + 10;
   };
-  // O alvo real de um input dentro de <label> é o label inteiro: tocar em
-  // qualquer ponto dele aciona o controle. É essa área que a regra mede.
+  // O alvo real de um input dentro de <label> é o label inteiro.
   const areaAcionavel = (e) => {
     const rotulo = e.tagName === "INPUT" ? e.closest("label") : null;
     return (rotulo ?? e).getBoundingClientRect();
@@ -80,12 +81,10 @@ const alvos = await pg.evaluate(() => {
     })
     .map((e) => {
       const b = areaAcionavel(e);
-      return `${e.tagName.toLowerCase()} "${(e.textContent ?? e.value ?? "").trim().slice(0, 28)}" ${Math.round(b.width)}×${Math.round(b.height)}`;
+      return `${e.tagName.toLowerCase()} "${(e.textContent ?? "").trim().slice(0, 28)}" ${Math.round(b.width)}×${Math.round(b.height)}`;
     });
 });
-alvos.length === 0
-  ? ok("todos os alvos de toque ≥ 44px (links inline isentos)")
-  : falhou(`${alvos.length} alvo(s) abaixo de 44px`, alvos.join("\n        "));
+checar(alvos.length === 0, "todos os alvos de toque ≥ 44px (links inline isentos)", `${alvos.length} alvo(s) abaixo de 44px`, alvos.join("\n        "));
 
 const vh = await pg.evaluate(() => {
   const achados = [];
@@ -99,25 +98,47 @@ const vh = await pg.evaluate(() => {
   }
   return achados.slice(0, 5);
 });
-vh.length === 0 ? ok("nenhum uso de 100vh (só dvh)") : falhou("uso de vh encontrado", vh.join("\n        "));
+checar(vh.length === 0, "nenhum uso de 100vh (só dvh)", "uso de vh encontrado", vh.join("\n        "));
+
+/* animações realmente rodando, e não o fallback do @supports */
+const motor = await pg.evaluate(() => {
+  const tipos = {};
+  for (const a of document.getAnimations()) {
+    const t = a.timeline ? a.timeline.constructor.name : "sem-timeline";
+    tipos[t] = (tipos[t] ?? 0) + 1;
+  }
+  return {
+    guard: CSS.supports("((animation-timeline: view()) and (animation-range: 0% 100%))"),
+    tipos,
+    scroll: tipos.ScrollTimeline ?? 0,
+    view: tipos.ViewTimeline ?? 0,
+  };
+});
+checar(motor.guard, "guard do @supports satisfeito", "guard do @supports falhou — a página está no fallback estático");
+checar(motor.scroll > 0 && motor.view > 0, `scroll-driven ativo (${motor.scroll} ScrollTimeline, ${motor.view} ViewTimeline)`, "nenhuma animação scroll-driven instanciada", JSON.stringify(motor.tipos));
+
+/* título de seção sticky (quebra se algum ancestral criar contexto de rolagem) */
+const sticky = await pg.evaluate(() => {
+  const cabecalhos = [...document.querySelectorAll("[data-sticky]")];
+  const grudados = cabecalhos.filter((e) => getComputedStyle(e).position === "sticky");
+  return { total: cabecalhos.length, grudados: grudados.length };
+});
+checar(sticky.total > 0 && sticky.grudados === sticky.total, `${sticky.grudados} títulos de seção sticky ativos`, `só ${sticky.grudados} de ${sticky.total} títulos ficaram sticky`);
 
 await pg.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-await pg.waitForTimeout(700);
+await pg.waitForTimeout(800);
 const invisiveis = await pg.evaluate(() =>
-  [...document.querySelectorAll("[data-reveal], [data-stagger] > *")]
+  [...document.querySelectorAll("[data-reveal], [data-stagger] > *, .palavra-sobe")]
     .filter((e) => parseFloat(getComputedStyle(e).opacity) < 0.05)
     .map((e) => e.tagName.toLowerCase() + "." + (e.className || "").toString().split(" ")[0]),
 );
-invisiveis.length === 0
-  ? ok("nenhum reveal travado invisível após o scroll")
-  : falhou(`${invisiveis.length} elemento(s) invisíveis`, invisiveis.slice(0, 6).join(", "));
+checar(invisiveis.length === 0, "nenhum reveal travado invisível após o scroll", `${invisiveis.length} elemento(s) invisíveis`, invisiveis.slice(0, 6).join(", "));
 
 await pg.evaluate(() => window.scrollTo(0, 0));
-await pg.waitForTimeout(400);
+await pg.waitForTimeout(500);
 await pg.screenshot({ path: `${SAIDA}/390-hero.png` });
 await pg.screenshot({ path: `${SAIDA}/390-inteira.png`, fullPage: true });
-
-erros.length === 0 ? ok("console sem erros") : falhou(`${erros.length} erro(s) no console`, erros.slice(0, 3).join("\n        "));
+checar(erros.length === 0, "console sem erros", `${erros.length} erro(s) no console`, erros.slice(0, 3).join("\n        "));
 await ctx.close();
 
 /* ───────────── 2. prefers-reduced-motion: reduce ───────────── */
@@ -125,23 +146,25 @@ console.log("\n▸ prefers-reduced-motion: reduce");
 const ctxRm = await navegador.newContext({ ...iPhone, reducedMotion: "reduce" });
 const pgRm = await ctxRm.newPage();
 await pgRm.goto(BASE + CAMINHO, { waitUntil: "networkidle" });
-await pgRm.waitForTimeout(500);
+await pgRm.waitForTimeout(600);
 
 const movimento = await pgRm.evaluate(() => {
   const animando = [];
   for (const e of document.querySelectorAll("*")) {
     const s = getComputedStyle(e);
-    if (s.animationName !== "none" || (s.transitionDuration !== "0s" && s.transitionProperty !== "none" && s.transitionProperty !== "all")) {
-      animando.push(e.tagName.toLowerCase() + "." + (e.className || "").toString().split(" ")[0]);
-    }
+    if (s.animationName !== "none") animando.push(e.tagName.toLowerCase() + "." + (e.className || "").toString().split(" ")[0]);
   }
-  const escondidos = [...document.querySelectorAll("[data-reveal], [data-stagger] > *, .assinatura-nome")]
+  const escondidos = [...document.querySelectorAll("[data-reveal], [data-stagger] > *, .palavra-sobe, .assinatura-nome")]
     .filter((e) => parseFloat(getComputedStyle(e).opacity) < 0.99)
     .map((e) => e.tagName.toLowerCase());
-  return { animando: animando.slice(0, 6), escondidos: escondidos.slice(0, 6) };
+  const transformados = [...document.querySelectorAll(".palavra-sobe, .filete-secao, .barra-fase, .linha-tempo, .borda-topo, .camada-mata")]
+    .filter((e) => !["none", "matrix(1, 0, 0, 1, 0, 0)"].includes(getComputedStyle(e).transform))
+    .map((e) => (e.className || "").toString().split(" ")[0]);
+  return { animando: animando.slice(0, 6), escondidos: escondidos.slice(0, 6), transformados: transformados.slice(0, 6), vivas: document.getAnimations().length };
 });
-movimento.animando.length === 0 ? ok("nada animando") : falhou(`${movimento.animando.length} elemento(s) ainda com animação`, movimento.animando.join(", "));
-movimento.escondidos.length === 0 ? ok("todo conteúdo visível") : falhou("conteúdo escondido com reduced-motion", movimento.escondidos.join(", "));
+checar(movimento.animando.length === 0, "nada animando", `${movimento.animando.length} elemento(s) ainda com animação`, movimento.animando.join(", "));
+checar(movimento.escondidos.length === 0, "todo conteúdo visível", "conteúdo escondido com reduced-motion", movimento.escondidos.join(", "));
+checar(movimento.transformados.length === 0, "nenhum transform residual (filetes e bordas em estado final)", "transform residual com reduced-motion", movimento.transformados.join(", "));
 
 await pgRm.screenshot({ path: `${SAIDA}/390-reduced-motion.png`, fullPage: true });
 await ctxRm.close();
@@ -152,41 +175,41 @@ const ctxP = await navegador.newContext({ ...iPhone });
 const pgP = await ctxP.newPage();
 await pgP.goto(BASE + CAMINHO, { waitUntil: "networkidle" });
 await pgP.emulateMedia({ media: "print" });
-await pgP.waitForTimeout(400);
+await pgP.waitForTimeout(500);
 
 const impressao = await pgP.evaluate(() => {
-  const emBranco = [...document.querySelectorAll("section, [data-reveal], [data-stagger] > *")]
+  const emBranco = [...document.querySelectorAll("section, [data-reveal], [data-stagger] > *, .palavra-sobe")]
     .filter((e) => parseFloat(getComputedStyle(e).opacity) < 0.99 || getComputedStyle(e).visibility === "hidden")
-    .map((e) => (e.id || e.tagName.toLowerCase()));
+    .map((e) => e.id || (e.className || "").toString().split(" ")[0] || e.tagName.toLowerCase());
   const grudados = [...document.querySelectorAll("*")]
     .filter((e) => ["fixed", "sticky"].includes(getComputedStyle(e).position))
     .map((e) => e.tagName.toLowerCase() + "." + (e.className || "").toString().split(" ")[0]);
+  const cortados = [...document.querySelectorAll(".palavra-clip")]
+    .filter((e) => getComputedStyle(e).overflow !== "visible").length;
   const rodape = document.querySelector(".print-only");
   return {
     emBranco: emBranco.slice(0, 8),
     grudados: grudados.slice(0, 5),
+    cortados,
     fundo: getComputedStyle(document.body).backgroundColor,
-    cor: getComputedStyle(document.body).color,
     rodapeVisivel: rodape ? getComputedStyle(rodape).display !== "none" : false,
     detalhes: document.querySelectorAll("details").length,
   };
 });
-impressao.emBranco.length === 0 ? ok("nenhuma seção sai em branco") : falhou("seções invisíveis na impressão", impressao.emBranco.join(", "));
-impressao.grudados.length === 0 ? ok("nada fixed/sticky") : falhou("elementos grudados na impressão", impressao.grudados.join(", "));
-/rgb\(255,\s*255,\s*255\)/.test(impressao.fundo) ? ok(`paleta invertida (fundo ${impressao.fundo})`) : falhou(`fundo de impressão não é branco: ${impressao.fundo}`);
-impressao.rodapeVisivel ? ok("rodapé .print-only visível (URL e validade)") : falhou("rodapé .print-only não aparece na impressão");
+checar(impressao.emBranco.length === 0, "nenhuma seção sai em branco", "seções invisíveis na impressão", impressao.emBranco.join(", "));
+checar(impressao.grudados.length === 0, "nada fixed/sticky", "elementos grudados na impressão", impressao.grudados.join(", "));
+checar(impressao.cortados === 0, "recorte das palavras liberado no papel", `${impressao.cortados} título(s) ainda com recorte`);
+checar(/rgb\(255,\s*255,\s*255\)/.test(impressao.fundo), `paleta invertida (fundo ${impressao.fundo})`, `fundo de impressão não é branco: ${impressao.fundo}`);
+checar(impressao.rodapeVisivel, "rodapé .print-only visível (URL e validade)", "rodapé .print-only não aparece na impressão");
 
-// os <details> são abertos pelo listener beforeprint
 await pgP.emulateMedia({ media: "screen" });
 await pgP.evaluate(() => window.dispatchEvent(new Event("beforeprint")));
 await pgP.emulateMedia({ media: "print" });
 const abertos = await pgP.evaluate(() => document.querySelectorAll("details[open]").length);
-abertos === impressao.detalhes
-  ? ok(`todos os ${abertos} blocos expansíveis abertos para o PDF`)
-  : falhou(`só ${abertos} de ${impressao.detalhes} blocos abertos`);
+checar(abertos === impressao.detalhes, `todos os ${abertos} blocos expansíveis abertos para o PDF`, `só ${abertos} de ${impressao.detalhes} blocos abertos`);
 
 await pgP.pdf({ path: `${SAIDA}/proposta.pdf`, format: "A4", printBackground: false });
-ok("PDF gerado em .playwright/proposta.pdf");
+console.log("  ok    PDF gerado em .playwright/proposta.pdf");
 await ctxP.close();
 
 /* ───────────── 4. foco de teclado ───────────── */
@@ -202,9 +225,12 @@ const foco = await pgK.evaluate(() => {
   const s = getComputedStyle(e);
   return { elemento: e.tagName.toLowerCase(), outline: s.outlineWidth, cor: s.outlineColor, estilo: s.outlineStyle };
 });
-foco && foco.estilo !== "none" && parseFloat(foco.outline) > 0
-  ? ok(`foco visível em <${foco.elemento}> (${foco.outline} ${foco.cor})`)
-  : falhou("foco de teclado sem contorno visível", JSON.stringify(foco));
+checar(
+  !!foco && foco.estilo !== "none" && parseFloat(foco.outline) > 0,
+  foco ? `foco visível em <${foco.elemento}> (${foco.outline} ${foco.cor})` : "foco visível",
+  "foco de teclado sem contorno visível",
+  JSON.stringify(foco),
+);
 await ctxK.close();
 
 await navegador.close();

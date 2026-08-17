@@ -88,19 +88,61 @@ export function Hero({
  * de encolher. Largura estática em wdth 100 — nenhuma interpolação de eixo.
  * Sem suporte a scroll-driven ou com reduced-motion, simplesmente não existe.
  */
-export function CabecalhoFixo({ empresa }: { empresa: string }) {
+export function CabecalhoFixo({
+  empresa,
+  logoCliente,
+}: {
+  empresa: string;
+  logoCliente?: string;
+}) {
   return (
     <div
       aria-hidden
-      className="cabecalho-fixo fixed inset-x-0 top-0 z-50 items-center justify-between gap-4 border-b border-linha bg-fundo/85 px-6 py-3 backdrop-blur-sm sm:px-8"
+      className="cabecalho-fixo fixed inset-x-0 top-0 z-50 h-[var(--altura-cabecalho)] items-center justify-between gap-4 border-b border-linha bg-fundo/85 px-6 backdrop-blur-sm sm:px-8"
     >
+      <LogoCliente empresa={empresa} url={logoCliente} />
+      <span className="text-xs uppercase tracking-[0.2em] text-salvia">SoftCode</span>
+    </div>
+  );
+}
+
+/**
+ * Slot do logo do cliente, sempre monocromático em osso.
+ *
+ * A cor não é customizável de propósito: logo colorido de terceiro brigaria com
+ * a paleta Mata e faria a proposta parecer um documento de duas marcas mal
+ * costuradas. A monocromia vem de `mask-image` — a forma do arquivo recorta uma
+ * área preenchida com --color-osso, então nenhum pixel da cor original passa.
+ *
+ * Sem logo, o nome da empresa em Archivo ocupa o mesmo lugar.
+ */
+function LogoCliente({ empresa, url }: { empresa: string; url?: string }) {
+  if (!url) {
+    return (
       <span
         className="tipo-display text-sm uppercase tracking-[0.12em]"
         style={{ fontVariationSettings: '"wght" 700, "wdth" 100' }}
       >
         {empresa}
       </span>
-      <span className="text-xs uppercase tracking-[0.2em] text-salvia">SoftCode</span>
-    </div>
+    );
+  }
+
+  return (
+    <span
+      role="img"
+      aria-label={empresa}
+      className="block h-5 w-28 bg-osso"
+      style={{
+        maskImage: `url("${url}")`,
+        WebkitMaskImage: `url("${url}")`,
+        maskRepeat: "no-repeat",
+        WebkitMaskRepeat: "no-repeat",
+        maskPosition: "left center",
+        WebkitMaskPosition: "left center",
+        maskSize: "contain",
+        WebkitMaskSize: "contain",
+      }}
+    />
   );
 }

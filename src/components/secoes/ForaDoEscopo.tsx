@@ -8,7 +8,12 @@ import type { ForaDoEscopo as Dados } from "@/lib/proposta/schema";
  */
 export function ForaDoEscopo({ dados }: { dados: Dados }) {
   return (
-    <Secao id="fora-do-escopo" etiqueta="07" titulo={dados.titulo ?? "Fora do escopo"}>
+    <Secao
+      id="fora-do-escopo"
+      etiqueta="07"
+      titulo={dados.titulo ?? "Fora do escopo"}
+      ritmo="denso"
+    >
       <ul className="divide-y divide-linha border-y border-linha">
         {dados.itens.map((item, i) => (
           <li key={i} className="py-4 text-salvia">
