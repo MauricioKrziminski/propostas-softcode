@@ -1,5 +1,6 @@
 import { Secao } from "@/components/ui/Secao";
 import { ETAPAS } from "@/lib/proposta/processo";
+import { Revelar, ListaRevelada, ItemRevelado } from "@/components/motion/Revelar";
 import type { Processo as Dados } from "@/lib/proposta/schema";
 
 /**
@@ -28,12 +29,12 @@ export function Processo({ dados }: { dados: Dados }) {
       ritmo="respiro"
     >
       {dados.introducao && (
-        <p className="mb-16 max-w-3xl text-lg leading-relaxed text-neblina" data-reveal>
+        <Revelar como="p" className="mb-16 max-w-3xl text-lg leading-relaxed text-neblina">
           {dados.introducao}
-        </p>
+        </Revelar>
       )}
 
-      <ol className="relative">
+      <ListaRevelada como="ol" className="relative">
         {/* trilho + filete que se desenha ao longo de toda a seção */}
         <div
           aria-hidden
@@ -43,8 +44,9 @@ export function Processo({ dados }: { dados: Dados }) {
         </div>
 
         {ETAPAS.map((etapa) => (
-          <li
+          <ItemRevelado
             key={etapa.numero}
+            como="li"
             className="etapa-processo cartao-luz relative pb-14 pl-14 last:pb-0 sm:pl-20"
           >
             {/* luz conduzida pelo scroll: o driver que existe no celular */}
@@ -84,9 +86,9 @@ export function Processo({ dados }: { dados: Dados }) {
                 <dd className="mt-1.5 text-neblina">{etapa.suaParte}</dd>
               </div>
             </dl>
-          </li>
+          </ItemRevelado>
         ))}
-      </ol>
+      </ListaRevelada>
     </Secao>
   );
 }

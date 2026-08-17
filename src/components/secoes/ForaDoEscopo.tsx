@@ -1,4 +1,5 @@
 import { Secao } from "@/components/ui/Secao";
+import { Revelar, ListaRevelada, ItemRevelado } from "@/components/motion/Revelar";
 import type { ForaDoEscopo as Dados } from "@/lib/proposta/schema";
 
 /**
@@ -14,15 +15,19 @@ export function ForaDoEscopo({ dados }: { dados: Dados }) {
       titulo={dados.titulo ?? "Fora do escopo"}
       ritmo="denso"
     >
-      <ul className="divide-y divide-linha border-y border-linha">
+      <ListaRevelada como="ul" className="divide-y divide-linha border-y border-linha">
         {dados.itens.map((item, i) => (
-          <li key={i} className="py-4 text-neblina">
+          <ItemRevelado key={i} como="li" className="py-4 text-neblina">
             {item}
-          </li>
+          </ItemRevelado>
         ))}
-      </ul>
+      </ListaRevelada>
 
-      {dados.nota && <p className="mt-6 text-sm text-neblina">{dados.nota}</p>}
+      {dados.nota && (
+        <Revelar como="p" className="mt-6 text-sm text-neblina">
+          {dados.nota}
+        </Revelar>
+      )}
     </Secao>
   );
 }

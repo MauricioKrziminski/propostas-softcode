@@ -43,7 +43,7 @@ function checar(condicao, textoOk, textoFalha = textoOk, extra = "") {
  * isso testa que o botão do convite realmente funciona.
  */
 async function abrirProposta(pagina) {
-  const botao = pagina.getByRole("button", { name: /ver a proposta/i });
+  const botao = pagina.getByRole("button", { name: /abrir o convite/i });
   if (await botao.count()) {
     await botao.click();
     // O convite só sai de cena depois da própria animação de saída, então
@@ -146,13 +146,26 @@ const motor = await pg.evaluate(() => {
 checar(motor.guard, "guard do @supports satisfeito", "guard do @supports falhou — a página está no fallback estático");
 checar(motor.scroll > 0 && motor.view > 0, `scroll-driven ativo (${motor.scroll} ScrollTimeline, ${motor.view} ViewTimeline)`, "nenhuma animação scroll-driven instanciada", JSON.stringify(motor.tipos));
 
-/* título de seção sticky (quebra se algum ancestral criar contexto de rolagem) */
-const sticky = await pg.evaluate(() => {
-  const cabecalhos = [...document.querySelectorAll("[data-sticky]")];
-  const grudados = cabecalhos.filter((e) => getComputedStyle(e).position === "sticky");
-  return { total: cabecalhos.length, grudados: grudados.length };
-});
-checar(sticky.total > 0 && sticky.grudados === sticky.total, `${sticky.grudados} títulos de seção sticky ativos`, `só ${sticky.grudados} de ${sticky.total} títulos ficaram sticky`);
+/* Títulos de seção NÃO podem voltar a ser sticky: comiam a viewport do celular
+   e disputavam atenção com o conteúdo. */
+const grudados = await pg.evaluate(() =>
+  [...document.querySelectorAll("section header, [data-sticky]")]
+    .filter((e) => getComputedStyle(e).position === "sticky").length,
+);
+checar(grudados === 0, "nenhum título de seção sticky", `${grudados} título(s) voltaram a ser sticky`);
+
+/* A corda entre seções é quem separa — sem linha e sem SVG de onda. */
+const cordas = await pg.evaluate(() => ({
+  total: document.querySelectorAll(".corda").length,
+  animando: [...document.querySelectorAll(".corda")].filter((e) => e.getAnimations().length > 0).length,
+}));
+checar(cordas.total > 0 && cordas.animando === cordas.total, `${cordas.total} cordas entre seções, todas animando`, `${cordas.animando} de ${cordas.total} cordas animando`);
+
+/* Os reveals por mola do motion precisam existir de fato. */
+const molas = await pg.evaluate(
+  () => document.getAnimations().filter((a) => !a.timeline || a.timeline.constructor.name === "DocumentTimeline").length,
+);
+checar(molas > 0, `${molas} animações por tempo (motion) ativas`, "nenhuma animação por tempo — os reveals do motion não dispararam");
 
 await pg.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
 await pg.waitForTimeout(800);
@@ -253,7 +266,8 @@ await pgK.keyboard.press("Tab");
 await pgK.keyboard.press("Tab");
 const foco = await pgK.evaluate(() => {
   const e = document.activeElement;
-  if (!e || e === document.body) return null;
+  // nextjs-portal é o overlay de desenvolvimento, não faz parte da página
+  if (!e || e === document.body || e.tagName.toLowerCase() === "nextjs-portal") return null;
   const s = getComputedStyle(e);
   return { elemento: e.tagName.toLowerCase(), outline: s.outlineWidth, cor: s.outlineColor, estilo: s.outlineStyle };
 });

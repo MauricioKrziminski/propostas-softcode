@@ -166,6 +166,22 @@ export const foraDoEscopoSchema = z.strictObject({
     .describe("Ex.: pode ser orçado à parte quando fizer sentido"),
 });
 
+export const responsabilidadesSchema = z.strictObject({
+  titulo: textoCurto.optional().describe("Título da seção"),
+  introducao: textoMedio.optional().describe("Frase de abertura"),
+  itens: z
+    .array(
+      z.strictObject({
+        item: textoCurto.describe("O que o cliente precisa fornecer"),
+        detalhe: textoMedio.optional().describe("Explicação, se necessário"),
+      }),
+    )
+    .min(1)
+    .max(12)
+    .describe("O que depende do cliente para o projeto andar"),
+  nota: textoMedio.optional().describe("Ressalva sobre prazos e dependências"),
+});
+
 export const sobreSchema = z.strictObject({
   titulo: textoCurto.optional().describe("Título da seção"),
   texto: textoLongo.describe("Sobre a SoftCode"),
@@ -202,6 +218,7 @@ export const CHAVES_SECAO = [
   "cronograma",
   "investimento",
   "foraDoEscopo",
+  "responsabilidades",
   "sobre",
   "aceite",
 ] as const;
@@ -221,6 +238,7 @@ export const conteudoSchema = z.strictObject({
   cronograma: cronogramaSchema.optional(),
   investimento: investimentoSchema.optional(),
   foraDoEscopo: foraDoEscopoSchema.optional(),
+  responsabilidades: responsabilidadesSchema.optional(),
   sobre: sobreSchema.optional(),
   aceite: aceiteSchema.optional(),
 });
@@ -287,6 +305,7 @@ export type Cronograma = z.infer<typeof cronogramaSchema>;
 export type Investimento = z.infer<typeof investimentoSchema>;
 export type OpcaoInvestimento = z.infer<typeof opcaoInvestimentoSchema>;
 export type ForaDoEscopo = z.infer<typeof foraDoEscopoSchema>;
+export type Responsabilidades = z.infer<typeof responsabilidadesSchema>;
 export type Sobre = z.infer<typeof sobreSchema>;
 export type Aceite = z.infer<typeof aceiteSchema>;
 

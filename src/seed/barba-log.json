@@ -2,102 +2,102 @@
   "slug": "barba-log",
   "token": "7fk2m9x4qd",
   "cliente": {
-    "nome": "Ricardo Barbosa",
+    "nome": "Barba Log",
     "empresa": "Barba Log",
-    "email": "ricardo@barbalog.com.br"
+    "email": "contato@barbalog.com.br"
   },
-  "tituloProjeto": "Portal de fretes e acompanhamento de cargas",
+  "tituloProjeto": "Site institucional da Barba Log",
   "status": "enviada",
   "emitidaEm": "2026-08-17",
   "validaAte": "2026-09-16",
   "conteudo": {
     "entendimento": {
+      "titulo": "O que entendemos",
       "paragrafos": [
-        "A Barba Log opera hoje com 34 caminhões e uma média de 180 fretes por mês, e todo esse volume é controlado em uma planilha compartilhada que quatro pessoas editam ao mesmo tempo. O acompanhamento de cada carga acontece no WhatsApp, em conversas separadas com cada motorista.",
-        "O custo disso não é a planilha em si — é o retrabalho. Quando um cliente liga perguntando onde está a carga, alguém precisa procurar a conversa certa, perguntar ao motorista e retornar a ligação. São de dez a quinze minutos por consulta, várias vezes ao dia, feitas pela mesma pessoa que deveria estar fechando frete novo.",
-        "O segundo custo é a falta de histórico. Sem registro estruturado, não dá para responder quanto custou de fato atender um determinado cliente no último trimestre, nem quais rotas dão prejuízo. As decisões de preço são tomadas por intuição, e a intuição erra justamente nos contratos grandes."
+        "A Barba Log é uma consultoria em logística com know-how técnico real — diagnóstico, projetos de centro de distribuição, WMS, supply chain, transportes e treinamento corporativo. O que falta não é competência: é um lugar onde quem nunca ouviu falar de vocês entenda, em menos de um minuto, o que vocês fazem, para quem e por que são a escolha certa.",
+        "Hoje cada contato novo depende de explicação individual. Sem um site que apresente a consultoria com clareza, todo lead começa do zero e consome tempo de quem deveria estar entregando projeto.",
+        "O segundo ponto é a captação. Vocês têm conteúdo técnico que o mercado procura — e conteúdo técnico bem posicionado é o que faz um cliente de médio porte chegar já sabendo que quer conversar."
       ],
       "citacaoCliente": {
-        "texto": "Eu não preciso de um sistema bonito. Eu preciso parar de descobrir que perdi dinheiro numa rota três meses depois de ter perdido.",
-        "autor": "Ricardo Barbosa, na reunião de briefing"
+        "texto": "Quero que qualquer pessoa que entre no site entenda rapidamente o que a Barba Log faz, para quem e por que é a escolha certa.",
+        "autor": "Barba Log, no briefing"
       }
     },
     "solucao": {
-      "resumo": "Um portal onde cada frete tem um registro único, do orçamento à entrega, e onde o cliente da Barba Log consegue acompanhar a própria carga sozinho — sem ligar para ninguém. Toda informação que hoje mora em conversa de WhatsApp passa a ficar no lugar onde ela pode ser somada, comparada e cobrada.",
+      "titulo": "O que vamos fazer",
+      "resumo": "Criar o site da Barba Log do zero — moderno, claro e pensado para atrair clientes. Além de apresentar a consultoria, o site vai ter ferramentas para capturar o contato de quem tiver interesse: formulários inteligentes, materiais para download e botão de WhatsApp sempre visível.",
       "pilares": [
         {
-          "titulo": "Um registro por frete",
-          "descricao": "Origem, destino, motorista, custos e prazos no mesmo lugar, desde o orçamento. Fim da planilha compartilhada e das quatro versões da verdade."
+          "titulo": "Clareza em menos de um minuto",
+          "descricao": "Home que responde o que a Barba Log faz, para quem e qual problema resolve, antes de qualquer rolagem."
         },
         {
-          "titulo": "Acompanhamento pelo próprio cliente",
-          "descricao": "Cada carga ganha um link de acompanhamento. O cliente da Barba Log vê o status atualizado sem precisar telefonar, e a sua equipe para de ser central de atendimento."
+          "titulo": "Captação de leads embutida",
+          "descricao": "Formulário na home, página de diagnóstico com formulário próprio, materiais gratuitos e WhatsApp fixo em todas as páginas."
         },
         {
-          "titulo": "Atualização pelo motorista, no celular",
-          "descricao": "Tela simples, feita para ser usada com uma mão na estrada: confirmar coleta, registrar ocorrência, anexar foto do canhoto. Sem app para instalar."
+          "titulo": "Autoridade técnica",
+          "descricao": "Cases com contexto e resultado, e um blog preparado para atrair tráfego orgânico sem depender de anúncio."
         },
         {
-          "titulo": "Números que sustentam preço",
-          "descricao": "Custo real por rota, por cliente e por período. É o relatório que permite recusar um contrato ruim antes de assiná-lo, não depois."
+          "titulo": "Encontrável no Google",
+          "descricao": "Estrutura indexável, título e descrição pensados por página, e blog preparado para busca desde o primeiro dia."
         }
       ]
     },
     "escopo": {
-      "introducao": "O projeto está dividido em quatro módulos. Eles são construídos nesta ordem, e cada um vai para o ar assim que fica pronto — você não espera o projeto inteiro para começar a usar.",
+      "titulo": "O que o site vai ter",
+      "introducao": "Oito páginas, os seis serviços em destaque na home e quatro mecanismos de captação. Abra cada bloco para ver o detalhe.",
       "modulos": [
         {
-          "titulo": "Módulo 1 — Cadastro e gestão de fretes",
-          "resumo": "O coração do sistema: onde o frete nasce e passa a existir como registro único.",
+          "titulo": "Páginas do site",
+          "resumo": "As oito páginas que compõem o site institucional.",
           "itens": [
-            "Cadastro de clientes, motoristas, veículos e rotas frequentes",
-            "Criação de frete com origem, destino, tipo de carga, valor e prazo",
-            "Estados do frete: orçado, confirmado, em coleta, em trânsito, entregue, cancelado",
-            "Registro de custos por frete: combustível, pedágio, diária, ajudante",
-            "Anexos: nota fiscal, canhoto assinado, foto de ocorrência",
-            "Busca por cliente, período, motorista, placa ou número do frete",
-            "Importação da planilha atual, para o histórico não começar do zero"
+            "Home — apresentação clara da Barba Log, serviços em destaque e botões de contato",
+            "Sobre — história, diferenciais e quem está por trás do negócio",
+            "Serviços — detalhamento de cada área de atuação da consultoria",
+            "Cases — projetos realizados, com contexto e resultados alcançados",
+            "Blog — artigos e conteúdo técnico, que também ajudam o site a aparecer no Google",
+            "Materiais gratuitos — página de download em troca do contato do visitante",
+            "Diagnóstico logístico — página dedicada, com formulário próprio e mais detalhado",
+            "Contato — formulário, dados da empresa e link direto para o WhatsApp"
           ],
-          "entregaveis": [
-            "Módulo no ar em homologação",
-            "Planilha atual importada e conferida"
+          "entregaveis": ["As oito páginas no ar", "Estrutura pronta para novos textos"]
+        },
+        {
+          "titulo": "Serviços em destaque na home",
+          "resumo": "Os seis serviços da Barba Log, em cards na página inicial.",
+          "itens": [
+            "Diagnóstico logístico — produtividade, layout, fluxo, capacidade e custos",
+            "Projetos de centro de distribuição — greenfield, expansão, redesenho, slotting e capacidade",
+            "WMS e tecnologia — seleção, implantação, parametrização e aderência",
+            "Supply chain e planejamento — estoques, S&OP, abastecimento e PCP",
+            "Transportes — malha, roteirização, BID e frota própria vs terceirizada",
+            "Treinamentos corporativos — gestão de estoques, indicadores, inventário e operações"
           ]
         },
         {
-          "titulo": "Módulo 2 — Acompanhamento para o cliente final",
-          "resumo": "O link que faz o telefone parar de tocar.",
+          "titulo": "Como o site vai capturar contatos",
+          "resumo": "Quatro caminhos para o visitante virar conversa.",
           "itens": [
-            "Página pública de acompanhamento por carga, com link não sequencial",
-            "Linha do tempo do frete com data e hora de cada mudança de status",
-            "Previsão de entrega e aviso automático quando o prazo muda",
-            "Envio do link por WhatsApp e por e-mail no momento da confirmação",
-            "Identidade visual da Barba Log na página vista pelo cliente"
+            "Formulário na home — o visitante preenche e a equipe da Barba Log recebe um aviso por e-mail",
+            "Página de diagnóstico — quem quer uma análise preenche um formulário com mais detalhes",
+            "Materiais gratuitos — para baixar, o visitante deixa nome e e-mail",
+            "Botão de WhatsApp fixo — aparece em todas as páginas, sempre visível"
           ],
-          "entregaveis": ["Módulo no ar", "Modelo de mensagem pronto para envio"]
+          "entregaveis": ["Formulários enviando por e-mail", "Mecânica de download do material pronta"]
         },
         {
-          "titulo": "Módulo 3 — Aplicativo do motorista",
-          "resumo": "Feito para ser usado com uma mão, em tela de celular, com internet ruim.",
+          "titulo": "Cuidados técnicos incluídos",
+          "resumo": "SEO, responsividade, integrações e segurança — tudo já dentro do valor.",
           "itens": [
-            "Acesso por link e código, sem instalação e sem loja de aplicativos",
-            "Lista dos fretes atribuídos ao motorista no dia",
-            "Confirmação de coleta e de entrega com um toque",
-            "Registro de ocorrência com foto e observação em texto",
-            "Funcionamento com conexão instável: a ação é registrada e sincroniza depois"
+            "Estrutura indexável, com título e meta descrição pensados por página",
+            "Adaptação automática a celular, tablet e computador, validada à mão em iPhone e Android",
+            "Google Analytics e Search Console configurados",
+            "Meta Pixel para campanhas no Instagram e Facebook",
+            "SSL (cadeado), aviso de cookies e política de privacidade"
           ],
-          "entregaveis": ["Módulo no ar", "Treinamento gravado para os motoristas"]
-        },
-        {
-          "titulo": "Módulo 4 — Relatórios e fechamento",
-          "resumo": "Onde a operação vira número que sustenta decisão de preço.",
-          "itens": [
-            "Margem por frete, por rota e por cliente no período",
-            "Fretes em aberto, atrasados e entregues no mês",
-            "Custo médio por quilômetro rodado e por tipo de carga",
-            "Exportação para Excel e para o contador",
-            "Fechamento mensal por cliente, pronto para faturamento"
-          ],
-          "entregaveis": ["Módulo no ar", "Primeiro fechamento mensal acompanhado"]
+          "entregaveis": ["Analytics e Search Console ativos", "Site com SSL e LGPD em dia"]
         }
       ]
     },
@@ -106,132 +106,153 @@
       "mostrar": true
     },
     "cronograma": {
+      "titulo": "Cronograma",
       "fases": [
         {
+          "nome": "Briefing e coleta de material",
+          "duracao": "1 semana",
+          "semanas": 1,
+          "descricao": "Reunião de alinhamento e recebimento de logo, imagens, cases e conteúdos."
+        },
+        {
           "nome": "Planejamento e wireframe",
-          "duracao": "2 semanas",
-          "semanas": 2,
-          "descricao": "Mapa de telas, fluxo do frete e wireframes navegáveis aprovados."
+          "duracao": "1 semana",
+          "semanas": 1,
+          "descricao": "Mapa das oito páginas e wireframes navegáveis, aprovados antes de qualquer pixel."
         },
         {
           "nome": "Design visual",
           "duracao": "2 semanas",
           "semanas": 2,
-          "descricao": "Telas em alta fidelidade para desktop, celular do motorista e página do cliente."
+          "descricao": "Telas em alta fidelidade para desktop e celular, com duas rodadas de ajuste."
         },
         {
-          "nome": "Módulos 1 e 2",
-          "duracao": "4 semanas",
-          "semanas": 4,
-          "descricao": "Gestão de fretes e acompanhamento do cliente no ar em homologação."
-        },
-        {
-          "nome": "Módulos 3 e 4",
+          "nome": "Desenvolvimento",
           "duracao": "3 semanas",
           "semanas": 3,
-          "descricao": "Aplicativo do motorista e relatórios de fechamento."
+          "descricao": "Construção das páginas, formulários, blog e integrações, com ambiente de teste no ar."
         },
         {
-          "nome": "Testes, ajustes e publicação",
+          "nome": "Testes e publicação",
           "duracao": "1 semana",
           "semanas": 1,
-          "descricao": "Importação definitiva dos dados, treinamento da equipe e virada de chave."
+          "descricao": "Validação em iPhone e Android, revisão de conteúdo e virada de chave."
         }
       ],
-      "observacao": "O cronograma considera retorno das revisões em até três dias úteis. Prazo maior de retorno desloca a entrega no mesmo tanto."
+      "observacao": "O cronograma considera o retorno das revisões e o envio dos materiais em tempo hábil. Atraso no material desloca a entrega no mesmo tanto."
     },
     "investimento": {
-      "introducao": "Três formatos do mesmo projeto. A diferença entre eles não é qualidade — é quanto entra agora e quanto fica para depois.",
+      "titulo": "Investimento",
+      "introducao": "Três formatos do mesmo site. A diferença entre eles não é qualidade — é quanto de animação entra e como a relação continua depois da entrega.",
       "opcoes": [
         {
-          "id": "essencial",
-          "nome": "Essencial",
-          "resumo": "Para tirar a operação da planilha o quanto antes, e avaliar o resto depois.",
-          "valorCentavos": 3800000,
-          "formaPagamento": "40% na assinatura e 60% na entrega",
-          "prazo": "6 semanas",
+          "id": "sem-animacoes",
+          "nome": "Sem animações",
+          "resumo": "Layout limpo e carregamento mais rápido, sem efeitos ao rolar.",
+          "valorCentavos": 160000,
+          "formaPagamento": "25% de entrada na aprovação e 75% na entrega",
+          "prazo": "8 semanas",
           "itens": [
-            "Módulo 1 — Cadastro e gestão de fretes",
-            "Módulo 2 — Acompanhamento para o cliente final",
-            "Importação da planilha atual",
-            "Treinamento da equipe do escritório",
-            "30 dias de suporte após a publicação"
+            "As oito páginas do site",
+            "Os seis serviços em destaque na home",
+            "Formulários, materiais gratuitos e WhatsApp fixo",
+            "SEO técnico, Analytics, Search Console e Meta Pixel",
+            "SSL, aviso de cookies e política de privacidade",
+            "2 meses de suporte após a entrega"
           ],
           "destaque": false
         },
         {
-          "id": "completo",
-          "nome": "Completo",
-          "resumo": "O projeto inteiro, incluindo o celular do motorista e os relatórios de margem.",
-          "valorCentavos": 6200000,
-          "formaPagamento": "30% na assinatura, 40% na entrega dos módulos 1 e 2, 30% na publicação",
-          "prazo": "12 semanas",
+          "id": "com-animacoes",
+          "nome": "Com animações",
+          "resumo": "O mesmo site, com animações em textos e componentes — efeitos ao rolar e transições suaves.",
+          "valorCentavos": 180000,
+          "formaPagamento": "25% de entrada na aprovação e 75% na entrega",
+          "prazo": "8 semanas",
           "itens": [
-            "Tudo do Essencial",
-            "Módulo 3 — Aplicativo do motorista",
-            "Módulo 4 — Relatórios e fechamento",
-            "Treinamento gravado para os motoristas",
-            "Primeiro fechamento mensal acompanhado por nós",
-            "30 dias de suporte após a publicação"
+            "Tudo do formato sem animações",
+            "Animações em textos e componentes",
+            "Efeitos ao rolar a página e transições suaves",
+            "2 meses de suporte após a entrega"
           ],
           "destaque": true
         },
         {
-          "id": "completo-suporte",
-          "nome": "Completo + suporte",
-          "resumo": "O projeto inteiro mais um ano de acompanhamento, para quem não tem equipe de TI interna.",
-          "valorCentavos": 7800000,
-          "formaPagamento": "30% na assinatura, 40% na entrega dos módulos 1 e 2, 30% na publicação",
-          "prazo": "12 semanas + 12 meses de acompanhamento",
+          "id": "parceria",
+          "nome": "Parceria SoftCode",
+          "resumo": "10% de desconto no valor, e a relação continua depois da entrega.",
+          "valorCentavos": 162000,
+          "formaPagamento": "25% de entrada na aprovação e 75% na entrega",
+          "prazo": "8 semanas",
           "itens": [
-            "Tudo do Completo",
-            "12 meses de suporte com retorno em até 1 dia útil",
-            "Correções e pequenos ajustes inclusos no período",
-            "Hospedagem e monitoramento por nossa conta",
-            "Uma reunião trimestral de evolução do sistema"
+            "Tudo do formato com animações, com 10% de desconto",
+            "A Barba Log recebe 5% de cada projeto indicado que fechar",
+            "Quem for indicado pela Barba Log ganha 5% de desconto",
+            "2 meses de suporte após a entrega"
           ],
           "destaque": false
         }
       ],
       "observacoes": [
         "Valores válidos até a data de validade desta proposta.",
-        "Hospedagem e domínio no Essencial e no Completo ficam por conta da Barba Log, com custo estimado de R$ 120 por mês.",
-        "Emitimos nota fiscal de serviço. Parcelamento em boleto ou transferência."
+        "Em caso de cancelamento após o início, a entrada não é reembolsada e não há cobranças adicionais.",
+        "Hospedagem e domínio ficam por conta da Barba Log — podemos indicar opções."
       ]
     },
     "foraDoEscopo": {
+      "titulo": "Fora do escopo",
       "itens": [
-        "Integração com rastreadores veiculares de terceiros",
-        "Emissão de CT-e, MDF-e ou qualquer documento fiscal de transporte",
-        "Integração com o sistema contábil atual",
-        "Aplicativo nativo publicado na App Store ou Google Play",
-        "Roteirização automática e cálculo de melhor rota",
-        "Migração de dados anteriores a 2025"
+        "Painel administrativo ou CMS para edição de conteúdo",
+        "Backup automático",
+        "Produção dos textos das páginas (copywriting)",
+        "Produção de fotos ou criação de identidade visual",
+        "Hospedagem e domínio",
+        "Gestão de campanhas de anúncio"
       ],
-      "nota": "Nada disso é impossível — só não está incluído nos valores acima. Qualquer um destes itens pode ser orçado à parte quando fizer sentido para a operação."
+      "nota": "Nada disso é impossível — só não está incluído nos valores acima. Qualquer um destes itens pode ser orçado à parte quando fizer sentido."
+    },
+    "responsabilidades": {
+      "titulo": "O que precisamos de você",
+      "introducao": "O projeto anda no ritmo em que esses itens chegam. Quanto antes, melhor — e nada disso precisa estar pronto na assinatura.",
+      "itens": [
+        {
+          "item": "Logotipo em boa qualidade",
+          "detalhe": "De preferência em vetor (SVG, AI ou PDF)."
+        },
+        {
+          "item": "Imagens",
+          "detalhe": "Fotos da equipe, do escritório ou imagens institucionais."
+        },
+        {
+          "item": "Conteúdo dos cases reais",
+          "detalhe": "Descrições, números e imagens dos projetos já realizados."
+        },
+        {
+          "item": "Conteúdo da metodologia",
+          "detalhe": "É o que vira o infográfico visual da página de serviços."
+        },
+        {
+          "item": "Conteúdo do material gratuito",
+          "detalhe": "O checklist ou PDF técnico. Pode subir junto com o site ou depois, sem custo adicional."
+        },
+        {
+          "item": "Textos das páginas",
+          "detalhe": "Estruturamos e revisamos, mas o conteúdo técnico vem de vocês."
+        },
+        {
+          "item": "Hospedagem e domínio",
+          "detalhe": "Podemos indicar opções e configurar tudo."
+        }
+      ],
+      "nota": "O material gratuito é o único item que pode ficar para depois sem travar o lançamento: a página pode subir em \"em breve\" e o arquivo ser ativado quando estiver pronto."
     },
     "sobre": {
-      "texto": "A SoftCode é uma software house brasileira que constrói sistemas sob medida para empresas de médio porte. Trabalhamos com times pequenos e contato direto: você fala com quem escreve o código, não com um intermediário. Nossa especialidade é justamente o caso da Barba Log — operações que cresceram além do que a planilha aguenta, mas que não cabem num sistema de prateleira.",
-      "cases": [
-        {
-          "cliente": "Distribuidora Vale Norte",
-          "segmento": "Distribuição de alimentos",
-          "resultado": "Portal de pedidos para 240 clientes ativos. O tempo de fechamento de pedido caiu de 22 para 4 minutos, e a equipe comercial passou a atender o dobro de contas sem contratação."
-        },
-        {
-          "cliente": "Metalúrgica Pilar",
-          "segmento": "Indústria metalúrgica",
-          "resultado": "Controle de ordens de produção em chão de fábrica. A perda por retrabalho caiu 31% no primeiro semestre, com o apontamento feito por tablet na própria célula."
-        },
-        {
-          "cliente": "Clínica Sanare",
-          "segmento": "Saúde",
-          "resultado": "Agendamento on-line integrado ao prontuário. As faltas em consulta caíram de 18% para 7% depois da confirmação automática por WhatsApp."
-        }
-      ]
+      "titulo": "Sobre a SoftCode",
+      "texto": "A SoftCode é uma software house brasileira que constrói sites e sistemas sob medida para empresas de médio porte. Trabalhamos com times pequenos e contato direto: você fala com quem escreve o código, não com um intermediário."
     },
     "aceite": {
-      "texto": "Se fizer sentido, escolha a opção que se encaixa e confirme abaixo. A partir daí eu preparo o contrato e marcamos o início do planejamento.",
+      "titulo": "Aceite",
+      "texto": "Se fizer sentido, escolha o formato que se encaixa e confirme abaixo. A partir daí preparamos o contrato e marcamos o início do planejamento.",
       "mostrarPdf": true
     }
   }

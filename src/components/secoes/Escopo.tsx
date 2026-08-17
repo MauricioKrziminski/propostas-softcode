@@ -1,5 +1,6 @@
 import { Secao } from "@/components/ui/Secao";
 import { BlocoExpansivel } from "@/components/ui/BlocoExpansivel";
+import { Revelar, ListaRevelada, ItemRevelado } from "@/components/motion/Revelar";
 import type { Escopo as Dados } from "@/lib/proposta/schema";
 
 /**
@@ -15,19 +16,18 @@ export function Escopo({ dados }: { dados: Dados }) {
       ritmo="denso"
     >
       {dados.introducao && (
-        <p className="mb-10 text-lg leading-relaxed text-neblina" data-reveal>
+        <Revelar como="p" className="mb-10 text-lg leading-relaxed text-neblina">
           {dados.introducao}
-        </p>
+        </Revelar>
       )}
 
       {/* Stagger na entrada dos módulos; a abertura em si tem transição real
           de altura (globals.css, via ::details-content + interpolate-size). */}
-      <div className="border-t border-linha" data-stagger>
+      <ListaRevelada className="border-t border-linha">
         {dados.modulos.map((modulo, i) => (
+          <ItemRevelado key={modulo.titulo}>
           <BlocoExpansivel
-            key={modulo.titulo}
             indice={i + 1}
-            ordem={i}
             titulo={modulo.titulo}
             resumo={modulo.resumo}
           >
@@ -53,8 +53,9 @@ export function Escopo({ dados }: { dados: Dados }) {
               </div>
             )}
           </BlocoExpansivel>
+          </ItemRevelado>
         ))}
-      </div>
+      </ListaRevelada>
     </Secao>
   );
 }

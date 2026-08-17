@@ -1,15 +1,16 @@
 /**
  * Dados de contato da SoftCode.
  *
- * ⚠️ PENDÊNCIA (itens 9 e 5 dos riscos do plano): os valores abaixo são
- * provisórios. Precisam ser confirmados antes da primeira proposta enviada de
- * verdade — o e-mail de LGPD aparece no rodapé de toda proposta, e o WhatsApp é
- * o canal do CTA de proposta expirada.
+ * O e-mail veio do documento de handoff da Barba Log, onde consta como contato
+ * oficial da SoftCode.
+ *
+ * ⚠️ PENDÊNCIA: o WhatsApp ainda é placeholder. Ele é o canal do CTA de proposta
+ * expirada — precisa do número real antes do primeiro envio.
  */
 export const CONTATO = {
-  email: "contato@softcodedev.com.br",
+  email: "softcodedv@gmail.com",
   /** E-mail para pedidos de acesso/exclusão de dados (LGPD). */
-  emailDados: "contato@softcodedev.com.br",
+  emailDados: "softcodedv@gmail.com",
   /** Formato internacional, só dígitos — usado no link wa.me. */
   whatsapp: "5500000000000",
   site: "https://softcodedev.com.br",

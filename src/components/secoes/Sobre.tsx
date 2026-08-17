@@ -1,4 +1,5 @@
 import { Secao } from "@/components/ui/Secao";
+import { Revelar, ListaRevelada, ItemRevelado } from "@/components/motion/Revelar";
 import type { Sobre as Dados } from "@/lib/proposta/schema";
 
 export function Sobre({ dados }: { dados: Dados }) {
@@ -8,16 +9,16 @@ export function Sobre({ dados }: { dados: Dados }) {
       etiqueta="08"
       titulo={dados.titulo ?? "Sobre a SoftCode"}
     >
-      <p className="text-lg leading-relaxed text-neblina" data-reveal>
+      <Revelar como="p" className="text-lg leading-relaxed text-neblina">
         {dados.texto}
-      </p>
+      </Revelar>
 
       {dados.cases && dados.cases.length > 0 && (
-        <div className="mt-12 space-y-px" data-stagger>
-          {dados.cases.map((caso, i) => (
-            <article
+        <ListaRevelada className="mt-12 space-y-px">
+          {dados.cases.map((caso) => (
+            <ItemRevelado
               key={caso.cliente}
-              style={{ ["--i" as string]: i }}
+              como="article"
               className="case-item cartao-luz border border-linha p-6"
             >
               <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
@@ -38,9 +39,9 @@ export function Sobre({ dados }: { dados: Dados }) {
                   Ver o case
                 </a>
               )}
-            </article>
+            </ItemRevelado>
           ))}
-        </div>
+        </ListaRevelada>
       )}
     </Secao>
   );

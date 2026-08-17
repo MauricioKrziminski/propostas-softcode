@@ -1,5 +1,6 @@
 import { Secao } from "@/components/ui/Secao";
 import { Contador } from "@/components/motion/Contador";
+import { Revelar, ListaRevelada, ItemRevelado } from "@/components/motion/Revelar";
 import type { Investimento as Dados } from "@/lib/proposta/schema";
 
 /**
@@ -42,16 +43,16 @@ export function Investimento({ dados }: { dados: Dados }) {
       ritmo="denso"
     >
       {dados.introducao && (
-        <p className="mb-12 max-w-3xl text-lg leading-relaxed text-neblina" data-reveal>
+        <Revelar como="p" className="mb-12 max-w-3xl text-lg leading-relaxed text-neblina">
           {dados.introducao}
-        </p>
+        </Revelar>
       )}
 
-      <div className={`grid items-start gap-6 ${colunas}`} data-stagger>
-        {dados.opcoes.map((opcao, i) => (
-          <article
+      <ListaRevelada className={`grid items-start gap-6 ${colunas}`}>
+        {dados.opcoes.map((opcao) => (
+          <ItemRevelado
             key={opcao.id}
-            style={{ ["--i" as string]: i }}
+            como="article"
             className={`cartao-investimento cartao-luz relative flex flex-col p-6 sm:p-8 ${
               opcao.destaque
                 ? "bg-superficie sm:-mt-4 sm:pb-12 sm:pt-10"
@@ -103,12 +104,12 @@ export function Investimento({ dados }: { dados: Dados }) {
                 </li>
               ))}
             </ul>
-          </article>
+          </ItemRevelado>
         ))}
-      </div>
+      </ListaRevelada>
 
       {dados.observacoes && dados.observacoes.length > 0 && (
-        <ul className="mt-10 space-y-2 text-sm text-neblina" data-reveal>
+        <ul className="mt-10 space-y-2 text-sm text-neblina">
           {dados.observacoes.map((o, i) => (
             <li key={i}>{o}</li>
           ))}

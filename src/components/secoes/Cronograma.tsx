@@ -1,4 +1,5 @@
 import { Secao } from "@/components/ui/Secao";
+import { Revelar, ListaRevelada, ItemRevelado } from "@/components/motion/Revelar";
 import type { Cronograma as Dados } from "@/lib/proposta/schema";
 
 /**
@@ -14,23 +15,22 @@ export function Cronograma({ dados }: { dados: Dados }) {
 
   return (
     <Secao id="cronograma" etiqueta="05" titulo={dados.titulo ?? "Cronograma"}>
-      <p className="mb-12 text-neblina" data-reveal>
+      <Revelar como="p" className="mb-12 text-neblina">
         <span className="numero text-osso">{total} semanas</span> no total, do
         planejamento à publicação.
-      </p>
+      </Revelar>
 
-      <ol className="relative pl-8 sm:pl-10">
+      <ListaRevelada como="ol" className="relative pl-8 sm:pl-10">
         {/* trilho + linha do tempo que se desenha */}
         <div aria-hidden className="absolute bottom-2 left-[3px] top-2 w-px bg-linha">
           <div className="linha-tempo h-full w-full bg-acento/60" />
         </div>
 
         {dados.fases.map((fase, i) => (
-          <li
+          <ItemRevelado
             key={fase.nome}
+            como="li"
             className="fase-cronograma relative pb-10 last:pb-0"
-            style={{ ["--i" as string]: i }}
-            data-reveal
           >
             <span
               aria-hidden
@@ -59,14 +59,14 @@ export function Cronograma({ dados }: { dados: Dados }) {
             {fase.descricao && (
               <p className="mt-3 text-sm text-neblina">{fase.descricao}</p>
             )}
-          </li>
+          </ItemRevelado>
         ))}
-      </ol>
+      </ListaRevelada>
 
       {dados.observacao && (
-        <p className="mt-10 border-t border-linha pt-6 text-sm text-neblina" data-reveal>
+        <Revelar como="p" className="mt-10 border-t border-linha pt-6 text-sm text-neblina">
           {dados.observacao}
-        </p>
+        </Revelar>
       )}
     </Secao>
   );

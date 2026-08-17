@@ -1,4 +1,5 @@
 import { Secao } from "@/components/ui/Secao";
+import { Revelar, ListaRevelada, ItemRevelado } from "@/components/motion/Revelar";
 import type { Entendimento as Dados } from "@/lib/proposta/schema";
 
 /**
@@ -15,25 +16,22 @@ export function Entendimento({ dados }: { dados: Dados }) {
       titulo={dados.titulo ?? "O que entendemos"}
       ritmo="respiro"
     >
-      <div className="space-y-6" data-stagger>
+      <ListaRevelada className="space-y-6">
         {dados.paragrafos.map((p, i) => (
-          <p
-            key={i}
-            className="text-lg leading-relaxed text-neblina"
-            style={{ ["--i" as string]: i }}
-          >
-            {p}
-          </p>
+          <ItemRevelado key={i}>
+            <p className="text-lg leading-relaxed text-neblina">{p}</p>
+          </ItemRevelado>
         ))}
-      </div>
+      </ListaRevelada>
 
       {/* A citação é o coração da seção: entra em destaque, com a aspa em
           latão em escala grande servindo de âncora visual. */}
       {dados.citacaoCliente && (
-        <figure className="relative mt-16 sm:mt-20" data-reveal>
+        <Revelar direcao="escala" className="relative mt-16 sm:mt-20">
+          <figure>
           <span
             aria-hidden
-            className="aspas-grande tipo-display pointer-events-none absolute -left-1 -top-10 origin-bottom-left select-none text-[8rem] leading-none text-acento/25 sm:-left-6 sm:text-[12rem]"
+            className="tipo-display pointer-events-none absolute -left-1 -top-10 origin-bottom-left select-none text-[8rem] leading-none text-acento/25 sm:-left-6 sm:text-[12rem]"
           >
             &ldquo;
           </span>
@@ -47,7 +45,8 @@ export function Entendimento({ dados }: { dados: Dados }) {
               </figcaption>
             )}
           </blockquote>
-        </figure>
+          </figure>
+        </Revelar>
       )}
     </Secao>
   );

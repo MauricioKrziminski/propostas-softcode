@@ -1,13 +1,25 @@
+"use client";
+
+import { motion, useReducedMotion, type Variants } from "motion/react";
+
 /**
- * Título com reveal por recorte, não fade do bloco todo.
- *
- * Cada palavra ganha seu próprio `overflow: hidden` e sobe de dentro dele, com
- * o atraso vindo do índice — o texto se monta linha a linha em vez de aparecer
- * inteiro. Server Component: zero JS.
- *
- * Sem suporte a scroll-driven ou com reduced-motion, as palavras já estão na
- * posição final e o recorte não faz diferença nenhuma.
+ * Título que se monta palavra a palavra, cada uma subindo de dentro do próprio
+ * recorte com mola. Por TEMPO, não por scroll — ver o comentário em Revelar.tsx.
  */
+const CONTAINER: Variants = {
+  oculto: {},
+  visivel: { transition: { staggerChildren: 0.055 } },
+};
+
+const PALAVRA: Variants = {
+  oculto: { y: "110%", rotate: 4 },
+  visivel: {
+    y: "0%",
+    rotate: 0,
+    transition: { type: "spring", stiffness: 110, damping: 20 },
+  },
+};
+
 export function TituloRevelado({
   texto,
   className = "",
@@ -17,21 +29,31 @@ export function TituloRevelado({
   className?: string;
   como?: "h1" | "h2" | "h3";
 }) {
+  const menosMovimento = useReducedMotion();
   const palavras = texto.split(" ");
+
+  if (menosMovimento) {
+    return <Tag className={className}>{texto}</Tag>;
+  }
 
   return (
     <Tag className={className}>
-      {palavras.map((palavra, i) => (
-        <span key={i} className="palavra-clip">
-          <span
-            className="palavra-sobe"
-            style={{ ["--i" as string]: Math.min(i, 8) }}
-          >
-            {palavra}
+      <motion.span
+        className="inline"
+        variants={CONTAINER}
+        initial="oculto"
+        whileInView="visivel"
+        viewport={{ once: true, amount: 0.4 }}
+      >
+        {palavras.map((palavra, i) => (
+          <span key={i} className="palavra-clip">
+            <motion.span className="inline-block" variants={PALAVRA}>
+              {palavra}
+            </motion.span>
+            {i < palavras.length - 1 ? " " : null}
           </span>
-          {i < palavras.length - 1 ? " " : null}
-        </span>
-      ))}
+        ))}
+      </motion.span>
     </Tag>
   );
 }

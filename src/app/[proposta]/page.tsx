@@ -15,12 +15,13 @@ import { Processo } from "@/components/secoes/Processo";
 import { Cronograma } from "@/components/secoes/Cronograma";
 import { Investimento } from "@/components/secoes/Investimento";
 import { ForaDoEscopo } from "@/components/secoes/ForaDoEscopo";
+import { Responsabilidades } from "@/components/secoes/Responsabilidades";
 import { Sobre } from "@/components/secoes/Sobre";
 import { Aceite } from "@/components/secoes/Aceite";
 import { Expirada } from "@/components/secoes/Expirada";
 import { RodapeLegal } from "@/components/secoes/RodapeLegal";
 import { AberturaProposta } from "@/components/secoes/AberturaProposta";
-import { DivisorOnda } from "@/components/motion/DivisorOnda";
+import { Corda } from "@/components/motion/Corda";
 import { Textura } from "@/components/motion/Textura";
 
 /** JS de enfeite entra por dynamic import — não pesa no carregamento inicial. */
@@ -39,6 +40,7 @@ const ORDEM_CANONICA: ChaveSecao[] = [
   "cronograma",
   "investimento",
   "foraDoEscopo",
+  "responsabilidades",
   "sobre",
   "aceite",
 ];
@@ -95,6 +97,9 @@ export default async function PaginaProposta({ params }: Props) {
     foraDoEscopo: conteudo.foraDoEscopo && (
       <ForaDoEscopo dados={conteudo.foraDoEscopo} />
     ),
+    responsabilidades: conteudo.responsabilidades && (
+      <Responsabilidades dados={conteudo.responsabilidades} />
+    ),
     sobre: conteudo.sobre && <Sobre dados={conteudo.sobre} />,
     aceite: conteudo.aceite && conteudo.investimento && (
       <Aceite
@@ -130,12 +135,12 @@ export default async function PaginaProposta({ params }: Props) {
       <main>
         {blocos.map((bloco, i) => (
           <Fragment key={bloco.chave}>
-            {/* O divisor é quem troca a cor de fundo: a passagem acontece
-                dentro da onda, não numa borda reta. */}
-            <DivisorOnda
+            {/* Não existe linha divisória: quem separa é a própria diferença
+                de cor, numa curva que cede como corda e se desloca no scroll. */}
+            <Corda
               deCima={i === 0 ? TONS[0] : tomDe(i - 1)}
               paraBaixo={tomDe(i)}
-              invertido={i % 2 === 1}
+              profundidade={i % 3 === 0 ? 0.6 : i % 3 === 1 ? 1 : 1.4}
             />
             <div
               style={{
@@ -149,11 +154,7 @@ export default async function PaginaProposta({ params }: Props) {
         ))}
       </main>
 
-      <DivisorOnda
-        deCima={tomDe(blocos.length - 1)}
-        paraBaixo={TONS[0]}
-        invertido={blocos.length % 2 === 0}
-      />
+      <Corda deCima={tomDe(blocos.length - 1)} paraBaixo={TONS[0]} profundidade={0.8} />
 
       <RodapeLegal
         caminho={caminhoPublico(proposta)}
