@@ -16,13 +16,13 @@ export function ForaDoEscopo({ dados }: { dados: Dados }) {
     >
       <ul className="divide-y divide-linha border-y border-linha">
         {dados.itens.map((item, i) => (
-          <li key={i} className="py-4 text-salvia">
+          <li key={i} className="py-4 text-neblina">
             {item}
           </li>
         ))}
       </ul>
 
-      {dados.nota && <p className="mt-6 text-sm text-salvia">{dados.nota}</p>}
+      {dados.nota && <p className="mt-6 text-sm text-neblina">{dados.nota}</p>}
     </Secao>
   );
 }

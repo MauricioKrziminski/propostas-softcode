@@ -14,7 +14,7 @@ export function Cronograma({ dados }: { dados: Dados }) {
 
   return (
     <Secao id="cronograma" etiqueta="05" titulo={dados.titulo ?? "Cronograma"}>
-      <p className="mb-12 text-salvia" data-reveal>
+      <p className="mb-12 text-neblina" data-reveal>
         <span className="numero text-osso">{total} semanas</span> no total, do
         planejamento à publicação.
       </p>
@@ -22,7 +22,7 @@ export function Cronograma({ dados }: { dados: Dados }) {
       <ol className="relative pl-8 sm:pl-10">
         {/* trilho + linha do tempo que se desenha */}
         <div aria-hidden className="absolute bottom-2 left-[3px] top-2 w-px bg-linha">
-          <div className="linha-tempo h-full w-full bg-latao/60" />
+          <div className="linha-tempo h-full w-full bg-acento/60" />
         </div>
 
         {dados.fases.map((fase, i) => (
@@ -34,37 +34,37 @@ export function Cronograma({ dados }: { dados: Dados }) {
           >
             <span
               aria-hidden
-              className="ponto-fase absolute -left-8 top-2 h-[7px] w-[7px] rounded-full bg-latao sm:-left-10"
+              className="ponto-fase absolute -left-8 top-2 h-[7px] w-[7px] rounded-full bg-acento sm:-left-10"
             />
 
             <div className="flex items-baseline justify-between gap-4">
               <h3 className="flex items-baseline gap-3 text-lg text-osso">
-                <span className="numero text-xs text-latao">
+                <span className="numero text-xs text-acento">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 {fase.nome}
               </h3>
-              <span className="numero shrink-0 text-sm text-salvia">
+              <span className="numero shrink-0 text-sm text-neblina">
                 {fase.duracao}
               </span>
             </div>
 
             <div className="mt-3 h-1 w-full bg-linha">
               <div
-                className="barra-fase h-full bg-latao"
+                className="barra-fase h-full bg-acento"
                 style={{ width: `${(fase.semanas / maior) * 100}%` }}
               />
             </div>
 
             {fase.descricao && (
-              <p className="mt-3 text-sm text-salvia">{fase.descricao}</p>
+              <p className="mt-3 text-sm text-neblina">{fase.descricao}</p>
             )}
           </li>
         ))}
       </ol>
 
       {dados.observacao && (
-        <p className="mt-10 border-t border-linha pt-6 text-sm text-salvia" data-reveal>
+        <p className="mt-10 border-t border-linha pt-6 text-sm text-neblina" data-reveal>
           {dados.observacao}
         </p>
       )}

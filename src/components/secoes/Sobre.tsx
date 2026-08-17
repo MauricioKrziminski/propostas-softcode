@@ -7,9 +7,8 @@ export function Sobre({ dados }: { dados: Dados }) {
       id="sobre"
       etiqueta="08"
       titulo={dados.titulo ?? "Sobre a SoftCode"}
-      superficie
     >
-      <p className="text-lg leading-relaxed text-salvia" data-reveal>
+      <p className="text-lg leading-relaxed text-neblina" data-reveal>
         {dados.texto}
       </p>
 
@@ -23,18 +22,18 @@ export function Sobre({ dados }: { dados: Dados }) {
             >
               <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
                 <h3 className="text-lg text-osso">{caso.cliente}</h3>
-                <p className="text-xs uppercase tracking-[0.2em] text-latao">
+                <p className="text-xs uppercase tracking-[0.2em] text-acento">
                   {caso.segmento}
                 </p>
               </div>
-              <p className="mt-3 text-salvia">{caso.resultado}</p>
+              <p className="mt-3 text-neblina">{caso.resultado}</p>
               {caso.url && (
                 <a
                   href={caso.url}
                   target="_blank"
                   rel="noopener noreferrer nofollow"
                   referrerPolicy="no-referrer"
-                  className="alvo-toque mt-3 inline-flex items-center text-sm text-latao underline underline-offset-4"
+                  className="alvo-toque mt-3 inline-flex items-center text-sm text-acento underline underline-offset-4"
                 >
                   Ver o case
                 </a>

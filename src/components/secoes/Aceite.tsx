@@ -52,14 +52,14 @@ export function Aceite({
       ritmo="respiro"
     >
       {dados.texto && (
-        <p className="mb-8 max-w-3xl text-lg leading-relaxed text-salvia">
+        <p className="mb-8 max-w-3xl text-lg leading-relaxed text-neblina">
           {dados.texto}
         </p>
       )}
 
       {opcoes.length > 1 && (
         <fieldset className="mb-8">
-          <legend className="mb-4 text-xs uppercase tracking-[0.2em] text-latao">
+          <legend className="mb-4 text-xs uppercase tracking-[0.2em] text-acento">
             Escolha a opção
           </legend>
           <div className="grid gap-3 sm:grid-cols-3">
@@ -68,8 +68,8 @@ export function Aceite({
                 key={o.id}
                 className={`alvo-toque flex cursor-pointer items-start gap-3 border p-4 transition-colors duration-200 motion-reduce:transition-none ${
                   escolhida === o.id
-                    ? "border-latao bg-superficie"
-                    : "border-linha hover:border-salvia"
+                    ? "border-acento bg-superficie"
+                    : "border-linha hover:border-neblina"
                 }`}
               >
                 <input
@@ -82,7 +82,7 @@ export function Aceite({
                 />
                 <span>
                   <span className="block text-osso">{o.nome}</span>
-                  <span className="numero mt-1 block text-sm text-salvia">
+                  <span className="numero mt-1 block text-sm text-neblina">
                     {formatarValor(o.valorCentavos)}
                   </span>
                 </span>
@@ -93,7 +93,7 @@ export function Aceite({
       )}
 
       {/* Aviso LGPD: reforço da validade do registro, sempre visível. */}
-      <p className="mb-6 max-w-2xl text-sm leading-relaxed text-salvia">
+      <p className="mb-6 max-w-2xl text-sm leading-relaxed text-neblina">
         <strong className="text-osso">
           Ao confirmar, registramos data, hora, endereço IP e navegador.
         </strong>{" "}
@@ -107,8 +107,8 @@ export function Aceite({
           aria-disabled={!opcao}
           className={`alvo-toque inline-flex items-center justify-center gap-2 px-6 py-3 text-sm uppercase tracking-[0.12em] transition-colors duration-200 motion-reduce:transition-none ${
             opcao
-              ? "bg-latao text-fundo hover:bg-osso"
-              : "pointer-events-none bg-linha text-salvia"
+              ? "bg-acento text-fundo hover:bg-osso"
+              : "pointer-events-none bg-linha text-neblina"
           }`}
         >
           {opcao ? `Aceitar — ${opcao.nome}` : "Escolha uma opção acima"}

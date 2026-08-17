@@ -27,18 +27,18 @@ export function BlocoExpansivel({
       style={{ ["--i" as string]: ordem }}
     >
       <summary className="alvo-toque flex cursor-pointer list-none items-start gap-4 py-6 pr-2 [&::-webkit-details-marker]:hidden">
-        <span className="numero mt-1 shrink-0 text-xs text-latao">
+        <span className="numero mt-1 shrink-0 text-xs text-acento">
           {String(indice).padStart(2, "0")}
         </span>
         <span className="flex-1">
           <span className="block text-lg leading-snug text-osso">{titulo}</span>
           {resumo && (
-            <span className="mt-1 block text-sm text-salvia">{resumo}</span>
+            <span className="mt-1 block text-sm text-neblina">{resumo}</span>
           )}
         </span>
         <span
           aria-hidden
-          className="mt-2 shrink-0 text-latao transition-transform duration-300 group-open:rotate-45 motion-reduce:transition-none"
+          className="mt-2 shrink-0 text-acento transition-transform duration-300 group-open:rotate-45 motion-reduce:transition-none"
         >
           {/* cruz que vira X ao abrir — micro-interação em elemento acionável */}
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -46,7 +46,7 @@ export function BlocoExpansivel({
           </svg>
         </span>
       </summary>
-      <div className="pb-8 pl-10 pr-2 text-salvia">{children}</div>
+      <div className="pb-8 pl-10 pr-2 text-neblina">{children}</div>
     </details>
   );
 }

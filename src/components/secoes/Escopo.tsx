@@ -15,7 +15,7 @@ export function Escopo({ dados }: { dados: Dados }) {
       ritmo="denso"
     >
       {dados.introducao && (
-        <p className="mb-10 text-lg leading-relaxed text-salvia" data-reveal>
+        <p className="mb-10 text-lg leading-relaxed text-neblina" data-reveal>
           {dados.introducao}
         </p>
       )}
@@ -34,7 +34,7 @@ export function Escopo({ dados }: { dados: Dados }) {
             <ul className="space-y-3">
               {modulo.itens.map((item, j) => (
                 <li key={j} className="flex gap-3">
-                  <span aria-hidden className="mt-2.5 h-px w-3 shrink-0 bg-latao" />
+                  <span aria-hidden className="mt-2.5 h-px w-3 shrink-0 bg-acento" />
                   <span>{item}</span>
                 </li>
               ))}
@@ -42,7 +42,7 @@ export function Escopo({ dados }: { dados: Dados }) {
 
             {modulo.entregaveis && modulo.entregaveis.length > 0 && (
               <div className="mt-6 border-t border-linha pt-4">
-                <p className="text-xs uppercase tracking-[0.2em] text-latao">
+                <p className="text-xs uppercase tracking-[0.2em] text-acento">
                   Você recebe
                 </p>
                 <ul className="mt-3 space-y-1.5 text-sm">

@@ -7,9 +7,8 @@ export function Solucao({ dados }: { dados: Dados }) {
       id="solucao"
       etiqueta="02"
       titulo={dados.titulo ?? "A solução proposta"}
-      superficie
     >
-      <p className="text-lg leading-relaxed text-salvia" data-reveal>
+      <p className="text-lg leading-relaxed text-neblina" data-reveal>
         {dados.resumo}
       </p>
 
@@ -24,7 +23,7 @@ export function Solucao({ dados }: { dados: Dados }) {
             <h3 className="tipo-display text-xl leading-tight text-osso">
               {pilar.titulo}
             </h3>
-            <p className="mt-3 text-salvia">{pilar.descricao}</p>
+            <p className="mt-3 text-neblina">{pilar.descricao}</p>
           </article>
         ))}
       </div>

@@ -14,7 +14,7 @@ import type { Investimento as Dados } from "@/lib/proposta/schema";
  * fora da caixa e escala levemente maior no desktop.
  */
 function BordaDesenhada({ destaque }: { destaque: boolean }) {
-  const cor = destaque ? "bg-latao" : "bg-linha";
+  const cor = destaque ? "bg-acento" : "bg-linha";
   return (
     <span aria-hidden className="pointer-events-none absolute inset-0">
       <span className={`borda-topo absolute left-0 top-0 h-px w-full ${cor}`} />
@@ -40,10 +40,9 @@ export function Investimento({ dados }: { dados: Dados }) {
       titulo={dados.titulo ?? "Investimento"}
       largura="ampla"
       ritmo="denso"
-      superficie
     >
       {dados.introducao && (
-        <p className="mb-12 max-w-3xl text-lg leading-relaxed text-salvia" data-reveal>
+        <p className="mb-12 max-w-3xl text-lg leading-relaxed text-neblina" data-reveal>
           {dados.introducao}
         </p>
       )}
@@ -65,12 +64,12 @@ export function Investimento({ dados }: { dados: Dados }) {
             {opcao.destaque && (
               <span
                 aria-hidden
-                className="borda-topo absolute inset-x-0 top-0 h-[3px] origin-left bg-latao"
+                className="borda-topo absolute inset-x-0 top-0 h-[3px] origin-left bg-acento"
               />
             )}
 
             {opcao.destaque && (
-              <p className="absolute -top-3 left-6 bg-latao px-3 py-1 text-[0.65rem] uppercase tracking-[0.2em] text-fundo">
+              <p className="absolute -top-3 left-6 bg-acento px-3 py-1 text-[0.65rem] uppercase tracking-[0.2em] text-fundo">
                 Recomendada
               </p>
             )}
@@ -78,28 +77,28 @@ export function Investimento({ dados }: { dados: Dados }) {
             <h3 className="tipo-display text-secao leading-tight text-osso">
               {opcao.nome}
             </h3>
-            <p className="mt-2 text-sm text-salvia">{opcao.resumo}</p>
+            <p className="mt-2 text-sm text-neblina">{opcao.resumo}</p>
 
             <Contador
               valorCentavos={opcao.valorCentavos}
               className={`tipo-display mt-6 block ${
-                opcao.destaque ? "text-4xl text-latao" : "text-3xl text-osso"
+                opcao.destaque ? "text-4xl text-acento" : "text-3xl text-osso"
               }`}
             />
 
             {opcao.formaPagamento && (
-              <p className="mt-2 text-xs leading-relaxed text-salvia">
+              <p className="mt-2 text-xs leading-relaxed text-neblina">
                 {opcao.formaPagamento}
               </p>
             )}
             {opcao.prazo && (
-              <p className="numero mt-1 text-xs text-salvia">Prazo: {opcao.prazo}</p>
+              <p className="numero mt-1 text-xs text-neblina">Prazo: {opcao.prazo}</p>
             )}
 
             <ul className="mt-6 flex-1 space-y-2.5 border-t border-linha pt-6 text-sm">
               {opcao.itens.map((item, j) => (
-                <li key={j} className="flex gap-3 text-salvia">
-                  <span aria-hidden className="mt-2 h-px w-3 shrink-0 bg-latao" />
+                <li key={j} className="flex gap-3 text-neblina">
+                  <span aria-hidden className="mt-2 h-px w-3 shrink-0 bg-acento" />
                   <span>{item}</span>
                 </li>
               ))}
@@ -109,7 +108,7 @@ export function Investimento({ dados }: { dados: Dados }) {
       </div>
 
       {dados.observacoes && dados.observacoes.length > 0 && (
-        <ul className="mt-10 space-y-2 text-sm text-salvia" data-reveal>
+        <ul className="mt-10 space-y-2 text-sm text-neblina" data-reveal>
           {dados.observacoes.map((o, i) => (
             <li key={i}>{o}</li>
           ))}

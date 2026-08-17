@@ -10,8 +10,8 @@ import { formatarDataLonga, textoValidade } from "@/lib/proposta/formatar";
  * Regras que este componente cumpre à risca:
  *   · o h1 é o LCP e nasce visível — nenhuma animação de entrada nele;
  *   · só `transform` e `opacity` são animados;
- *   · o eixo `wdth` não é interpolado: `.assinatura-nome` (wdth 125) e o
- *     cabeçalho fixo (wdth 100) são elementos distintos que fazem crossfade.
+ *   · nenhum eixo de variable font é interpolado — isso causaria relayout por
+ *     frame. O hero e o cabeçalho fixo são elementos distintos em crossfade.
  */
 export function Hero({
   empresa,
@@ -38,19 +38,17 @@ export function Hero({
       />
       <div
         aria-hidden
-        className="camada-parallax pointer-events-none absolute -left-1/3 bottom-[-20%] -z-10 h-[45dvh] w-[100vw] rounded-full bg-latao/5 blur-3xl sm:w-[55vw]"
+        className="camada-parallax pointer-events-none absolute -left-1/3 bottom-[-20%] -z-10 h-[45dvh] w-[100vw] rounded-full bg-acento/5 blur-3xl sm:w-[55vw]"
         style={{ ["--deslocamento" as string]: "-8%" }}
       />
 
-      <div className="flex items-center justify-between gap-4 text-xs uppercase tracking-[0.2em] text-salvia">
-        <span className="tipo-display" style={{ fontVariationSettings: '"wght" 700, "wdth" 100' }}>
-          SoftCode
-        </span>
+      <div className="flex items-center justify-between gap-4 text-xs uppercase tracking-[0.28em] text-neblina">
+        <LogoSoftCode className="h-5 w-28 !bg-osso [mask-position:left_center]" />
         <span className="numero">Proposta comercial</span>
       </div>
 
       <div className="assinatura-nome py-10">
-        <p className="mb-5 text-sm uppercase tracking-[0.2em] text-latao">
+        <p className="mb-5 text-sm uppercase tracking-[0.2em] text-acento">
           Proposta para
         </p>
         {/* LCP: sem animação de entrada, nasce visível */}
@@ -59,20 +57,20 @@ export function Hero({
 
       <div className="grid gap-8 border-t border-linha pt-8 sm:grid-cols-2">
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-salvia">Projeto</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-neblina">Projeto</p>
           <p className="mt-2 text-lg leading-snug text-osso">{projeto}</p>
-          <p className="mt-1 text-sm text-salvia">Aos cuidados de {cliente}</p>
+          <p className="mt-1 text-sm text-neblina">Aos cuidados de {cliente}</p>
         </div>
         <dl className="grid grid-cols-2 gap-6 text-sm sm:justify-items-end sm:text-right">
           <div>
-            <dt className="text-xs uppercase tracking-[0.2em] text-salvia">Emissão</dt>
+            <dt className="text-xs uppercase tracking-[0.2em] text-neblina">Emissão</dt>
             <dd className="numero mt-2 text-osso">{formatarDataLonga(emitidaEm)}</dd>
           </div>
           <div>
-            <dt className="text-xs uppercase tracking-[0.2em] text-salvia">Validade</dt>
+            <dt className="text-xs uppercase tracking-[0.2em] text-neblina">Validade</dt>
             <dd className="numero mt-2 text-osso">{formatarDataLonga(validaAte)}</dd>
             <dd
-              className={`mt-1 text-xs ${expirada ? "text-salvia" : "text-latao"}`}
+              className={`mt-1 text-xs ${expirada ? "text-neblina" : "text-acento"}`}
             >
               {textoValidade(validaAte)}
             </dd>
@@ -85,7 +83,7 @@ export function Hero({
 
 /**
  * A outra metade do gesto: aparece por opacidade quando o nome do hero termina
- * de encolher. Largura estática em wdth 100 — nenhuma interpolação de eixo.
+ * de encolher. Traz o logo do cliente à esquerda e o da SoftCode à direita.
  * Sem suporte a scroll-driven ou com reduced-motion, simplesmente não existe.
  */
 export function CabecalhoFixo({
@@ -101,8 +99,33 @@ export function CabecalhoFixo({
       className="cabecalho-fixo fixed inset-x-0 top-0 z-50 h-[var(--altura-cabecalho)] items-center justify-between gap-4 border-b border-linha bg-fundo/85 px-6 backdrop-blur-sm sm:px-8"
     >
       <LogoCliente empresa={empresa} url={logoCliente} />
-      <span className="text-xs uppercase tracking-[0.2em] text-salvia">SoftCode</span>
+      <LogoSoftCode className="h-4 w-24" />
     </div>
+  );
+}
+
+/**
+ * Logo da SoftCode, aplicado por `mask-image` sobre uma área em osso.
+ * O arquivo vetorial vira recorte, então a marca sai sempre monocromática e
+ * nunca briga com o índigo do acento.
+ */
+export function LogoSoftCode({ className = "" }: { className?: string }) {
+  return (
+    <span
+      role="img"
+      aria-label="SoftCode"
+      className={`block bg-osso ${className}`}
+      style={{
+        maskImage: "url('/Logos/500x500/SVG/SoftCode-Nome-Vetor.svg')",
+        WebkitMaskImage: "url('/Logos/500x500/SVG/SoftCode-Nome-Vetor.svg')",
+        maskRepeat: "no-repeat",
+        WebkitMaskRepeat: "no-repeat",
+        maskPosition: "right center",
+        WebkitMaskPosition: "right center",
+        maskSize: "contain",
+        WebkitMaskSize: "contain",
+      }}
+    />
   );
 }
 
@@ -110,19 +133,16 @@ export function CabecalhoFixo({
  * Slot do logo do cliente, sempre monocromático em osso.
  *
  * A cor não é customizável de propósito: logo colorido de terceiro brigaria com
- * a paleta Mata e faria a proposta parecer um documento de duas marcas mal
- * costuradas. A monocromia vem de `mask-image` — a forma do arquivo recorta uma
- * área preenchida com --color-osso, então nenhum pixel da cor original passa.
+ * o índigo da SoftCode e faria a proposta parecer um documento de duas marcas
+ * mal costuradas. A monocromia vem de `mask-image` — a forma do arquivo recorta
+ * uma área preenchida com --color-osso, então nenhum pixel da cor original passa.
  *
- * Sem logo, o nome da empresa em Archivo ocupa o mesmo lugar.
+ * Sem logo, o nome da empresa em Playfair ocupa o mesmo lugar.
  */
 function LogoCliente({ empresa, url }: { empresa: string; url?: string }) {
   if (!url) {
     return (
-      <span
-        className="tipo-display text-sm uppercase tracking-[0.12em]"
-        style={{ fontVariationSettings: '"wght" 700, "wdth" 100' }}
-      >
+      <span className="tipo-display text-base tracking-tight text-osso">
         {empresa}
       </span>
     );

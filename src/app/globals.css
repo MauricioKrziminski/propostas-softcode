@@ -1,36 +1,34 @@
 @import "tailwindcss";
 @import "../styles/print.css";
 
-/* ══════════════════════════ direção visual "Mata" ══════════════════════════
-   Estrutura tipográfica de escala grande + paleta verde-mata/osso/latão.
-   Latão é o ÚNICO acento: CTA, filetes e numeração. Nada mais.
-   ═══════════════════════════════════════════════════════════════════════════ */
+/* ═══════════════════ identidade SoftCode ═══════════════════
+   Cores e tipografia extraídas do softcodedev.com.br: quase-preto,
+   índigo elétrico como acento, texto em osso, títulos em Playfair Display
+   e corpo em Geist. A proposta precisa parecer da SoftCode.
+   ═══════════════════════════════════════════════════════════ */
 
 @theme {
-  --color-fundo: #0c231d;
-  --color-superficie: #123a2f;
-  --color-osso: #f4f2ec;
-  --color-salvia: #9db2a6;
-  --color-latao: #c79a3b;
-  --color-linha: rgb(244 242 236 / 0.12);
+  --color-fundo: #080808;
+  --color-superficie: #101010;
+  --color-elevado: #1a1a1a;
+  --color-osso: #f5f5f0;
+  --color-neblina: #8f8f8a;
+  --color-acento: #3d3bf3;
+  --color-acento-claro: #6c6af5;
+  --color-roxo: #9d4edd;
+  --color-linha: rgb(245 245 240 / 0.1);
 
-  /* Superfície translúcida: deixa o gradiente de fundo atravessar, para a
-     alternância entre seções não virar um bloco chapado sobre outro. */
-  --color-veu: rgb(18 58 47 / 0.55);
+  --font-display: var(--fonte-display), Georgia, serif;
+  --font-texto: var(--fonte-texto), ui-sans-serif, system-ui, sans-serif;
 
-  --font-archivo: var(--fonte-archivo), ui-sans-serif, system-ui, sans-serif;
-
-  /* Escala fluida: o primeiro valor é o de 390px, o teto é o de desktop. */
   --text-nome: clamp(2.75rem, 13vw, 9rem);
-  --text-titulo: clamp(1.75rem, 6vw, 3.25rem);
-  --text-secao: clamp(1.375rem, 4.5vw, 2rem);
+  --text-titulo: clamp(2rem, 7vw, 3.75rem);
+  --text-secao: clamp(1.5rem, 5vw, 2.25rem);
   --text-corpo: clamp(1rem, 1.2vw, 1.125rem);
 
-  /* Ritmo vertical variado: seção densa respira menos, seção de respiro
-     respira mais. Ritmo, não grid uniforme. */
-  --spacing-denso: clamp(3rem, 8vw, 5.5rem);
-  --spacing-normal: clamp(4.5rem, 12vw, 9rem);
-  --spacing-respiro: clamp(6.5rem, 18vw, 14rem);
+  --spacing-denso: clamp(4rem, 9vw, 6rem);
+  --spacing-normal: clamp(5rem, 13vw, 9rem);
+  --spacing-respiro: clamp(7rem, 18vw, 14rem);
 
   --altura-cabecalho: 3.25rem;
 }
@@ -49,26 +47,24 @@ html {
 body {
   background-color: var(--color-fundo);
   color: var(--color-osso);
-  font-family: var(--font-archivo);
-  font-variation-settings: "wght" 400, "wdth" 100;
+  font-family: var(--font-texto);
   font-size: var(--text-corpo);
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
-  /* SEM overflow-x aqui: overflow em body cria contexto de rolagem e quebra
-     `position: sticky` dos títulos de seção. O overflow horizontal é evitado
-     na origem — e conferido a cada fase por `npm run valida:mobile`. */
 }
 
-/* As duas únicas faces do projeto: dois pesos, uma família, um arquivo. */
+/* Duas faces, dois pesos: Playfair Display 700 no display, Geist 400 no texto. */
 .tipo-display {
-  font-variation-settings: "wght" 700, "wdth" 125;
-  line-height: 0.95;
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.02;
   letter-spacing: -0.02em;
   text-wrap: balance;
 }
 
 .tipo-texto {
-  font-variation-settings: "wght" 400, "wdth" 100;
+  font-family: var(--font-texto);
+  font-weight: 400;
 }
 
 .numero {
@@ -76,7 +72,7 @@ body {
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-latao);
+  outline: 2px solid var(--color-acento-claro);
   outline-offset: 3px;
   border-radius: 2px;
 }
@@ -87,43 +83,25 @@ body {
 }
 
 ::selection {
-  background-color: var(--color-latao);
-  color: var(--color-fundo);
+  background-color: var(--color-acento);
+  color: var(--color-osso);
 }
 
-/* ─────────── alternância de superfície, com borda por gradiente ───────────
-   Nunca linha dura, nunca divisor de onda/blob: a seção par surge e some por
-   gradiente vertical sobre o fundo que já está em movimento. */
-.veu-superficie {
-  position: relative;
-  isolation: isolate;
-}
-.veu-superficie::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    var(--color-veu) 12%,
-    var(--color-veu) 88%,
-    transparent 100%
-  );
-}
+/* ═══════════════════ sistema de movimento ═══════════════════
 
-/* ═══════════════════════ sistema de movimento ═══════════════════════
+   Guard duplo: `animation-timeline` sozinho passa em navegador sem
+   `animation-range`, e o reveal ficaria travado invisível.
+   Sem suporte OU com reduced-motion, tudo nasce no estado final.
 
-   Guard duplo: `animation-timeline` sozinho passa em navegador que não
-   implementa `animation-range`, e o reveal ficaria travado no keyframe
-   inicial — seções invisíveis, o pior fracasso possível numa proposta.
-   Sem suporte OU com reduced-motion: nada é declarado e tudo nasce visível.
-   ═══════════════════════════════════════════════════════════════════ */
+   Os ranges terminam TARDE de propósito (cover 55–70%) e o deslocamento é
+   grande (52px + escala): antes eles terminavam antes de o elemento estar
+   confortavelmente em tela, e o movimento passava despercebido.
+   ═══════════════════════════════════════════════════════════ */
 
 @keyframes revelar {
   from {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(52px) scale(0.97);
   }
   to {
     opacity: 1;
@@ -133,10 +111,10 @@ body {
 
 @keyframes subir-linha {
   from {
-    transform: translateY(105%);
+    transform: translateY(110%) rotate(3deg);
   }
   to {
-    transform: translateY(0);
+    transform: translateY(0) rotate(0);
   }
 }
 
@@ -192,7 +170,7 @@ body {
 @keyframes brotar {
   from {
     opacity: 0;
-    transform: scale(0.4);
+    transform: scale(0.3);
   }
   to {
     opacity: 1;
@@ -200,51 +178,43 @@ body {
   }
 }
 
+/* ondas do divisor: a maré corre lateralmente conforme a página rola */
+@keyframes mare {
+  from {
+    transform: translateX(var(--mare-de, 0%));
+  }
+  to {
+    transform: translateX(var(--mare-ate, -50%));
+  }
+}
+
 /* Estado de repouso do cabeçalho fixo. Precisa vir ANTES do @supports:
-   mesma especificidade, então quem vem depois vence — e declarado depois este
-   `display: none` anulava o `display: flex` de dentro do bloco, deixando o
-   cabeçalho invisível para sempre. */
+   mesma especificidade, então quem vem depois vence — declarado depois,
+   este `display: none` anulava o `display: flex` de dentro do bloco. */
 .cabecalho-fixo {
   display: none;
 }
 
 @supports ((animation-timeline: view()) and (animation-range: 0% 100%)) {
   @media (prefers-reduced-motion: no-preference) {
-    /* ── fundo em movimento ── */
-    .camada-mata {
-      animation: deslocar linear both;
-      animation-timeline: scroll(root);
-      animation-range: 0 100%;
-      --deslocamento: -66%;
-      will-change: transform;
-    }
-
-    /* ── reveal padrão ── */
     [data-reveal] {
       animation: revelar linear both;
       animation-timeline: view();
-      animation-range: entry 8% cover 30%;
+      animation-range: entry 15% cover 55%;
     }
 
     [data-stagger] > * {
       animation: revelar linear both;
       animation-timeline: view();
-      animation-range: entry calc(4% + var(--i, 0) * 4%) cover calc(26% + var(--i, 0) * 5%);
+      animation-range: entry calc(10% + var(--i, 0) * 6%) cover calc(50% + var(--i, 0) * 7%);
     }
 
-    /* ── títulos: reveal por linha, com clip ──
-       Cada palavra tem seu próprio recorte e sobe de dentro dele. O atraso vem
-       do índice via `animation-range`, não de `animation-delay` (que não existe
-       em timeline de scroll). */
     .palavra-sobe {
       animation: subir-linha linear both;
       animation-timeline: view();
-      animation-range: entry calc(2% + var(--i, 0) * 2.5%) cover calc(22% + var(--i, 0) * 2.5%);
+      animation-range: entry calc(5% + var(--i, 0) * 4%) cover calc(38% + var(--i, 0) * 4%);
     }
 
-    /* ── elemento assinatura ──
-       Só transform e opacity. O eixo wdth NÃO é interpolado: são dois
-       elementos com larguras estáticas fazendo crossfade. */
     .assinatura-nome {
       animation: encolher-nome linear both;
       animation-timeline: scroll(root);
@@ -267,15 +237,21 @@ body {
       animation-range: 0 100svh;
     }
 
-    /* ── filete horizontal da seção: desenha da esquerda para a direita ── */
+    /* ── divisor de ondas entre seções ── */
+    .onda-mare {
+      animation: mare linear both;
+      animation-timeline: view();
+      animation-range: entry 0% exit 100%;
+      will-change: transform;
+    }
+
     .filete-secao {
       transform-origin: left center;
       animation: desenhar-x linear both;
       animation-timeline: view();
-      animation-range: entry 20% cover 35%;
+      animation-range: entry 20% cover 45%;
     }
 
-    /* ── processo ── */
     .filete-processo {
       transform-origin: top center;
       animation: desenhar-y linear both;
@@ -286,23 +262,22 @@ body {
     .etapa-luz {
       animation: acender linear both;
       animation-timeline: view();
-      animation-range: entry 55% cover 58%;
+      animation-range: entry 45% cover 62%;
     }
 
     .etapa-numero {
       animation: brotar linear both;
       animation-timeline: view();
-      animation-range: entry 45% cover 60%;
+      animation-range: entry 35% cover 65%;
     }
 
     .etapa-borda {
       transform-origin: top center;
       animation: desenhar-y linear both;
       animation-timeline: view();
-      animation-range: entry 50% cover 70%;
+      animation-range: entry 40% cover 75%;
     }
 
-    /* ── cronograma: a linha do tempo se desenha, e as barras crescem ── */
     .linha-tempo {
       transform-origin: top center;
       animation: desenhar-y linear both;
@@ -314,16 +289,15 @@ body {
       transform-origin: left center;
       animation: desenhar-x linear both;
       animation-timeline: view();
-      animation-range: entry 25% cover 45%;
+      animation-range: entry 25% cover 60%;
     }
 
     .ponto-fase {
       animation: brotar linear both;
       animation-timeline: view();
-      animation-range: entry 30% cover 45%;
+      animation-range: entry 25% cover 55%;
     }
 
-    /* ── investimento: a borda do cartão se desenha ── */
     .borda-topo,
     .borda-base {
       transform-origin: left center;
@@ -337,36 +311,33 @@ body {
       animation-timeline: view();
     }
     .borda-topo {
-      animation-range: entry 18% cover 32%;
+      animation-range: entry 20% cover 45%;
     }
     .borda-dir {
-      animation-range: entry 24% cover 40%;
+      animation-range: entry 26% cover 52%;
     }
     .borda-base {
-      animation-range: entry 30% cover 46%;
+      animation-range: entry 32% cover 59%;
     }
     .borda-esq {
-      animation-range: entry 36% cover 52%;
+      animation-range: entry 38% cover 66%;
     }
 
-    /* ── aspas da citação ── */
     .aspas-grande {
       animation: brotar linear both;
       animation-timeline: view();
-      animation-range: entry 25% cover 45%;
+      animation-range: entry 25% cover 55%;
     }
   }
 }
 
-/* Fora do @supports: estados de repouso legíveis.
-   Sem suporte a scroll-driven, tudo isto nasce no estado final. */
+/* Estados de repouso: sem scroll-driven, tudo nasce no estado final. */
 .palavra-clip {
   display: inline-block;
   overflow: hidden;
   vertical-align: bottom;
-  /* espaço para descendentes (g, y, p) não serem cortados pelo recorte */
-  padding-block-end: 0.12em;
-  margin-block-end: -0.12em;
+  padding-block-end: 0.14em;
+  margin-block-end: -0.14em;
 }
 
 .palavra-sobe {
@@ -392,7 +363,93 @@ body {
   }
 }
 
-/* ── reduced-motion: mata TUDO, não só os reveals ── */
+/* ═════════════ o convite ═════════════
+   Animação de TEMPO, não de scroll: é uma abertura, acontece uma vez. */
+
+@keyframes convite-entrar {
+  from {
+    opacity: 0;
+    transform: translateY(48px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes aba-abrir {
+  from {
+    transform: rotateX(0deg);
+  }
+  to {
+    transform: rotateX(-174deg);
+  }
+}
+
+@keyframes conteudo-subir {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes convite-sair {
+  to {
+    opacity: 0;
+    transform: scale(1.15);
+  }
+}
+
+@keyframes proposta-entrar {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes brilho-pulsar {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.14);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .convite-cartao {
+    animation: convite-entrar 900ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  .convite-aba {
+    transform-origin: top center;
+    animation: aba-abrir 1100ms cubic-bezier(0.6, 0, 0.2, 1) 700ms both;
+  }
+  .convite-conteudo {
+    animation: conteudo-subir 700ms cubic-bezier(0.2, 0.8, 0.2, 1) 1500ms both;
+  }
+  .convite-brilho {
+    animation: brilho-pulsar 4s ease-in-out infinite;
+  }
+  .convite-saindo {
+    animation: convite-sair 620ms cubic-bezier(0.6, 0, 0.3, 1) both;
+  }
+  .proposta-entrando {
+    animation: proposta-entrar 760ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+}
+
+/* ── reduced-motion: mata TUDO ── */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -411,7 +468,9 @@ body {
   .etapa-luz,
   .aspas-grande,
   .etapa-numero,
-  .ponto-fase {
+  .ponto-fase,
+  .convite-cartao,
+  .convite-conteudo {
     opacity: 1 !important;
     transform: none !important;
   }
@@ -426,15 +485,17 @@ body {
   .borda-esq,
   .borda-dir,
   .camada-parallax,
-  .camada-mata {
+  .onda-mare {
     transform: none !important;
     opacity: 1 !important;
   }
+  /* sem movimento, a aba do envelope não comunica nada: some */
+  .convite-aba {
+    display: none !important;
+  }
 }
 
-/* ═════════════ luz do mouse: enfeite exclusivo de ponteiro fino ═════════════
-   No touch, a mesma luz é conduzida por `view()` (.etapa-luz acima).
-   Mesmo efeito, mesma leitura, driver diferente. */
+/* ═════════════ luz do mouse: só em ponteiro fino ═════════════ */
 @media (hover: hover) and (pointer: fine) {
   .cartao-luz {
     position: relative;
@@ -449,7 +510,7 @@ body {
     transition: opacity 220ms ease;
     background: radial-gradient(
       18rem circle at var(--mx, 50%) var(--my, 50%),
-      rgb(199 154 59 / 0.16),
+      rgb(61 59 243 / 0.22),
       transparent 65%
     );
   }

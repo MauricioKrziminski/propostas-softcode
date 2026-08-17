@@ -36,6 +36,32 @@ function checar(condicao, textoOk, textoFalha = textoOk, extra = "") {
   }
 }
 
+
+/**
+ * O convite cobre a proposta na abertura. Toda verificação abaixo precisa da
+ * proposta em cena, então cada contexto o dispensa antes de medir — e de quebra
+ * isso testa que o botão do convite realmente funciona.
+ */
+async function abrirProposta(pagina) {
+  const botao = pagina.getByRole("button", { name: /ver a proposta/i });
+  if (await botao.count()) {
+    await botao.click();
+    // O convite só sai de cena depois da própria animação de saída, então
+    // esperamos a remoção antes de qualquer medição.
+    await pagina.locator("#convite").waitFor({ state: "detached", timeout: 8000 });
+    // E então a animação de ENTRADA da proposta. Medir antes disso lê tudo
+    // através do `scale(0.96)` do wrapper — um alvo de 44px aparece como
+    // 43,7px e vira falha falsa.
+    await pagina.evaluate(async () => {
+      const alvo = document.querySelector(".proposta-entrando");
+      if (!alvo) return;
+      await Promise.all(alvo.getAnimations().map((a) => a.finished.catch(() => {})));
+    });
+    await pagina.waitForTimeout(150);
+  }
+  return pagina.locator("#convite").count();
+}
+
 await mkdir(SAIDA, { recursive: true });
 const navegador = await chromium.launch();
 
@@ -47,6 +73,9 @@ const erros = [];
 pg.on("console", (m) => m.type() === "error" && erros.push(m.text()));
 pg.on("pageerror", (e) => erros.push(String(e)));
 await pg.goto(BASE + CAMINHO, { waitUntil: "networkidle" });
+
+const conviteRestante = await abrirProposta(pg);
+checar(conviteRestante === 0, "convite abre e sai de cena ao clicar", "o convite continuou no DOM depois do clique");
 
 const vp = pg.viewportSize();
 checar(vp.width === 390, `viewport real de ${vp.width}×${vp.height}`, `viewport inesperado: ${vp.width}`);
@@ -146,6 +175,7 @@ console.log("\n▸ prefers-reduced-motion: reduce");
 const ctxRm = await navegador.newContext({ ...iPhone, reducedMotion: "reduce" });
 const pgRm = await ctxRm.newPage();
 await pgRm.goto(BASE + CAMINHO, { waitUntil: "networkidle" });
+await abrirProposta(pgRm);
 await pgRm.waitForTimeout(600);
 
 const movimento = await pgRm.evaluate(() => {
@@ -157,7 +187,7 @@ const movimento = await pgRm.evaluate(() => {
   const escondidos = [...document.querySelectorAll("[data-reveal], [data-stagger] > *, .palavra-sobe, .assinatura-nome")]
     .filter((e) => parseFloat(getComputedStyle(e).opacity) < 0.99)
     .map((e) => e.tagName.toLowerCase());
-  const transformados = [...document.querySelectorAll(".palavra-sobe, .filete-secao, .barra-fase, .linha-tempo, .borda-topo, .camada-mata")]
+  const transformados = [...document.querySelectorAll(".palavra-sobe, .filete-secao, .barra-fase, .linha-tempo, .borda-topo, .onda-mare")]
     .filter((e) => !["none", "matrix(1, 0, 0, 1, 0, 0)"].includes(getComputedStyle(e).transform))
     .map((e) => (e.className || "").toString().split(" ")[0]);
   return { animando: animando.slice(0, 6), escondidos: escondidos.slice(0, 6), transformados: transformados.slice(0, 6), vivas: document.getAnimations().length };
@@ -174,6 +204,7 @@ console.log("\n▸ @media print");
 const ctxP = await navegador.newContext({ ...iPhone });
 const pgP = await ctxP.newPage();
 await pgP.goto(BASE + CAMINHO, { waitUntil: "networkidle" });
+await abrirProposta(pgP);
 await pgP.emulateMedia({ media: "print" });
 await pgP.waitForTimeout(500);
 
@@ -217,6 +248,7 @@ console.log("\n▸ foco de teclado");
 const ctxK = await navegador.newContext({ viewport: { width: 390, height: 844 } });
 const pgK = await ctxK.newPage();
 await pgK.goto(BASE + CAMINHO, { waitUntil: "networkidle" });
+await abrirProposta(pgK);
 await pgK.keyboard.press("Tab");
 await pgK.keyboard.press("Tab");
 const foco = await pgK.evaluate(() => {

@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { notFound } from "next/navigation";
 import dynamic from "next/dynamic";
 import type { Metadata } from "next";
@@ -7,7 +8,6 @@ import { caminhoPublico, type ChaveSecao } from "@/lib/proposta/schema";
 import { estaExpirada } from "@/lib/proposta/formatar";
 
 import { Hero, CabecalhoFixo } from "@/components/secoes/Hero";
-import { FundoMata } from "@/components/motion/FundoMata";
 import { Entendimento } from "@/components/secoes/Entendimento";
 import { Solucao } from "@/components/secoes/Solucao";
 import { Escopo } from "@/components/secoes/Escopo";
@@ -19,6 +19,9 @@ import { Sobre } from "@/components/secoes/Sobre";
 import { Aceite } from "@/components/secoes/Aceite";
 import { Expirada } from "@/components/secoes/Expirada";
 import { RodapeLegal } from "@/components/secoes/RodapeLegal";
+import { AberturaProposta } from "@/components/secoes/AberturaProposta";
+import { DivisorOnda } from "@/components/motion/DivisorOnda";
+import { Textura } from "@/components/motion/Textura";
 
 /** JS de enfeite entra por dynamic import — não pesa no carregamento inicial. */
 const PreparaImpressao = dynamic(() =>
@@ -40,12 +43,11 @@ const ORDEM_CANONICA: ChaveSecao[] = [
   "aceite",
 ];
 
+/** Tons alternados: a separação entre seções tem que ser explícita. */
+const TONS = ["#080808", "#14141a"] as const;
+
 type Props = { params: Promise<{ proposta: string }> };
 
-/**
- * O OG image é gerado por `opengraph-image.tsx` ao lado deste arquivo.
- * `noindex` continua valendo: quem lê OG é expansor de link, não indexador.
- */
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { proposta: caminho } = await params;
   const proposta = buscarPropostaPorCaminho(caminho);
@@ -62,8 +64,6 @@ export default async function PaginaProposta({ params }: Props) {
   const { proposta: caminho } = await params;
   const proposta = buscarPropostaPorCaminho(caminho);
 
-  // Não encontrada e rascunho caem no mesmo 404 genérico: a resposta nunca
-  // revela se um slug existe.
   if (!proposta || proposta.status === "rascunho") notFound();
 
   const expirada = estaExpirada(proposta.validaAte);
@@ -81,7 +81,7 @@ export default async function PaginaProposta({ params }: Props) {
 
   const ordem = conteudo.ordem ?? ORDEM_CANONICA;
 
-  const secoes: Record<ChaveSecao, React.ReactNode> = {
+  const secoes: Partial<Record<ChaveSecao, React.ReactNode>> = {
     entendimento: conteudo.entendimento && (
       <Entendimento dados={conteudo.entendimento} />
     ),
@@ -106,9 +106,16 @@ export default async function PaginaProposta({ params }: Props) {
     ),
   };
 
+  const blocos = ordem
+    .map((chave) => ({ chave, node: secoes[chave] }))
+    .filter((b) => Boolean(b.node));
+
+  /** O hero é o tom 0; a primeira seção começa no tom 1, e daí alterna. */
+  const tomDe = (i: number) => TONS[(i + 1) % 2];
+
   return (
-    <>
-      <FundoMata />
+    <AberturaProposta empresa={cliente.empresa} projeto={proposta.tituloProjeto}>
+      <Textura />
       <CabecalhoFixo empresa={cliente.empresa} logoCliente={cliente.logoUrl} />
 
       <Hero
@@ -121,10 +128,32 @@ export default async function PaginaProposta({ params }: Props) {
       />
 
       <main>
-        {ordem.map((chave) => (
-          <div key={chave}>{secoes[chave]}</div>
+        {blocos.map((bloco, i) => (
+          <Fragment key={bloco.chave}>
+            {/* O divisor é quem troca a cor de fundo: a passagem acontece
+                dentro da onda, não numa borda reta. */}
+            <DivisorOnda
+              deCima={i === 0 ? TONS[0] : tomDe(i - 1)}
+              paraBaixo={tomDe(i)}
+              invertido={i % 2 === 1}
+            />
+            <div
+              style={{
+                backgroundColor: tomDe(i),
+                ["--tom" as string]: tomDe(i),
+              }}
+            >
+              {bloco.node}
+            </div>
+          </Fragment>
         ))}
       </main>
+
+      <DivisorOnda
+        deCima={tomDe(blocos.length - 1)}
+        paraBaixo={TONS[0]}
+        invertido={blocos.length % 2 === 0}
+      />
 
       <RodapeLegal
         caminho={caminhoPublico(proposta)}
@@ -134,6 +163,6 @@ export default async function PaginaProposta({ params }: Props) {
 
       <PreparaImpressao />
       <LuzDoPonteiro />
-    </>
+    </AberturaProposta>
   );
 }

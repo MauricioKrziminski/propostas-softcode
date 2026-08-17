@@ -64,7 +64,7 @@
         Inclui o fundo em movimento e o grão — no papel o fundo é branco. */
   .cabecalho-fixo,
   .so-tela,
-  .camada-mata {
+  #convite {
     display: none !important;
   }
   [data-sticky],
@@ -73,8 +73,9 @@
     position: static !important;
     backdrop-filter: none !important;
   }
-  .veu-superficie::before {
-    display: none !important;
+  /* fundo de secao alternado vira branco no papel */
+  main > div {
+    background: #ffffff !important;
   }
 
   /* 4. Blocos expansíveis abertos. O listener beforeprint marca `open` em todos;
@@ -88,7 +89,7 @@
   }
 
   /* 5. Paleta invertida: papel branco, tinta escura.
-        Imprimir o verde-mata chapado gastaria tinta e a maioria dos navegadores
+        Imprimir o quase-preto chapado gastaria tinta e a maioria dos navegadores
         descarta o fundo mesmo — o resultado seria texto claro em papel branco. */
   :root {
     color-scheme: light;
@@ -96,25 +97,31 @@
   html,
   body {
     background: #ffffff !important;
-    color: #0c231d !important;
+    color: #101014 !important;
   }
   * {
     background-image: none !important;
   }
   [class*="bg-fundo"],
   [class*="bg-superficie"],
-  [class*="bg-latao"] {
+  [class*="bg-elevado"],
+  [class*="bg-acento"] {
     background: #ffffff !important;
   }
   [class*="text-osso"],
-  [class*="text-salvia"] {
-    color: #0c231d !important;
+  [class*="text-neblina"] {
+    color: #101014 !important;
   }
-  [class*="text-latao"] {
-    color: #7a5c14 !important;
+  [class*="text-acento"] {
+    color: #2b29b8 !important;
   }
   [class*="border-"] {
-    border-color: #c9c6bd !important;
+    border-color: #c9c9c4 !important;
+  }
+  /* o divisor de ondas e a textura nao vao para o papel */
+  .onda-mare,
+  svg.onda-mare {
+    display: none !important;
   }
 
   /* 6. Quebras de página que respeitam a leitura. */

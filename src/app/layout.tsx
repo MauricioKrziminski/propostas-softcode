@@ -1,27 +1,33 @@
 import type { Metadata, Viewport } from "next";
-import { Archivo } from "next/font/google";
+import { Playfair_Display, Geist } from "next/font/google";
 import "./globals.css";
 
 /**
- * Uma família, um arquivo, dois pesos.
- * O eixo `wdth` vem junto para o display largo (125) conviver com o texto (100)
- * sem baixar um segundo arquivo — e sem nunca ser animado.
+ * A tipografia da marca, tirada do softcodedev.com.br:
+ * Playfair Display 700 nos títulos, Geist 400 no corpo.
+ * Duas faces, dois pesos — o limite do projeto.
  */
-const archivo = Archivo({
+const display = Playfair_Display({
   subsets: ["latin"],
-  axes: ["wdth"],
+  weight: ["700"],
   display: "swap",
-  variable: "--fonte-archivo",
+  variable: "--fonte-display",
+});
+
+const texto = Geist({
+  subsets: ["latin"],
+  weight: ["400"],
+  display: "swap",
+  variable: "--fonte-texto",
 });
 
 export const metadata: Metadata = {
   title: "SoftCode",
-  // Cinto e suspensório junto com o header X-Robots-Tag do next.config.ts.
   robots: { index: false, follow: false },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0c231d",
+  themeColor: "#080808",
   colorScheme: "dark",
 };
 
@@ -29,7 +35,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="pt-BR" className={archivo.variable}>
+    <html lang="pt-BR" className={`${display.variable} ${texto.variable}`}>
       <body>{children}</body>
     </html>
   );

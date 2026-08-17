@@ -19,7 +19,7 @@ export function Entendimento({ dados }: { dados: Dados }) {
         {dados.paragrafos.map((p, i) => (
           <p
             key={i}
-            className="text-lg leading-relaxed text-salvia"
+            className="text-lg leading-relaxed text-neblina"
             style={{ ["--i" as string]: i }}
           >
             {p}
@@ -33,16 +33,16 @@ export function Entendimento({ dados }: { dados: Dados }) {
         <figure className="relative mt-16 sm:mt-20" data-reveal>
           <span
             aria-hidden
-            className="aspas-grande tipo-display pointer-events-none absolute -left-1 -top-10 origin-bottom-left select-none text-[8rem] leading-none text-latao/25 sm:-left-6 sm:text-[12rem]"
+            className="aspas-grande tipo-display pointer-events-none absolute -left-1 -top-10 origin-bottom-left select-none text-[8rem] leading-none text-acento/25 sm:-left-6 sm:text-[12rem]"
           >
             &ldquo;
           </span>
-          <blockquote className="relative border-l-2 border-latao pl-6 sm:pl-10">
+          <blockquote className="relative border-l-2 border-acento pl-6 sm:pl-10">
             <p className="tipo-display text-secao leading-tight text-osso">
               {dados.citacaoCliente.texto}
             </p>
             {dados.citacaoCliente.autor && (
-              <figcaption className="mt-5 text-sm text-salvia">
+              <figcaption className="mt-5 text-sm text-neblina">
                 — {dados.citacaoCliente.autor}
               </figcaption>
             )}

@@ -26,10 +26,9 @@ export function Processo({ dados }: { dados: Dados }) {
       titulo={dados.titulo ?? "Como trabalhamos"}
       largura="ampla"
       ritmo="respiro"
-      superficie
     >
       {dados.introducao && (
-        <p className="mb-16 max-w-3xl text-lg leading-relaxed text-salvia" data-reveal>
+        <p className="mb-16 max-w-3xl text-lg leading-relaxed text-neblina" data-reveal>
           {dados.introducao}
         </p>
       )}
@@ -40,7 +39,7 @@ export function Processo({ dados }: { dados: Dados }) {
           aria-hidden
           className="absolute bottom-0 left-5 top-0 w-px bg-linha sm:left-7"
         >
-          <div className="filete-processo h-full w-full bg-latao" />
+          <div className="filete-processo h-full w-full bg-acento" />
         </div>
 
         {ETAPAS.map((etapa) => (
@@ -51,17 +50,17 @@ export function Processo({ dados }: { dados: Dados }) {
             {/* luz conduzida pelo scroll: o driver que existe no celular */}
             <span
               aria-hidden
-              className="etapa-luz pointer-events-none absolute inset-y-0 -left-6 -z-10 w-[min(34rem,95%)] bg-gradient-to-r from-latao/10 via-latao/[0.03] to-transparent"
+              className="etapa-luz pointer-events-none absolute inset-y-0 -left-6 -z-10 w-[min(34rem,95%)] bg-gradient-to-r from-acento/10 via-acento/[0.03] to-transparent"
             />
             {/* borda que se desenha junto com a chegada da etapa */}
             <span
               aria-hidden
-              className="etapa-borda absolute bottom-6 left-5 top-2 w-px bg-latao/40 sm:left-7"
+              className="etapa-borda absolute bottom-6 left-5 top-2 w-px bg-acento/40 sm:left-7"
             />
 
             <span
               aria-hidden
-              className="etapa-numero numero absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-full border border-latao bg-fundo text-xs text-latao sm:h-14 sm:w-14 sm:text-base"
+              className="etapa-numero numero absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-full border border-acento bg-fundo text-xs text-acento sm:h-14 sm:w-14 sm:text-base"
             >
               {String(etapa.numero).padStart(2, "0")}
             </span>
@@ -69,20 +68,20 @@ export function Processo({ dados }: { dados: Dados }) {
             <h3 className="tipo-display text-secao leading-tight text-osso">
               {etapa.titulo}
             </h3>
-            <p className="mt-4 max-w-2xl text-salvia">{etapa.descricao}</p>
+            <p className="mt-4 max-w-2xl text-neblina">{etapa.descricao}</p>
 
             <dl className="mt-6 grid max-w-2xl gap-4 border-t border-linha pt-5 text-sm sm:grid-cols-2">
               <div>
-                <dt className="text-xs uppercase tracking-[0.2em] text-latao">
+                <dt className="text-xs uppercase tracking-[0.2em] text-acento">
                   Você recebe
                 </dt>
                 <dd className="mt-1.5 text-osso">{etapa.entrega}</dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-[0.2em] text-salvia">
+                <dt className="text-xs uppercase tracking-[0.2em] text-neblina">
                   Sua parte
                 </dt>
-                <dd className="mt-1.5 text-salvia">{etapa.suaParte}</dd>
+                <dd className="mt-1.5 text-neblina">{etapa.suaParte}</dd>
               </div>
             </dl>
           </li>

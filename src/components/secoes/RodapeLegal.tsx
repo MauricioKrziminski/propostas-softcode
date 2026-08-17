@@ -1,4 +1,5 @@
 import { CONTATO } from "@/lib/contato";
+import { LogoSoftCode } from "./Hero";
 import { formatarDataCurta } from "@/lib/proposta/formatar";
 
 /**
@@ -30,24 +31,19 @@ export function RodapeLegal({
       </div>
 
       <div className="flex flex-wrap items-baseline justify-between gap-4">
-        <span
-          className="tipo-display text-sm uppercase tracking-[0.12em]"
-          style={{ fontVariationSettings: '"wght" 700, "wdth" 100' }}
-        >
-          SoftCode
-        </span>
+        <LogoSoftCode className="h-5 w-28 [mask-position:left_center]" />
         <a
           href={CONTATO.site}
           rel="noopener noreferrer nofollow"
           referrerPolicy="no-referrer"
           target="_blank"
-          className="alvo-toque text-sm text-salvia underline underline-offset-4 hover:text-latao"
+          className="alvo-toque text-sm text-neblina underline underline-offset-4 hover:text-acento"
         >
           softcodedev.com.br
         </a>
       </div>
 
-      <p className="mt-8 max-w-3xl text-xs leading-relaxed text-salvia">
+      <p className="mt-8 max-w-3xl text-xs leading-relaxed text-neblina">
         <strong className="text-osso">Sobre seus dados.</strong> Esta página
         registra quando foi aberta e por qual navegador, para que a SoftCode
         saiba acompanhar esta proposta no tempo certo. Se você aceitar, guardamos
@@ -56,7 +52,7 @@ export function RodapeLegal({
         após 180 dias. Para consultar ou excluir seus dados, escreva para{" "}
         <a
           href={`mailto:${CONTATO.emailDados}`}
-          className="text-latao underline underline-offset-4"
+          className="text-acento underline underline-offset-4"
         >
           {CONTATO.emailDados}
         </a>
