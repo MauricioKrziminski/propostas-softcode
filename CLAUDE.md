@@ -36,6 +36,35 @@ Instalação de dependências: `npm install <pacote>`.
 | `npm run build` | Build de produção |
 | `npm start` | Roda o build de produção |
 | `npm run lint` | ESLint |
+| `npm run valida:mobile` | Validação mobile em 390×844 real (com o dev server no ar) |
+
+`valida:mobile` roda ao final de **toda** fase. Ele verifica, num viewport de
+iPhone: overflow horizontal, alvos de toque de 44px, ausência de `100vh`,
+reveals travados invisíveis, `prefers-reduced-motion` (nada animando e tudo
+visível), a mídia `print` inteira (paleta invertida, nada `sticky`, `<details>`
+abertos, nenhuma seção em branco) e o foco de teclado. Salva screenshots e um
+PDF em `.playwright/`.
+
+## Regras do produto (não negociáveis)
+
+- **`src/lib/proposta/schema.ts` é a fonte da verdade.** Todo campo tem
+  `.describe()` — é o que vai gerar o formulário estruturado. Componente de
+  seção recebe `z.infer` da sua fatia, nunca a proposta inteira.
+- **Autorização = posse do token na URL.** Sem login. `{slug}-{token}` casa por
+  comparação exata; slug sozinho e token errado dão o mesmo 404 genérico, que
+  nunca revela se um slug existe.
+- **Não existe rota de listagem.** Nada em `/` aponta para proposta alguma.
+- **Proposta vencida não dá 404** — renderiza o estado "expirada" com CTA.
+- **Mobile é o alvo, não o caso degradado.** Desenhe em 390px e expanda. `100dvh`
+  sempre, `100vh` nunca.
+- **Movimento:** só `transform` e `opacity`. Scroll-driven do CSS sob
+  `@supports ((animation-timeline: view()) and (animation-range: 0% 100%))` —
+  os dois juntos, senão suporte parcial trava o reveal invisível. Nenhum
+  listener de evento `scroll`. Efeito de mouse só sob
+  `(hover: hover) and (pointer: fine)`; no touch quem conduz é o scroll.
+- **`@media print` é o PDF do cliente**, não sobra de CSS. Qualquer elemento
+  novo que anime precisa entrar no reset de `src/styles/print.css`.
+- **Dinheiro é inteiro em centavos.** Nunca float.
 
 ## Convenções de commit
 

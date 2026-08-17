@@ -1,0 +1,126 @@
+/* ══════════════════════════ o PDF do cliente ══════════════════════════
+
+   Isto não é sobra de CSS: é o export em PDF da proposta. Cliente corporativo
+   anexa o arquivo no processo interno dele, então o que sai daqui precisa ser
+   um documento apresentável — e, acima de tudo, COMPLETO.
+
+   O risco número um é o reveal de scroll: sem o reset abaixo, toda seção que o
+   navegador considera "fora da timeline" imprime com opacity 0 e o cliente
+   recebe um PDF de páginas em branco.
+   ══════════════════════════════════════════════════════════════════════ */
+
+@media print {
+  /* 1. Nenhuma animação, transição ou transform sobrevive à impressão. */
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    animation-timeline: none !important;
+    transition: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+    filter: none !important;
+    box-shadow: none !important;
+    will-change: auto !important;
+  }
+
+  /* 2. Tudo que só apareceria via reveal nasce revelado. */
+  [data-reveal],
+  [data-stagger] > *,
+  .etapa-luz,
+  .barra-fase,
+  .filete-processo,
+  .assinatura-nome,
+  .camada-parallax {
+    opacity: 1 !important;
+    transform: none !important;
+    visibility: visible !important;
+  }
+
+  /* 3. Nada fixo ou grudado: no papel isso vira elemento repetido ou sobreposto. */
+  .cabecalho-fixo,
+  .so-tela {
+    display: none !important;
+  }
+  [class*="sticky"],
+  [class*="fixed"] {
+    position: static !important;
+  }
+
+  /* 4. Blocos expansíveis abertos. O listener beforeprint marca `open` em todos;
+        isto aqui cobre o caso do pseudo-elemento já suportado. */
+  details > summary {
+    list-style: none;
+  }
+  details::details-content {
+    content-visibility: visible !important;
+    block-size: auto !important;
+  }
+
+  /* 5. Paleta invertida: papel branco, tinta escura.
+        Imprimir o verde-mata chapado gastaria tinta e a maioria dos navegadores
+        descarta o fundo mesmo — o resultado seria texto claro em papel branco. */
+  :root {
+    color-scheme: light;
+  }
+  html,
+  body {
+    background: #ffffff !important;
+    color: #0c231d !important;
+  }
+  * {
+    background-image: none !important;
+  }
+  [class*="bg-fundo"],
+  [class*="bg-superficie"],
+  [class*="bg-latao"] {
+    background: #ffffff !important;
+  }
+  [class*="text-osso"],
+  [class*="text-salvia"] {
+    color: #0c231d !important;
+  }
+  [class*="text-latao"] {
+    color: #7a5c14 !important;
+  }
+  [class*="border-"] {
+    border-color: #c9c6bd !important;
+  }
+
+  /* 6. Quebras de página que respeitam a leitura. */
+  @page {
+    margin: 16mm;
+  }
+  h1,
+  h2,
+  h3 {
+    break-after: avoid;
+  }
+  section {
+    break-inside: auto;
+  }
+  .cartao-investimento,
+  .etapa-processo,
+  .fase-cronograma,
+  .case-item,
+  blockquote {
+    break-inside: avoid;
+  }
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.75em;
+    color: #4a4a45;
+  }
+
+  /* 7. Rodapé impresso vem de um elemento REAL no DOM.
+        Margin box de @page não renderiza conteúdo em navegador — aquilo é
+        território de motor de impressão de servidor. */
+  .print-only {
+    display: block !important;
+  }
+}
+
+/* Fora da impressão, o bloco do rodapé impresso não existe. */
+.print-only {
+  display: none;
+}

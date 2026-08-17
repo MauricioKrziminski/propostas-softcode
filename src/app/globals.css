@@ -1,26 +1,295 @@
 @import "tailwindcss";
+@import "../styles/print.css";
+
+/* ══════════════════════════ direção visual "Mata" ══════════════════════════
+   Estrutura tipográfica de escala grande + paleta verde-mata/osso/latão.
+   Latão é o ÚNICO acento: CTA, filetes e numeração. Nada mais.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@theme {
+  --color-fundo: #0c231d;
+  --color-superficie: #123a2f;
+  --color-osso: #f4f2ec;
+  --color-salvia: #9db2a6;
+  --color-latao: #c79a3b;
+  --color-linha: rgb(244 242 236 / 0.12);
+
+  --font-archivo: var(--fonte-archivo), ui-sans-serif, system-ui, sans-serif;
+
+  /* Escala fluida: o primeiro valor é o de 390px, o teto é o de desktop. */
+  --text-nome: clamp(2.75rem, 13vw, 9rem);
+  --text-titulo: clamp(1.75rem, 6vw, 3.25rem);
+  --text-secao: clamp(1.375rem, 4.5vw, 2rem);
+  --text-corpo: clamp(1rem, 1.2vw, 1.125rem);
+
+  --spacing-secao: clamp(4rem, 12vw, 9rem);
+}
+
+/* ─────────────────────────── base ─────────────────────────── */
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: dark;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-fundo);
+  color: var(--color-osso);
+  font-family: var(--font-archivo);
+  font-variation-settings: "wght" 400, "wdth" 100;
+  font-size: var(--text-corpo);
+  line-height: 1.65;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* As duas únicas faces do projeto: dois pesos, uma família, um arquivo. */
+.tipo-display {
+  font-variation-settings: "wght" 700, "wdth" 125;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.tipo-texto {
+  font-variation-settings: "wght" 400, "wdth" 100;
+}
+
+.numero {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Foco sempre visível — nunca outline:none. */
+:focus-visible {
+  outline: 2px solid var(--color-latao);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Alvo de toque mínimo garantido no componente, não no uso. */
+.alvo-toque {
+  min-block-size: 44px;
+  min-inline-size: 44px;
+}
+
+::selection {
+  background-color: var(--color-latao);
+  color: var(--color-fundo);
+}
+
+/* ═══════════════════════ sistema de movimento ═══════════════════════
+
+   Guard duplo: `animation-timeline` sozinho passa em navegador que não
+   implementa `animation-range`, e o reveal ficaria travado no keyframe
+   inicial — seções invisíveis, o pior fracasso possível numa proposta.
+   Sem suporte OU com reduced-motion: nada é declarado e tudo nasce visível.
+   ═══════════════════════════════════════════════════════════════════ */
+
+@keyframes revelar {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes encolher-nome {
+  to {
+    transform: scale(0.42) translateY(-6%);
+    opacity: 0;
+  }
+}
+
+@keyframes surgir {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes desenhar-filete {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes crescer-barra {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes acender {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes deslocar {
+  to {
+    transform: translateY(var(--deslocamento, -14%));
+  }
+}
+
+@supports ((animation-timeline: view()) and (animation-range: 0% 100%)) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* Reveal padrão — o movimento discreto que serve o texto. */
+    [data-reveal] {
+      animation: revelar linear both;
+      animation-timeline: view();
+      animation-range: entry 8% cover 30%;
+    }
+
+    /* Stagger sem JS: o atraso vem da posição, não de um observer. */
+    [data-stagger] > * {
+      animation: revelar linear both;
+      animation-timeline: view();
+    }
+    [data-stagger] > *:nth-child(1) {
+      animation-range: entry 4% cover 26%;
+    }
+    [data-stagger] > *:nth-child(2) {
+      animation-range: entry 8% cover 32%;
+    }
+    [data-stagger] > *:nth-child(3) {
+      animation-range: entry 12% cover 38%;
+    }
+    [data-stagger] > *:nth-child(n + 4) {
+      animation-range: entry 16% cover 44%;
+    }
+
+    /* ── elemento assinatura ──
+       Só transform e opacity. O eixo wdth NÃO é interpolado: são dois
+       elementos com larguras estáticas fazendo crossfade. */
+    .assinatura-nome {
+      animation: encolher-nome linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 70svh;
+      transform-origin: left top;
+      will-change: transform, opacity;
+    }
+
+    .cabecalho-fixo {
+      display: flex;
+      opacity: 0;
+      animation: surgir linear both;
+      animation-timeline: scroll(root);
+      animation-range: 55svh 72svh;
+    }
+
+    /* Parallax do hero: duas camadas, transform apenas. */
+    .camada-parallax {
+      animation: deslocar linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 100svh;
+    }
+
+    /* Processo: o filete de latão que se desenha ao longo das 6 etapas. */
+    .filete-processo {
+      transform-origin: top center;
+      animation: desenhar-filete linear both;
+      animation-timeline: view();
+      animation-range: entry 60% exit 40%;
+    }
+
+    /* Cada etapa acende ao entrar — no touch é isto que ocupa o lugar do mouse. */
+    .etapa-luz {
+      animation: acender linear both;
+      animation-timeline: view();
+      animation-range: entry 55% cover 62%;
+    }
+
+    /* Cronograma: scaleX, nunca width. */
+    .barra-fase {
+      transform-origin: left center;
+      animation: crescer-barra linear both;
+      animation-timeline: view();
+      animation-range: entry 25% cover 45%;
+    }
+  }
+}
+
+/* Sem suporte a scroll-driven: o cabeçalho fixo simplesmente não existe.
+   É cromo decorativo — o nome do cliente continua no hero. */
+.cabecalho-fixo {
+  display: none;
+}
+
+/* ── reduced-motion: mata TUDO, não só os reveals ── */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    animation-timeline: none !important;
+    scroll-behavior: auto !important;
+  }
+  [data-reveal],
+  [data-stagger] > * {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .assinatura-nome {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .filete-processo,
+  .barra-fase {
+    transform: none !important;
+  }
+  .etapa-luz {
+    opacity: 1 !important;
+  }
+  .camada-parallax {
+    transform: none !important;
+  }
+}
+
+/* ═════════════ luz do mouse: enfeite exclusivo de ponteiro fino ═════════════
+   No touch, a mesma luz é conduzida por `view()` (.etapa-luz acima).
+   Mesmo efeito, mesma leitura, driver diferente. */
+@media (hover: hover) and (pointer: fine) {
+  .cartao-luz {
+    position: relative;
+    isolation: isolate;
+  }
+  .cartao-luz::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 220ms ease;
+    background: radial-gradient(
+      18rem circle at var(--mx, 50%) var(--my, 50%),
+      rgb(199 154 59 / 0.16),
+      transparent 65%
+    );
+  }
+  .cartao-luz:hover::before,
+  .cartao-luz:focus-within::before {
+    opacity: 1;
+  }
 }

@@ -1,0 +1,238 @@
+{
+  "slug": "barba-log",
+  "token": "7fk2m9x4qd",
+  "cliente": {
+    "nome": "Ricardo Barbosa",
+    "empresa": "Barba Log",
+    "email": "ricardo@barbalog.com.br"
+  },
+  "tituloProjeto": "Portal de fretes e acompanhamento de cargas",
+  "status": "enviada",
+  "emitidaEm": "2026-08-17",
+  "validaAte": "2026-09-16",
+  "conteudo": {
+    "entendimento": {
+      "paragrafos": [
+        "A Barba Log opera hoje com 34 caminhões e uma média de 180 fretes por mês, e todo esse volume é controlado em uma planilha compartilhada que quatro pessoas editam ao mesmo tempo. O acompanhamento de cada carga acontece no WhatsApp, em conversas separadas com cada motorista.",
+        "O custo disso não é a planilha em si — é o retrabalho. Quando um cliente liga perguntando onde está a carga, alguém precisa procurar a conversa certa, perguntar ao motorista e retornar a ligação. São de dez a quinze minutos por consulta, várias vezes ao dia, feitas pela mesma pessoa que deveria estar fechando frete novo.",
+        "O segundo custo é a falta de histórico. Sem registro estruturado, não dá para responder quanto custou de fato atender um determinado cliente no último trimestre, nem quais rotas dão prejuízo. As decisões de preço são tomadas por intuição, e a intuição erra justamente nos contratos grandes."
+      ],
+      "citacaoCliente": {
+        "texto": "Eu não preciso de um sistema bonito. Eu preciso parar de descobrir que perdi dinheiro numa rota três meses depois de ter perdido.",
+        "autor": "Ricardo Barbosa, na reunião de briefing"
+      }
+    },
+    "solucao": {
+      "resumo": "Um portal onde cada frete tem um registro único, do orçamento à entrega, e onde o cliente da Barba Log consegue acompanhar a própria carga sozinho — sem ligar para ninguém. Toda informação que hoje mora em conversa de WhatsApp passa a ficar no lugar onde ela pode ser somada, comparada e cobrada.",
+      "pilares": [
+        {
+          "titulo": "Um registro por frete",
+          "descricao": "Origem, destino, motorista, custos e prazos no mesmo lugar, desde o orçamento. Fim da planilha compartilhada e das quatro versões da verdade."
+        },
+        {
+          "titulo": "Acompanhamento pelo próprio cliente",
+          "descricao": "Cada carga ganha um link de acompanhamento. O cliente da Barba Log vê o status atualizado sem precisar telefonar, e a sua equipe para de ser central de atendimento."
+        },
+        {
+          "titulo": "Atualização pelo motorista, no celular",
+          "descricao": "Tela simples, feita para ser usada com uma mão na estrada: confirmar coleta, registrar ocorrência, anexar foto do canhoto. Sem app para instalar."
+        },
+        {
+          "titulo": "Números que sustentam preço",
+          "descricao": "Custo real por rota, por cliente e por período. É o relatório que permite recusar um contrato ruim antes de assiná-lo, não depois."
+        }
+      ]
+    },
+    "escopo": {
+      "introducao": "O projeto está dividido em quatro módulos. Eles são construídos nesta ordem, e cada um vai para o ar assim que fica pronto — você não espera o projeto inteiro para começar a usar.",
+      "modulos": [
+        {
+          "titulo": "Módulo 1 — Cadastro e gestão de fretes",
+          "resumo": "O coração do sistema: onde o frete nasce e passa a existir como registro único.",
+          "itens": [
+            "Cadastro de clientes, motoristas, veículos e rotas frequentes",
+            "Criação de frete com origem, destino, tipo de carga, valor e prazo",
+            "Estados do frete: orçado, confirmado, em coleta, em trânsito, entregue, cancelado",
+            "Registro de custos por frete: combustível, pedágio, diária, ajudante",
+            "Anexos: nota fiscal, canhoto assinado, foto de ocorrência",
+            "Busca por cliente, período, motorista, placa ou número do frete",
+            "Importação da planilha atual, para o histórico não começar do zero"
+          ],
+          "entregaveis": [
+            "Módulo no ar em homologação",
+            "Planilha atual importada e conferida"
+          ]
+        },
+        {
+          "titulo": "Módulo 2 — Acompanhamento para o cliente final",
+          "resumo": "O link que faz o telefone parar de tocar.",
+          "itens": [
+            "Página pública de acompanhamento por carga, com link não sequencial",
+            "Linha do tempo do frete com data e hora de cada mudança de status",
+            "Previsão de entrega e aviso automático quando o prazo muda",
+            "Envio do link por WhatsApp e por e-mail no momento da confirmação",
+            "Identidade visual da Barba Log na página vista pelo cliente"
+          ],
+          "entregaveis": ["Módulo no ar", "Modelo de mensagem pronto para envio"]
+        },
+        {
+          "titulo": "Módulo 3 — Aplicativo do motorista",
+          "resumo": "Feito para ser usado com uma mão, em tela de celular, com internet ruim.",
+          "itens": [
+            "Acesso por link e código, sem instalação e sem loja de aplicativos",
+            "Lista dos fretes atribuídos ao motorista no dia",
+            "Confirmação de coleta e de entrega com um toque",
+            "Registro de ocorrência com foto e observação em texto",
+            "Funcionamento com conexão instável: a ação é registrada e sincroniza depois"
+          ],
+          "entregaveis": ["Módulo no ar", "Treinamento gravado para os motoristas"]
+        },
+        {
+          "titulo": "Módulo 4 — Relatórios e fechamento",
+          "resumo": "Onde a operação vira número que sustenta decisão de preço.",
+          "itens": [
+            "Margem por frete, por rota e por cliente no período",
+            "Fretes em aberto, atrasados e entregues no mês",
+            "Custo médio por quilômetro rodado e por tipo de carga",
+            "Exportação para Excel e para o contador",
+            "Fechamento mensal por cliente, pronto para faturamento"
+          ],
+          "entregaveis": ["Módulo no ar", "Primeiro fechamento mensal acompanhado"]
+        }
+      ]
+    },
+    "processo": {
+      "introducao": "Nenhuma etapa começa antes da anterior estar aprovada por você. É isso que evita a conversa de que o projeto tomou um rumo que ninguém pediu.",
+      "mostrar": true
+    },
+    "cronograma": {
+      "fases": [
+        {
+          "nome": "Planejamento e wireframe",
+          "duracao": "2 semanas",
+          "semanas": 2,
+          "descricao": "Mapa de telas, fluxo do frete e wireframes navegáveis aprovados."
+        },
+        {
+          "nome": "Design visual",
+          "duracao": "2 semanas",
+          "semanas": 2,
+          "descricao": "Telas em alta fidelidade para desktop, celular do motorista e página do cliente."
+        },
+        {
+          "nome": "Módulos 1 e 2",
+          "duracao": "4 semanas",
+          "semanas": 4,
+          "descricao": "Gestão de fretes e acompanhamento do cliente no ar em homologação."
+        },
+        {
+          "nome": "Módulos 3 e 4",
+          "duracao": "3 semanas",
+          "semanas": 3,
+          "descricao": "Aplicativo do motorista e relatórios de fechamento."
+        },
+        {
+          "nome": "Testes, ajustes e publicação",
+          "duracao": "1 semana",
+          "semanas": 1,
+          "descricao": "Importação definitiva dos dados, treinamento da equipe e virada de chave."
+        }
+      ],
+      "observacao": "O cronograma considera retorno das revisões em até três dias úteis. Prazo maior de retorno desloca a entrega no mesmo tanto."
+    },
+    "investimento": {
+      "introducao": "Três formatos do mesmo projeto. A diferença entre eles não é qualidade — é quanto entra agora e quanto fica para depois.",
+      "opcoes": [
+        {
+          "id": "essencial",
+          "nome": "Essencial",
+          "resumo": "Para tirar a operação da planilha o quanto antes, e avaliar o resto depois.",
+          "valorCentavos": 3800000,
+          "formaPagamento": "40% na assinatura e 60% na entrega",
+          "prazo": "6 semanas",
+          "itens": [
+            "Módulo 1 — Cadastro e gestão de fretes",
+            "Módulo 2 — Acompanhamento para o cliente final",
+            "Importação da planilha atual",
+            "Treinamento da equipe do escritório",
+            "30 dias de suporte após a publicação"
+          ],
+          "destaque": false
+        },
+        {
+          "id": "completo",
+          "nome": "Completo",
+          "resumo": "O projeto inteiro, incluindo o celular do motorista e os relatórios de margem.",
+          "valorCentavos": 6200000,
+          "formaPagamento": "30% na assinatura, 40% na entrega dos módulos 1 e 2, 30% na publicação",
+          "prazo": "12 semanas",
+          "itens": [
+            "Tudo do Essencial",
+            "Módulo 3 — Aplicativo do motorista",
+            "Módulo 4 — Relatórios e fechamento",
+            "Treinamento gravado para os motoristas",
+            "Primeiro fechamento mensal acompanhado por nós",
+            "30 dias de suporte após a publicação"
+          ],
+          "destaque": true
+        },
+        {
+          "id": "completo-suporte",
+          "nome": "Completo + suporte",
+          "resumo": "O projeto inteiro mais um ano de acompanhamento, para quem não tem equipe de TI interna.",
+          "valorCentavos": 7800000,
+          "formaPagamento": "30% na assinatura, 40% na entrega dos módulos 1 e 2, 30% na publicação",
+          "prazo": "12 semanas + 12 meses de acompanhamento",
+          "itens": [
+            "Tudo do Completo",
+            "12 meses de suporte com retorno em até 1 dia útil",
+            "Correções e pequenos ajustes inclusos no período",
+            "Hospedagem e monitoramento por nossa conta",
+            "Uma reunião trimestral de evolução do sistema"
+          ],
+          "destaque": false
+        }
+      ],
+      "observacoes": [
+        "Valores válidos até a data de validade desta proposta.",
+        "Hospedagem e domínio no Essencial e no Completo ficam por conta da Barba Log, com custo estimado de R$ 120 por mês.",
+        "Emitimos nota fiscal de serviço. Parcelamento em boleto ou transferência."
+      ]
+    },
+    "foraDoEscopo": {
+      "itens": [
+        "Integração com rastreadores veiculares de terceiros",
+        "Emissão de CT-e, MDF-e ou qualquer documento fiscal de transporte",
+        "Integração com o sistema contábil atual",
+        "Aplicativo nativo publicado na App Store ou Google Play",
+        "Roteirização automática e cálculo de melhor rota",
+        "Migração de dados anteriores a 2025"
+      ],
+      "nota": "Nada disso é impossível — só não está incluído nos valores acima. Qualquer um destes itens pode ser orçado à parte quando fizer sentido para a operação."
+    },
+    "sobre": {
+      "texto": "A SoftCode é uma software house brasileira que constrói sistemas sob medida para empresas de médio porte. Trabalhamos com times pequenos e contato direto: você fala com quem escreve o código, não com um intermediário. Nossa especialidade é justamente o caso da Barba Log — operações que cresceram além do que a planilha aguenta, mas que não cabem num sistema de prateleira.",
+      "cases": [
+        {
+          "cliente": "Distribuidora Vale Norte",
+          "segmento": "Distribuição de alimentos",
+          "resultado": "Portal de pedidos para 240 clientes ativos. O tempo de fechamento de pedido caiu de 22 para 4 minutos, e a equipe comercial passou a atender o dobro de contas sem contratação."
+        },
+        {
+          "cliente": "Metalúrgica Pilar",
+          "segmento": "Indústria metalúrgica",
+          "resultado": "Controle de ordens de produção em chão de fábrica. A perda por retrabalho caiu 31% no primeiro semestre, com o apontamento feito por tablet na própria célula."
+        },
+        {
+          "cliente": "Clínica Sanare",
+          "segmento": "Saúde",
+          "resultado": "Agendamento on-line integrado ao prontuário. As faltas em consulta caíram de 18% para 7% depois da confirmação automática por WhatsApp."
+        }
+      ]
+    },
+    "aceite": {
+      "texto": "Se fizer sentido, escolha a opção que se encaixa e confirme abaixo. A partir daí eu preparo o contrato e marcamos o início do planejamento.",
+      "mostrarPdf": true
+    }
+  }
+}
