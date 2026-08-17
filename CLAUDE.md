@@ -45,6 +45,14 @@ visível), a mídia `print` inteira (paleta invertida, nada `sticky`, `<details>
 abertos, nenhuma seção em branco) e o foco de teclado. Salva screenshots e um
 PDF em `.playwright/`.
 
+## Material de referência
+
+Os orçamentos em PDF que a SoftCode já enviava estão em `Desktop/orçamento`
+(geradores em Python + o handoff da Barba Log). De lá saíram a seção "O que
+precisamos de você", os valores reais, a estrutura de pagamento (25% + 75%) e o
+contato `softcodedv@gmail.com`. **Consulte antes de inventar conteúdo de
+proposta** — o seed atual é a proposta real da Barba Log, não um exemplo.
+
 ## Regras do produto (não negociáveis)
 
 - **`src/lib/proposta/schema.ts` é a fonte da verdade.** Todo campo tem
@@ -67,8 +75,15 @@ PDF em `.playwright/`.
   abaixo do bloco anula o `display: flex` de dentro dele e o elemento nunca
   aparece — foi exatamente assim que o cabeçalho fixo ficou invisível por uma
   fase inteira sem ninguém notar.
-- **Nada de divisor em onda ou blob.** Separação entre seções é por gradiente,
-  filete de latão e ritmo de espaçamento.
+- **A divisória entre seções é a própria diferença de cor.** Sem linha e sem SVG
+  de onda: uma curva de gradiente que cede como corda (`Corda.tsx`) e se desloca
+  no scroll. Os tons alternados são decididos pela página, não pela seção.
+- **Título de seção NUNCA é sticky.** Comia a viewport do celular e disputava
+  atenção com o conteúdo. O validador falha se voltar.
+- **Reveal de componente é por TEMPO, não por scroll.** `Revelar.tsx` (motion).
+  Reveal preso ao `view()` para quando o dedo para, e quem rola rápido jura que
+  não existe animação nenhuma. Scroll-driven fica só onde o progresso do scroll
+  **é** o conteúdo: a corda, o filete do processo e o gesto do hero.
 - **`@media print` é o PDF do cliente**, não sobra de CSS. Qualquer elemento
   novo que anime precisa entrar no reset de `src/styles/print.css`.
 - **Dinheiro é inteiro em centavos.** Nunca float.
