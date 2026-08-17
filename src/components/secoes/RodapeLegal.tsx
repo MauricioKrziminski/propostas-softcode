@@ -1,5 +1,5 @@
 import { CONTATO } from "@/lib/contato";
-import { LogoSoftCode } from "./Hero";
+import { LogoSoftCode } from "@/components/ui/LogoSoftCode";
 import { formatarDataCurta } from "@/lib/proposta/formatar";
 
 /**
@@ -31,7 +31,7 @@ export function RodapeLegal({
       </div>
 
       <div className="flex flex-wrap items-baseline justify-between gap-4">
-        <LogoSoftCode className="h-5 w-28 [mask-position:left_center]" />
+        <LogoSoftCode className="h-20 w-auto" />
         <a
           href={CONTATO.site}
           rel="noopener noreferrer nofollow"
@@ -44,7 +44,7 @@ export function RodapeLegal({
       </div>
 
       <p className="mt-8 max-w-3xl text-xs leading-relaxed text-neblina">
-        <strong className="text-osso">Sobre seus dados.</strong> Esta página
+        <strong className="text-navy">Sobre seus dados.</strong> Esta página
         registra quando foi aberta e por qual navegador, para que a SoftCode
         saiba acompanhar esta proposta no tempo certo. Se você aceitar, guardamos
         data, hora, IP e navegador como comprovação. Não usamos cookies e não há

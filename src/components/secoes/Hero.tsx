@@ -1,4 +1,5 @@
 import { formatarDataLonga, textoValidade } from "@/lib/proposta/formatar";
+import { LogoSoftCode } from "@/components/ui/LogoSoftCode";
 
 /**
  * ELEMENTO ASSINATURA da página.
@@ -43,7 +44,7 @@ export function Hero({
       />
 
       <div className="flex items-center justify-between gap-4 text-xs uppercase tracking-[0.28em] text-neblina">
-        <LogoSoftCode className="h-5 w-28 !bg-osso [mask-position:left_center]" />
+        <LogoSoftCode className="h-24 w-auto sm:h-28" prioridade />
         <span className="numero">Proposta comercial</span>
       </div>
 
@@ -58,17 +59,17 @@ export function Hero({
       <div className="grid gap-8 border-t border-linha pt-8 sm:grid-cols-2">
         <div>
           <p className="text-xs uppercase tracking-[0.2em] text-neblina">Projeto</p>
-          <p className="mt-2 text-lg leading-snug text-osso">{projeto}</p>
+          <p className="mt-2 text-lg leading-snug text-navy">{projeto}</p>
           <p className="mt-1 text-sm text-neblina">Aos cuidados de {cliente}</p>
         </div>
         <dl className="grid grid-cols-2 gap-6 text-sm sm:justify-items-end sm:text-right">
           <div>
             <dt className="text-xs uppercase tracking-[0.2em] text-neblina">Emissão</dt>
-            <dd className="numero mt-2 text-osso">{formatarDataLonga(emitidaEm)}</dd>
+            <dd className="numero mt-2 text-navy">{formatarDataLonga(emitidaEm)}</dd>
           </div>
           <div>
             <dt className="text-xs uppercase tracking-[0.2em] text-neblina">Validade</dt>
-            <dd className="numero mt-2 text-osso">{formatarDataLonga(validaAte)}</dd>
+            <dd className="numero mt-2 text-navy">{formatarDataLonga(validaAte)}</dd>
             <dd
               className={`mt-1 text-xs ${expirada ? "text-neblina" : "text-acento"}`}
             >
@@ -99,33 +100,8 @@ export function CabecalhoFixo({
       className="cabecalho-fixo fixed inset-x-0 top-0 z-50 h-[var(--altura-cabecalho)] items-center justify-between gap-4 border-b border-linha bg-fundo/85 px-6 backdrop-blur-sm sm:px-8"
     >
       <LogoCliente empresa={empresa} url={logoCliente} />
-      <LogoSoftCode className="h-4 w-24" />
+      <LogoSoftCode className="h-12 w-auto" />
     </div>
-  );
-}
-
-/**
- * Logo da SoftCode, aplicado por `mask-image` sobre uma área em osso.
- * O arquivo vetorial vira recorte, então a marca sai sempre monocromática e
- * nunca briga com o índigo do acento.
- */
-export function LogoSoftCode({ className = "" }: { className?: string }) {
-  return (
-    <span
-      role="img"
-      aria-label="SoftCode"
-      className={`block bg-osso ${className}`}
-      style={{
-        maskImage: "url('/Logos/500x500/SVG/SoftCode-Nome-Vetor.svg')",
-        WebkitMaskImage: "url('/Logos/500x500/SVG/SoftCode-Nome-Vetor.svg')",
-        maskRepeat: "no-repeat",
-        WebkitMaskRepeat: "no-repeat",
-        maskPosition: "right center",
-        WebkitMaskPosition: "right center",
-        maskSize: "contain",
-        WebkitMaskSize: "contain",
-      }}
-    />
   );
 }
 
@@ -142,7 +118,7 @@ export function LogoSoftCode({ className = "" }: { className?: string }) {
 function LogoCliente({ empresa, url }: { empresa: string; url?: string }) {
   if (!url) {
     return (
-      <span className="tipo-display text-base tracking-tight text-osso">
+      <span className="tipo-display text-base tracking-tight text-navy">
         {empresa}
       </span>
     );

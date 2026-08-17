@@ -16,7 +16,7 @@ export function Cronograma({ dados }: { dados: Dados }) {
   return (
     <Secao id="cronograma" etiqueta="05" titulo={dados.titulo ?? "Cronograma"}>
       <Revelar como="p" className="mb-12 text-neblina">
-        <span className="numero text-osso">{total} semanas</span> no total, do
+        <span className="numero text-navy">{total} semanas</span> no total, do
         planejamento à publicação.
       </Revelar>
 
@@ -38,7 +38,7 @@ export function Cronograma({ dados }: { dados: Dados }) {
             />
 
             <div className="flex items-baseline justify-between gap-4">
-              <h3 className="flex items-baseline gap-3 text-lg text-osso">
+              <h3 className="flex items-baseline gap-3 text-lg text-navy">
                 <span className="numero text-xs text-acento">
                   {String(i + 1).padStart(2, "0")}
                 </span>

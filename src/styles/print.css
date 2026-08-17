@@ -88,39 +88,21 @@
     block-size: auto !important;
   }
 
-  /* 5. Paleta invertida: papel branco, tinta escura.
-        Imprimir o quase-preto chapado gastaria tinta e a maioria dos navegadores
-        descarta o fundo mesmo — o resultado seria texto claro em papel branco. */
-  :root {
-    color-scheme: light;
-  }
+  /* 5. A paleta da tela já é branco com azul — no papel só garantimos que
+        os fundos de seção não gastem tinta e que o texto fique preto o
+        bastante para impressora a laser. */
   html,
   body {
     background: #ffffff !important;
     color: #101014 !important;
   }
-  * {
-    background-image: none !important;
-  }
-  [class*="bg-fundo"],
+  main > div,
   [class*="bg-superficie"],
-  [class*="bg-elevado"],
-  [class*="bg-acento"] {
+  [class*="bg-elevado"] {
     background: #ffffff !important;
   }
-  [class*="text-osso"],
   [class*="text-neblina"] {
-    color: #101014 !important;
-  }
-  [class*="text-acento"] {
-    color: #2b29b8 !important;
-  }
-  [class*="border-"] {
-    border-color: #c9c9c4 !important;
-  }
-  /* a corda entre secoes nao vai para o papel */
-  .corda {
-    display: none !important;
+    color: #3f4a5a !important;
   }
 
   /* 6. Quebras de página que respeitam a leitura. */
@@ -148,7 +130,13 @@
     color: #4a4a45;
   }
 
-  /* 7. Rodapé impresso vem de um elemento REAL no DOM.
+  /* 7. A seção travada volta a ter altura natural: no papel ela é uma lista.
+        Sem isto, o contêiner de 540vh imprimiria páginas em branco. */
+  [style*="vh"] {
+    height: auto !important;
+  }
+
+  /* 8. Rodapé impresso vem de um elemento REAL no DOM.
         Margin box de @page não renderiza conteúdo em navegador — aquilo é
         território de motor de impressão de servidor. */
   .print-only {

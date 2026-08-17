@@ -11,7 +11,7 @@ const BASE =
 
 const VARIANTES = {
   solido: "bg-acento text-osso hover:bg-acento-claro",
-  contorno: "border border-linha text-osso hover:border-acento hover:text-acento",
+  contorno: "border border-linha text-navy hover:border-acento hover:text-acento",
 } as const;
 
 type Props = {

@@ -75,7 +75,7 @@ export function Investimento({ dados }: { dados: Dados }) {
               </p>
             )}
 
-            <h3 className="tipo-display text-secao leading-tight text-osso">
+            <h3 className="tipo-display text-secao leading-tight text-navy">
               {opcao.nome}
             </h3>
             <p className="mt-2 text-sm text-neblina">{opcao.resumo}</p>
@@ -83,7 +83,7 @@ export function Investimento({ dados }: { dados: Dados }) {
             <Contador
               valorCentavos={opcao.valorCentavos}
               className={`tipo-display mt-6 block ${
-                opcao.destaque ? "text-4xl text-acento" : "text-3xl text-osso"
+                opcao.destaque ? "text-4xl text-acento" : "text-3xl text-navy"
               }`}
             />
 

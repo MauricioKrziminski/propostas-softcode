@@ -14,7 +14,7 @@ export function Textura() {
   return (
     <div
       aria-hidden
-      className="so-tela pointer-events-none fixed inset-0 z-[60] opacity-[0.055]"
+      className="so-tela pointer-events-none fixed inset-0 z-[60] opacity-[0.02]"
       style={{ backgroundImage: `url("${GRAO}")`, backgroundRepeat: "repeat" }}
     />
   );

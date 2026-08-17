@@ -21,7 +21,6 @@ import { Aceite } from "@/components/secoes/Aceite";
 import { Expirada } from "@/components/secoes/Expirada";
 import { RodapeLegal } from "@/components/secoes/RodapeLegal";
 import { AberturaProposta } from "@/components/secoes/AberturaProposta";
-import { Corda } from "@/components/motion/Corda";
 import { Textura } from "@/components/motion/Textura";
 
 /** JS de enfeite entra por dynamic import — não pesa no carregamento inicial. */
@@ -45,8 +44,10 @@ const ORDEM_CANONICA: ChaveSecao[] = [
   "aceite",
 ];
 
-/** Tons alternados: a separação entre seções tem que ser explícita. */
-const TONS = ["#080808", "#14141a"] as const;
+/** Tons alternados da paleta do PDF: branco e o azul claro de fundo.
+    A divisão é SECA — sem gradiente, sem blur, sem curva. A diferença entre os
+    dois tons é pequena o bastante para separar sem chamar atenção. */
+const TONS = ["#ffffff", "#f0f6ff"] as const;
 
 type Props = { params: Promise<{ proposta: string }> };
 
@@ -135,13 +136,6 @@ export default async function PaginaProposta({ params }: Props) {
       <main>
         {blocos.map((bloco, i) => (
           <Fragment key={bloco.chave}>
-            {/* Não existe linha divisória: quem separa é a própria diferença
-                de cor, numa curva que cede como corda e se desloca no scroll. */}
-            <Corda
-              deCima={i === 0 ? TONS[0] : tomDe(i - 1)}
-              paraBaixo={tomDe(i)}
-              profundidade={i % 3 === 0 ? 0.6 : i % 3 === 1 ? 1 : 1.4}
-            />
             <div
               style={{
                 backgroundColor: tomDe(i),
@@ -153,8 +147,6 @@ export default async function PaginaProposta({ params }: Props) {
           </Fragment>
         ))}
       </main>
-
-      <Corda deCima={tomDe(blocos.length - 1)} paraBaixo={TONS[0]} profundidade={0.8} />
 
       <RodapeLegal
         caminho={caminhoPublico(proposta)}

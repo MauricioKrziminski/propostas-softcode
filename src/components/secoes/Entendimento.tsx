@@ -29,14 +29,16 @@ export function Entendimento({ dados }: { dados: Dados }) {
       {dados.citacaoCliente && (
         <Revelar direcao="escala" className="relative mt-16 sm:mt-20">
           <figure>
+          {/* A aspa fica ACIMA da citação, não sobreposta a ela: em absoluto
+              ela cobria a primeira palavra no celular. */}
           <span
             aria-hidden
-            className="tipo-display pointer-events-none absolute -left-1 -top-10 origin-bottom-left select-none text-[8rem] leading-none text-acento/25 sm:-left-6 sm:text-[12rem]"
+            className="tipo-display block select-none text-[4.5rem] leading-[0.55] !text-acento/30 sm:text-[6rem]"
           >
             &ldquo;
           </span>
-          <blockquote className="relative border-l-2 border-acento pl-6 sm:pl-10">
-            <p className="tipo-display text-secao leading-tight text-osso">
+          <blockquote className="mt-3 border-l-2 border-acento pl-6 sm:pl-10">
+            <p className="tipo-display text-secao leading-tight text-navy">
               {dados.citacaoCliente.texto}
             </p>
             {dados.citacaoCliente.autor && (

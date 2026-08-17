@@ -43,7 +43,9 @@ function checar(condicao, textoOk, textoFalha = textoOk, extra = "") {
  * isso testa que o botão do convite realmente funciona.
  */
 async function abrirProposta(pagina) {
-  const botao = pagina.getByRole("button", { name: /abrir o convite/i });
+  // Seletor estrutural, não por rótulo: o texto do botão já mudou duas vezes e
+  // cada mudança fazia o teste "passar" sem nunca dispensar o convite.
+  const botao = pagina.locator("#convite button").first();
   if (await botao.count()) {
     await botao.click();
     // O convite só sai de cena depois da própria animação de saída, então
@@ -154,12 +156,27 @@ const grudados = await pg.evaluate(() =>
 );
 checar(grudados === 0, "nenhum título de seção sticky", `${grudados} título(s) voltaram a ser sticky`);
 
-/* A corda entre seções é quem separa — sem linha e sem SVG de onda. */
-const cordas = await pg.evaluate(() => ({
-  total: document.querySelectorAll(".corda").length,
-  animando: [...document.querySelectorAll(".corda")].filter((e) => e.getAnimations().length > 0).length,
-}));
-checar(cordas.total > 0 && cordas.animando === cordas.total, `${cordas.total} cordas entre seções, todas animando`, `${cordas.animando} de ${cordas.total} cordas animando`);
+/* A separação entre seções é SECA: só a troca de cor de fundo, sem gradiente,
+   sem blur e sem curva. */
+const separacao = await pg.evaluate(() => {
+  const blocos = [...document.querySelectorAll("main > div")];
+  const cores = blocos.map((b) => getComputedStyle(b).backgroundColor);
+  const comGradiente = blocos.filter((b) => getComputedStyle(b).backgroundImage !== "none").length;
+  const comBlur = blocos.filter((b) => getComputedStyle(b).filter !== "none").length;
+  return { blocos: blocos.length, distintas: new Set(cores).size, comGradiente, comBlur };
+});
+checar(separacao.blocos > 0 && separacao.distintas === 2, `${separacao.blocos} seções alternando entre 2 tons`, `esperava 2 tons alternados, encontrei ${separacao.distintas}`);
+checar(separacao.comGradiente === 0 && separacao.comBlur === 0, "divisão seca (sem gradiente e sem blur)", `${separacao.comGradiente} com gradiente, ${separacao.comBlur} com blur`);
+
+/* A seção travada precisa de fato travar: contêiner alto + filho sticky. */
+const travada = await pg.evaluate(() => {
+  const secao = document.querySelector("#processo");
+  if (!secao) return null;
+  const alto = [...secao.querySelectorAll("div")].find((d) => d.getBoundingClientRect().height > innerHeight * 2);
+  const grudado = [...secao.querySelectorAll("div")].some((d) => getComputedStyle(d).position === "sticky");
+  return { alto: !!alto, grudado, altura: alto ? Math.round(alto.getBoundingClientRect().height) : 0 };
+});
+checar(!!travada && travada.alto && travada.grudado, `seção do processo trava (${travada?.altura}px de percurso)`, "a seção do processo não está travando");
 
 /* Os reveals por mola do motion precisam existir de fato. */
 const molas = await pg.evaluate(

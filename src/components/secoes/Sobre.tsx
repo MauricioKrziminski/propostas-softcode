@@ -22,7 +22,7 @@ export function Sobre({ dados }: { dados: Dados }) {
               className="case-item cartao-luz border border-linha p-6"
             >
               <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                <h3 className="text-lg text-osso">{caso.cliente}</h3>
+                <h3 className="text-lg text-navy">{caso.cliente}</h3>
                 <p className="text-xs uppercase tracking-[0.2em] text-acento">
                   {caso.segmento}
                 </p>

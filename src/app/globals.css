@@ -2,21 +2,26 @@
 @import "../styles/print.css";
 
 /* ═══════════════════ identidade SoftCode ═══════════════════
-   Cores e tipografia extraídas do softcodedev.com.br: quase-preto,
-   índigo elétrico como acento, texto em osso, títulos em Playfair Display
-   e corpo em Geist. A proposta precisa parecer da SoftCode.
+   Fundo branco com azul, herdado dos orçamentos em PDF que a SoftCode já
+   enviava — é a identidade que os clientes dela já reconhecem. Tipografia
+   do site da marca: Playfair Display nos títulos, Geist no corpo.
    ═══════════════════════════════════════════════════════════ */
 
 @theme {
-  --color-fundo: #080808;
-  --color-superficie: #101010;
-  --color-elevado: #1a1a1a;
-  --color-osso: #f5f5f0;
-  --color-neblina: #8f8f8a;
-  --color-acento: #3d3bf3;
-  --color-acento-claro: #6c6af5;
-  --color-roxo: #9d4edd;
-  --color-linha: rgb(245 245 240 / 0.1);
+  /* Paleta dos orçamentos em PDF que a SoftCode já usava: branco com azul.
+     Os azuis conversam com o próprio logo, que tem gradiente #1B63EC → #6E2ED0. */
+  --color-fundo: #ffffff;
+  --color-superficie: #f0f6ff;
+  --color-elevado: #f8fafc;
+  --color-navy: #0d1b2a;
+  --color-texto: #1e293b;
+  --color-neblina: #64748b;
+  --color-osso: #ffffff;
+  --color-acento: #2563eb;
+  --color-acento-claro: #1d4ed8;
+  --color-azul-sec: #1a3a5c;
+  --color-linha: #e2e8f0;
+  --color-linha-azul: #c7d9f5;
 
   --font-display: var(--fonte-display), Georgia, serif;
   --font-texto: var(--fonte-texto), ui-sans-serif, system-ui, sans-serif;
@@ -30,13 +35,13 @@
   --spacing-normal: clamp(5rem, 13vw, 9rem);
   --spacing-respiro: clamp(7rem, 18vw, 14rem);
 
-  --altura-cabecalho: 3.25rem;
+  --altura-cabecalho: 4rem;
 }
 
 /* ─────────────────────────── base ─────────────────────────── */
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 html {
@@ -46,7 +51,7 @@ html {
 
 body {
   background-color: var(--color-fundo);
-  color: var(--color-osso);
+  color: var(--color-texto);
   font-family: var(--font-texto);
   font-size: var(--text-corpo);
   line-height: 1.65;
@@ -57,6 +62,7 @@ body {
 .tipo-display {
   font-family: var(--font-display);
   font-weight: 700;
+  color: var(--color-navy);
   line-height: 1.02;
   letter-spacing: -0.02em;
   text-wrap: balance;
@@ -84,7 +90,7 @@ body {
 
 ::selection {
   background-color: var(--color-acento);
-  color: var(--color-osso);
+  color: #ffffff;
 }
 
 /* ═══════════════════ sistema de movimento ═══════════════════
@@ -158,16 +164,6 @@ body {
   }
 }
 
-/* a corda cede e sobe conforme a página rola — só translateY */
-@keyframes corda-balanco {
-  from {
-    transform: translateY(-9%);
-  }
-  to {
-    transform: translateY(9%);
-  }
-}
-
 /* Estado de repouso do cabeçalho fixo. Precisa vir ANTES do @supports:
    mesma especificidade, então quem vem depois vence — declarado depois,
    este `display: none` anulava o `display: flex` de dentro do bloco. */
@@ -197,14 +193,6 @@ body {
       animation: deslocar linear both;
       animation-timeline: scroll(root);
       animation-range: 0 100svh;
-    }
-
-    /* ── a corda entre seções ── */
-    .corda {
-      animation: corda-balanco linear both;
-      animation-timeline: view();
-      animation-range: entry 0% exit 100%;
-      will-change: transform;
     }
 
     .filete-secao {
@@ -388,6 +376,11 @@ body {
 @media (prefers-reduced-motion: no-preference) {
   .convite-cartao {
     animation: convite-entrar 900ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  /* a aba abre SOZINHA, logo depois do cartão entrar */
+  .convite-aba-auto {
+    transform-origin: top center;
+    animation: aba-abrir 1100ms cubic-bezier(0.6, 0, 0.2, 1) 700ms both;
   }
   .convite-aba {
     transform-origin: top center;

@@ -81,7 +81,7 @@ export function Aceite({
                   className="mt-1 accent-[#c79a3b]"
                 />
                 <span>
-                  <span className="block text-osso">{o.nome}</span>
+                  <span className="block text-navy">{o.nome}</span>
                   <span className="numero mt-1 block text-sm text-neblina">
                     {formatarValor(o.valorCentavos)}
                   </span>
@@ -94,7 +94,7 @@ export function Aceite({
 
       {/* Aviso LGPD: reforço da validade do registro, sempre visível. */}
       <p className="mb-6 max-w-2xl text-sm leading-relaxed text-neblina">
-        <strong className="text-osso">
+        <strong className="text-navy">
           Ao confirmar, registramos data, hora, endereço IP e navegador.
         </strong>{" "}
         É esse registro que dá validade jurídica ao seu aceite — ele cumpre o
@@ -107,7 +107,7 @@ export function Aceite({
           aria-disabled={!opcao}
           className={`alvo-toque inline-flex items-center justify-center gap-2 px-6 py-3 text-sm uppercase tracking-[0.12em] transition-colors duration-200 motion-reduce:transition-none ${
             opcao
-              ? "bg-acento text-fundo hover:bg-osso"
+              ? "bg-acento text-osso hover:bg-acento-claro"
               : "pointer-events-none bg-linha text-neblina"
           }`}
         >

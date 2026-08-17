@@ -21,7 +21,7 @@ export function Solucao({ dados }: { dados: Dados }) {
             como="article"
             className="cartao-luz bg-fundo/60 p-6 outline outline-linha sm:p-8"
           >
-            <h3 className="tipo-display text-xl leading-tight text-osso">
+            <h3 className="tipo-display text-xl leading-tight text-navy">
               {pilar.titulo}
             </h3>
             <p className="mt-3 text-neblina">{pilar.descricao}</p>

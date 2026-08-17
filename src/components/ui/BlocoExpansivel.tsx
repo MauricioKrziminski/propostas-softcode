@@ -31,7 +31,7 @@ export function BlocoExpansivel({
           {String(indice).padStart(2, "0")}
         </span>
         <span className="flex-1">
-          <span className="block text-lg leading-snug text-osso">{titulo}</span>
+          <span className="block text-lg leading-snug text-navy">{titulo}</span>
           {resumo && (
             <span className="mt-1 block text-sm text-neblina">{resumo}</span>
           )}

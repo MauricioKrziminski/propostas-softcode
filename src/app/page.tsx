@@ -33,7 +33,7 @@ export default function Home() {
         target="_blank"
         rel="noopener noreferrer nofollow"
         referrerPolicy="no-referrer"
-        className="alvo-toque mt-10 inline-flex w-fit items-center text-sm uppercase tracking-[0.12em] text-osso underline underline-offset-4 hover:text-acento"
+        className="alvo-toque mt-10 inline-flex w-fit items-center text-sm uppercase tracking-[0.12em] text-navy underline underline-offset-4 hover:text-acento"
       >
         Conheça a SoftCode
       </a>

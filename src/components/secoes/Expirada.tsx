@@ -31,9 +31,9 @@ export function Expirada({
       </h1>
 
       <p className="mt-6 text-lg leading-relaxed text-neblina">
-        A proposta de <span className="text-osso">{projeto}</span> para a{" "}
-        <span className="text-osso">{empresa}</span> era válida até{" "}
-        <span className="numero text-osso">{formatarDataLonga(validaAte)}</span>.
+        A proposta de <span className="text-navy">{projeto}</span> para a{" "}
+        <span className="text-navy">{empresa}</span> era válida até{" "}
+        <span className="numero text-navy">{formatarDataLonga(validaAte)}</span>.
         Escopo e prazos continuam de pé; os valores precisam ser revistos para a
         data de hoje.
       </p>

@@ -39,7 +39,7 @@ export function Responsabilidades({ dados }: { dados: Dados }) {
                 {String(i + 1).padStart(2, "0")}
               </span>
               <div>
-                <p className="text-osso">{it.item}</p>
+                <p className="text-navy">{it.item}</p>
                 {it.detalhe && (
                   <p className="mt-1.5 text-sm text-neblina">{it.detalhe}</p>
                 )}

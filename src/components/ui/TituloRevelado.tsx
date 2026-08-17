@@ -1,5 +1,6 @@
 "use client";
 
+import { Fragment } from "react";
 import { motion, useReducedMotion, type Variants } from "motion/react";
 
 /**
@@ -45,13 +46,18 @@ export function TituloRevelado({
         whileInView="visivel"
         viewport={{ once: true, amount: 0.4 }}
       >
+        {/* O espaço fica FORA do `.palavra-clip`. Dentro dele, que é
+            `inline-block` com `overflow: hidden`, o espaço final é descartado e
+            as palavras grudam ("Oquevamosfazer"). */}
         {palavras.map((palavra, i) => (
-          <span key={i} className="palavra-clip">
-            <motion.span className="inline-block" variants={PALAVRA}>
-              {palavra}
-            </motion.span>
+          <Fragment key={i}>
+            <span className="palavra-clip">
+              <motion.span className="inline-block" variants={PALAVRA}>
+                {palavra}
+              </motion.span>
+            </span>
             {i < palavras.length - 1 ? " " : null}
-          </span>
+          </Fragment>
         ))}
       </motion.span>
     </Tag>
