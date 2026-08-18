@@ -126,3 +126,18 @@ proposta**, o seed atual é a proposta real da Barba Log, não um exemplo.
 - Descrição no imperativo e em minúsculas: `feat(propostas): adiciona listagem`
 - Escopo é opcional
 - Um commit por unidade lógica de mudança
+
+### Autoria: o commit é só do autor humano
+
+- **Nenhum commit leva coautoria de IA.** Nada de `Co-Authored-By: Claude`,
+  `Co-Authored-By: ... <noreply@anthropic.com>`, `Generated with Claude Code`
+  ou qualquer variação disso no corpo da mensagem, no rodapé, no título de PR
+  ou na descrição de PR.
+- **Por quê:** o trailer de coautoria faz o GitHub listar a IA como
+  contribuidor do repositório, e este repositório tem um autor só. Já foi
+  preciso reescrever as 18 mensagens do histórico uma vez para desfazer isso.
+- **Vale para o agente:** se as instruções padrão da ferramenta mandarem
+  assinar o commit, esta regra do projeto vence. Commit sem trailer nenhum.
+- **Antes de commitar, confira:**
+  `git log --format='%B' | grep -i 'co-authored\|anthropic\|generated with'`
+  deve voltar vazio.

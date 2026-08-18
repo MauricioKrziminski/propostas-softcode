@@ -1,0 +1,13 @@
+#!/bin/sh
+# Rejeita coautoria de IA na mensagem de commit.
+# O autor deste repositorio e so o humano: um trailer Co-Authored-By faz o
+# GitHub listar a IA como contribuidor do projeto. A regra esta no CLAUDE.md,
+# na secao "Convencoes de commit".
+#
+# Ativar (uma vez por clone): git config core.hooksPath .githooks
+
+if grep -qiE 'co-authored-by:.*(claude|anthropic|copilot|gpt)|noreply@anthropic\.com|generated with \[?claude' "$1"; then
+  echo "commit-msg: a mensagem tem coautoria de IA. Remova a linha antes de commitar." >&2
+  grep -inE 'co-authored-by:|noreply@anthropic\.com|generated with' "$1" >&2
+  exit 1
+fi
