@@ -1,0 +1,234 @@
+{
+  "slug": "corretor-bastos",
+  "token": "rYbRjz6RdY",
+  "cliente": {
+    "nome": "Bastos",
+    "empresa": "Corretor Bastos"
+  },
+  "tituloProjeto": "Site e painel administrativo de imóveis",
+  "status": "aceita",
+  "emitidaEm": "2026-08-18",
+  "validaAte": "2026-09-17",
+  "conteudo": {
+    "entendimento": {
+      "titulo": "O que entendemos",
+      "paragrafos": [
+        "O site e o sistema que o Corretor Bastos usa hoje dão liberdade para publicar imóvel sem depender de ninguém, e é isso que não pode se perder. O que precisa mudar é a apresentação: uma vitrine moderna, bonita e fácil de usar, no computador e principalmente no celular.",
+        "Na prática o dia a dia continua o mesmo: você entra no painel, cadastra o imóvel, sobe as fotos, escreve o título e a descrição, define valor, bairro, dormitórios e vagas. O anúncio aparece no site na hora, e editar ou tirar do ar é igualmente simples."
+      ],
+      "citacaoCliente": {
+        "texto": "Não posso depender de agência para trocar uma foto ou baixar um preço.",
+        "autor": "Corretor Bastos, na conversa inicial"
+      }
+    },
+    "solucao": {
+      "titulo": "A solução proposta",
+      "resumo": "Um site público novo para quem procura imóvel e um painel administrativo redesenhado para quem publica. Os dois construídos do zero, com a mesma liberdade de hoje numa interface muito mais simples.",
+      "pilares": [
+        {
+          "titulo": "Vitrine que funciona no celular",
+          "descricao": "A maior parte das pessoas procura imóvel pelo celular, então o site é desenhado primeiro para essa tela."
+        },
+        {
+          "titulo": "Busca e filtros de verdade",
+          "descricao": "Tipo, cidade, bairro, dormitórios, vagas, faixa de valor, área e código do imóvel, com resultado sem recarregar a página."
+        },
+        {
+          "titulo": "Painel que você opera sozinho",
+          "descricao": "Cadastrar, editar, duplicar e remover imóveis, subir fotos e escolher a capa, tudo também pelo celular."
+        },
+        {
+          "titulo": "Cada imóvel achável no Google",
+          "descricao": "Endereço próprio por anúncio, com título e descrição pensados para busca e para o compartilhamento no WhatsApp."
+        }
+      ]
+    },
+    "escopo": {
+      "titulo": "Escopo detalhado",
+      "introducao": "Duas frentes: o site que o cliente vê e o painel que só você vê.",
+      "modulos": [
+        {
+          "titulo": "Páginas do site público",
+          "resumo": "Seis páginas, da home ao contato.",
+          "itens": [
+            "Página inicial: busca em destaque no topo, imóveis selecionados por você e chamadas diretas para WhatsApp e contato",
+            "Listagem de imóveis: todos os imóveis à venda, com os filtros funcionando de verdade",
+            "Página do imóvel: galeria em tela cheia, descrição completa, características, valor, localização e contato sobre aquele imóvel",
+            "Quem somos: apresentação do corretor, CRECI, tempo de mercado e forma de trabalho",
+            "Vendemos seu imóvel: página de captação de proprietários, com formulário próprio",
+            "Contato: formulário, dados de contato, WhatsApp e opção de ligamos para você"
+          ],
+          "entregaveis": ["As seis páginas no ar", "Estrutura pronta para novos textos"]
+        },
+        {
+          "titulo": "Busca e filtros",
+          "resumo": "A parte que decide se o visitante acha o imóvel ou desiste.",
+          "itens": [
+            "Busca rápida no topo da home, seguindo a mesma lógica que você já usa hoje",
+            "Filtros por tipo de imóvel, cidade, bairro, dormitórios, vagas e faixa de valor",
+            "Busca direta por código, para quando o cliente já viu o anúncio em outro lugar",
+            "Resultados carregando sem recarregar a página inteira"
+          ]
+        },
+        {
+          "titulo": "Contato e captação",
+          "resumo": "Todo caminho que leva o visitante a falar com você.",
+          "itens": [
+            "Botão de WhatsApp fixo, visível em todas as páginas",
+            "Formulário de interesse dentro da página de cada imóvel, com aviso por e-mail já dizendo de qual imóvel se trata",
+            "Formulário de ligamos para você",
+            "Formulário de captação de proprietários na página Vendemos seu imóvel",
+            "Compartilhamento do anúncio por WhatsApp e link direto"
+          ]
+        },
+        {
+          "titulo": "Painel: gestão de imóveis",
+          "resumo": "A parte mais importante do projeto, redesenhada por completo.",
+          "itens": [
+            "Cadastrar, editar, duplicar e remover imóveis",
+            "Upload de várias fotos de uma vez, com reordenação e escolha da foto de capa",
+            "Título, descrição, valor, área total e privativa, dormitórios, vagas, tipo e endereço",
+            "Marcar um imóvel como destaque para ele aparecer na home",
+            "Status entre à venda, vendido, reservado ou pausado, sem precisar apagar o cadastro",
+            "Observações internas, visíveis só para você e nunca exibidas no site"
+          ],
+          "entregaveis": ["Painel no ar", "Treinamento inicial e guia rápido escrito"]
+        },
+        {
+          "titulo": "Painel: cadastros de apoio e conteúdo",
+          "resumo": "O que alimenta os filtros e os textos do site.",
+          "itens": [
+            "Cidades e bairros, para alimentar os filtros do site",
+            "Proprietários, com dados de contato vinculados a cada imóvel",
+            "Busca interna por código, endereço, descrição, proprietário ou observações internas",
+            "Troca dos banners da página inicial",
+            "Edição dos textos institucionais e dos dados de contato da empresa",
+            "Acesso protegido por login e senha, com possibilidade de mais de um usuário"
+          ]
+        },
+        {
+          "titulo": "Funcionalidades a validar em conjunto",
+          "resumo": "Recursos do sistema atual que entram se forem confirmados como necessários.",
+          "itens": [
+            "Agendamentos e visitas: listagem por período e por corretor",
+            "Vídeos dos imóveis: vinculação de vídeo ao anúncio",
+            "Construtoras: cadastro e busca de imóveis por construtora, relevante para lançamentos",
+            "Mural de recados: comunicação interna entre corretores",
+            "Porta-arquivos: armazenamento de documentos ligados aos imóveis",
+            "Propostas e exclusividade: controle de imóveis com proposta em andamento ou contrato",
+            "Gerador de QR Code: código do anúncio para placas e material impresso",
+            "Múltiplos usuários: agenciadores e corretores com acessos separados"
+          ]
+        },
+        {
+          "titulo": "Cuidados técnicos incluídos",
+          "resumo": "O que faz o site aparecer, carregar rápido e ficar protegido.",
+          "itens": [
+            "Cada imóvel com endereço próprio, título e descrição pensados para busca",
+            "Estrutura preparada para o Google indexar os anúncios individualmente",
+            "Fotos otimizadas automaticamente, para abrir rápido mesmo em conexão fraca",
+            "Google Analytics e Search Console configurados",
+            "Painel protegido por login e senha, com dados trafegando de forma criptografada",
+            "Aviso de cookies e política de privacidade, conforme exige a LGPD"
+          ]
+        }
+      ]
+    },
+    "processo": {
+      "mostrar": true,
+      "introducao": "Seis etapas, do briefing à entrega. Você sabe o que recebe e o que precisa aprovar em cada uma."
+    },
+    "responsabilidades": {
+      "titulo": "O que precisamos de você",
+      "introducao": "O projeto anda no ritmo em que esses itens chegam. Quanto antes, melhor.",
+      "itens": [
+        {
+          "item": "Logotipo em boa qualidade",
+          "detalhe": "Se houver o arquivo original."
+        },
+        {
+          "item": "Fotos do corretor e textos institucionais",
+          "detalhe": "Caso queira atualizar o conteúdo atual."
+        },
+        {
+          "item": "Acesso ao domínio atual",
+          "detalhe": "Para apontar o endereço para o site novo."
+        },
+        {
+          "item": "Uma reunião de escopo no início",
+          "detalhe": "É onde definimos quais funcionalidades a validar entram no projeto."
+        },
+        {
+          "item": "Retorno nas etapas de aprovação",
+          "detalhe": "Layout e testes, para o projeto seguir no ritmo."
+        }
+      ]
+    },
+    "suporte": {
+      "titulo": "Suporte após a entrega",
+      "introducao": "Depois que o site estiver no ar, a SoftCode acompanha por 2 meses sem custo adicional. Se aparecer algum erro ou algo não funcionar como combinado, corrigimos dentro desse período.",
+      "itens": [
+        "Correção de qualquer erro de funcionamento do site ou do painel.",
+        "Suporte para dúvidas de uso do painel.",
+        "Treinamento inicial de uso do painel, junto com um guia rápido escrito."
+      ],
+      "nota": "Passados os 2 meses, manutenções e ajustes são orçados conforme o tamanho e a complexidade do pedido. Novas funcionalidades seguem a mesma lógica: são avaliadas e orçadas separadamente, sempre com o valor aprovado antes de qualquer execução."
+    },
+    "investimento": {
+      "titulo": "Investimento",
+      "introducao": "O valor contempla todo o escopo desta proposta: o site público completo, o painel administrativo, os cuidados técnicos e os 2 meses de suporte após a entrega.",
+      "opcoes": [
+        {
+          "id": "site-e-painel",
+          "nome": "Site e painel administrativo",
+          "resumo": "Projeto completo, do site público ao painel de gestão de imóveis.",
+          "valorCentavos": 200000,
+          "formaPagamento": "25% de entrada na aprovação e 75% na entrega",
+          "itens": [
+            "Site público com as seis páginas",
+            "Busca e filtros completos",
+            "Painel de gestão de imóveis, também no celular",
+            "Cuidados técnicos de busca, velocidade e segurança",
+            "2 meses de suporte após a entrega"
+          ],
+          "destaque": true
+        }
+      ],
+      "observacoes": ["Valores válidos até a data de validade desta proposta."]
+    },
+    "pagamento": {
+      "titulo": "Como o pagamento funciona",
+      "introducao": "O pagamento é dividido em duas partes: uma entrada para dar início ao projeto e o restante somente quando o site e o painel estiverem prontos, testados e aprovados.",
+      "parcelas": [
+        { "rotulo": "Entrada, ao aprovar a proposta", "percentual": 25 },
+        { "rotulo": "Pagamento final, com site e painel entregues e aprovados", "percentual": 75 }
+      ],
+      "cancelamento": {
+        "titulo": "Se o projeto precisar ser cancelado",
+        "texto": "Se por algum motivo o Corretor Bastos precisar cancelar o projeto após o início dos trabalhos, a entrada paga não será reembolsada, pois cobre o tempo e os recursos já dedicados. Como o pagamento final só acontece na entrega completa, não haverá nenhuma cobrança adicional além da entrada já realizada."
+      }
+    },
+    "indicacao": {
+      "titulo": "Programa de indicação",
+      "percentual": 10,
+      "texto": "Como agrado a quem confia no nosso trabalho, o Corretor Bastos passa a fazer parte do programa de indicação da SoftCode. Se indicar alguém e essa pessoa ou empresa fechar um projeto conosco, você recebe 10% do valor do primeiro projeto fechado por indicação sua. O valor é pago assim que o projeto indicado for quitado. Não há custo nem obrigação nenhuma para participar."
+    },
+    "sobre": {
+      "titulo": "Sobre a SoftCode",
+      "texto": "A SoftCode é uma software house brasileira que constrói sites e sistemas sob medida para empresas de médio porte. Trabalhamos com times pequenos e contato direto: você fala com quem escreve o código, não com um intermediário."
+    },
+    "finais": {
+      "titulo": "Considerações finais",
+      "paragrafos": [
+        "Esta proposta foi elaborada a partir da análise do site e do sistema que o Corretor Bastos utiliza hoje. A intenção não é tirar nada do que já funciona, e sim entregar a mesma liberdade numa apresentação muito mais moderna, bonita e fácil de operar, tanto para você quanto para quem procura um imóvel.",
+        "Qualquer dúvida, ajuste ou pedido de esclarecimento, estamos à disposição."
+      ],
+      "contato": "SoftCode · softcodedv@gmail.com"
+    },
+    "aceite": {
+      "titulo": "Aceite",
+      "texto": "Se fizer sentido, confirme abaixo. A partir daí preparamos o contrato e marcamos o início do planejamento.",
+      "mostrarPdf": true
+    }
+  }
+}

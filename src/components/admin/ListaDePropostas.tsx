@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import { duplicar, mudarStatus } from "@/app/admin/acoes";
+import { duplicar } from "@/app/admin/acoes";
 import type { ResumoProposta } from "@/lib/proposta/repositorio";
 import { BotaoCopiar } from "./BotaoCopiar";
 import { BotaoExcluir } from "./BotaoExcluir";
@@ -33,27 +33,16 @@ export function ListaDePropostas({
   const navegador = useRouter();
   const [busca, setBusca] = useState("");
 
-  function arquivar(id: string, status: string) {
-    const dados = new FormData();
-    dados.set("id", id);
-    dados.set("status", status);
-    void mudarStatus(dados);
-    navegador.refresh();
-  }
-  const [mostrarArquivadas, setMostrarArquivadas] = useState(false);
 
   const visiveis = useMemo(() => {
     const termo = busca.trim().toLowerCase();
     return propostas.filter((p) => {
-      if (!mostrarArquivadas && p.status === "arquivada") return false;
       if (!termo) return true;
       return `${p.empresa} ${p.tituloProjeto} ${p.caminho} ${p.contato}`
         .toLowerCase()
         .includes(termo);
     });
-  }, [propostas, busca, mostrarArquivadas]);
-
-  const arquivadas = propostas.filter((p) => p.status === "arquivada").length;
+  }, [propostas, busca]);
 
   /* Na lista o `⌘K` é atalho de navegação: com dez clientes, digitar três letras
      do nome chega antes que procurar a linha com os olhos. */
@@ -77,14 +66,6 @@ export function ListaDePropostas({
       executar: () => {
         navigator.clipboard?.writeText(`${base}/${p.caminho}`);
       },
-    })),
-    /* Arquivar saiu da linha para dar lugar a excluir, mas continua existindo:
-       é o caminho para tirar da vista sem perder o registro. */
-    ...propostas.map((p) => ({
-      id: `arquivar-${p.id}`,
-      grupo: p.status === "arquivada" ? "desarquivar" : "arquivar",
-      rotulo: p.empresa,
-      executar: () => arquivar(p.id, p.status === "arquivada" ? "rascunho" : "arquivada"),
     })),
   ];
 
@@ -110,16 +91,6 @@ export function ListaDePropostas({
           </span>
         </label>
 
-        {arquivadas > 0 && (
-          <button
-            type="button"
-            onClick={() => setMostrarArquivadas((v) => !v)}
-            className="botao-mesa"
-            aria-pressed={mostrarArquivadas}
-          >
-            {mostrarArquivadas ? "Esconder" : "Ver"} arquivadas ({arquivadas})
-          </button>
-        )}
       </div>
 
       {visiveis.length === 0 && (

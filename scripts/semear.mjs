@@ -25,7 +25,7 @@ if (!url) {
   process.exit(1);
 }
 
-const ARQUIVOS = ["barba-log.json"];
+const ARQUIVOS = ["barba-log.json", "corretor-bastos.json", "scai-do-sul.json"];
 const sql = postgres(url, { prepare: false, max: 1 });
 
 let inseridas = 0;

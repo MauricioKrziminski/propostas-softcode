@@ -389,17 +389,33 @@ await pg.screenshot({ path: ".playwright/admin-lista.png" });
 /* A limpeza acontece PELO BOTÃO, não por SQL. Assim o teste que arruma a casa
    também prova que excluir funciona, incluindo a confirmação em dois passos. */
 console.log("\n▸ excluir");
+/* O clique é ancorado NA LINHA da proposta de teste, nunca num botão solto.
+   A versão anterior filtrava a lista e clicava no primeiro "Excluir" da tela,
+   o que só funciona enquanto o filtro funciona: numa rodada em que a criação
+   falhou, o filtro não escondeu nada e o primeiro "Excluir" era de uma proposta
+   de verdade. Apagou. Ancorar na linha torna esse acidente impossível. */
 await pg.fill('input[placeholder^="Buscar"]', EMPRESA);
 await pg.waitForTimeout(400);
-await pg.click('button:has-text("Excluir")');
-await pg.waitForTimeout(300);
+const linhaDeTeste = pg.locator("li").filter({ hasText: EMPRESA });
+const quantasLinhas = await linhaDeTeste.count();
 checar(
-  (await pg.content()).includes("para sempre?"),
-  "excluir pede confirmação antes",
-  "o botão excluiu sem confirmar",
+  quantasLinhas === 1,
+  "a linha da proposta de teste foi isolada antes de excluir",
+  `a busca deixou ${quantasLinhas} linha(s) na tela: não dá para excluir com segurança`,
 );
-await pg.click('button:has-text("Sim, excluir")');
-await pg.waitForTimeout(2500);
+if (quantasLinhas !== 1) {
+  console.log("  ▸ pulando a exclusão pela tela para não apagar proposta de verdade");
+} else {
+  await linhaDeTeste.getByRole("button", { name: "Excluir", exact: true }).click();
+  await pg.waitForTimeout(300);
+  checar(
+    await pg.evaluate(() => Boolean(document.querySelector("dialog[open]"))),
+    "excluir abre modal de confirmação",
+    "o botão excluiu sem abrir a modal",
+  );
+  await pg.click('dialog button:has-text("Excluir para sempre")');
+  await pg.waitForTimeout(2500);
+}
 
 await ctx.close();
 await navegador.close();

@@ -1,0 +1,215 @@
+{
+  "slug": "scai-do-sul",
+  "token": "YA51756yZ7",
+  "cliente": {
+    "nome": "Scai do Sul",
+    "empresa": "Scai do Sul"
+  },
+  "tituloProjeto": "Site institucional e catálogo de produtos",
+  "status": "aceita",
+  "emitidaEm": "2026-08-18",
+  "validaAte": "2026-09-17",
+  "conteudo": {
+    "entendimento": {
+      "titulo": "O que entendemos",
+      "paragrafos": [
+        "A Scai do Sul precisa de um site em que qualquer pessoa entenda rapidamente quem é a empresa, o que ela produz, para quais setores atende e como pedir um orçamento. O endereço continua o mesmo, www.scaisul.com.br, mas o site é novo do zero.",
+        "O ponto central é a linha de produtos. Hoje ela aparece de forma genérica; no site novo cada linha ganha espaço próprio, com fotos, especificações e aplicações, para o cliente encontrar exatamente o que procura e chegar no contato já sabendo o que quer.",
+        "Não se trata de uma loja virtual. É um site institucional e de catálogo: mostra os produtos com detalhe e leva o visitante a pedir orçamento pelos canais que vocês já usam."
+      ]
+    },
+    "solucao": {
+      "titulo": "A solução proposta",
+      "resumo": "Um site institucional que apresenta a empresa com solidez e um catálogo em que cada linha de produto tem página própria, com o detalhe que o cliente procura antes de pedir orçamento.",
+      "pilares": [
+        {
+          "titulo": "Uma página por linha de produto",
+          "descricao": "Fotos, descrição, especificações em tabela, aplicações e botão de orçamento que já identifica o produto."
+        },
+        {
+          "titulo": "A empresa apresentada com solidez",
+          "descricao": "História, tempo de mercado, estrutura e o que diferencia a Scai do Sul de quem só revende."
+        },
+        {
+          "titulo": "Encontrável no Google",
+          "descricao": "Cada linha com endereço próprio e estrutura preparada para indexação individual das páginas de produto."
+        },
+        {
+          "titulo": "Orçamento em dois cliques",
+          "descricao": "Botão de WhatsApp fixo e formulário que chega identificando de qual produto o cliente está falando."
+        }
+      ]
+    },
+    "escopo": {
+      "titulo": "O que o site vai ter",
+      "introducao": "Páginas institucionais, catálogo por linha de produto e os cuidados técnicos que fazem o site aparecer e carregar rápido.",
+      "modulos": [
+        {
+          "titulo": "Páginas do site",
+          "resumo": "Da entrada ao pedido de orçamento.",
+          "itens": [
+            "Página inicial: apresentação clara da Scai do Sul, linhas de produto em destaque, setores atendidos e chamadas diretas para orçamento e WhatsApp",
+            "Sobre: história, tempo de mercado, estrutura, forma de trabalhar e o que diferencia vocês de quem só revende",
+            "Linhas de produto: índice que organiza todas as linhas, para o visitante se localizar rápido",
+            "Página de cada linha: fotos, descrição, especificações técnicas, aplicações e botão de orçamento daquela linha",
+            "Setores atendidos: em quais mercados a Scai do Sul atua, para o visitante se reconhecer",
+            "Contato: formulário de solicitação de orçamento, dados da empresa, endereço, telefone, mapa e link direto para WhatsApp"
+          ],
+          "entregaveis": ["As páginas no ar", "Estrutura pronta para novas linhas de produto"]
+        },
+        {
+          "titulo": "Como os produtos serão apresentados",
+          "resumo": "A parte que mais diferencia o site novo do que existe hoje.",
+          "itens": [
+            "Fotos dos produtos em boa qualidade, com galeria",
+            "Descrição do que é a linha e para que serve",
+            "Especificações técnicas organizadas em tabela, fáceis de comparar",
+            "Aplicações e setores onde aquele produto é usado",
+            "Botão de orçamento que já identifica de qual produto o cliente está falando"
+          ],
+          "entregaveis": ["Uma página por linha de produto"]
+        },
+        {
+          "titulo": "Cuidados técnicos incluídos",
+          "resumo": "O que faz o site ser achado, abrir rápido e cumprir a LGPD.",
+          "itens": [
+            "Cada linha de produto com endereço próprio, título e descrição pensados para busca",
+            "Estrutura preparada para o Google indexar as páginas de produto individualmente",
+            "Link compartilhado no WhatsApp ou por e-mail chegando com foto e título formatados",
+            "Google Meu Negócio ligado ao site, para a empresa aparecer nas buscas da região",
+            "Site construído pensando primeiro na tela do celular, depois adaptado para tablet e computador",
+            "Fotos otimizadas automaticamente, para abrir rápido mesmo em conexão fraca",
+            "Google Analytics e Search Console configurados",
+            "Aviso de cookies e política de privacidade, conforme exige a LGPD"
+          ]
+        }
+      ]
+    },
+    "processo": {
+      "mostrar": true,
+      "introducao": "Seis etapas, do briefing à entrega. Você sabe o que recebe e o que precisa aprovar em cada uma."
+    },
+    "responsabilidades": {
+      "titulo": "O que precisamos de você",
+      "introducao": "O projeto anda no ritmo em que esses itens chegam. Quanto antes, melhor.",
+      "itens": [
+        {
+          "item": "Logotipo em boa qualidade",
+          "detalhe": "De preferência o arquivo original."
+        },
+        {
+          "item": "Fotos dos produtos, da fábrica e da equipe",
+          "detalhe": "Se não houver fotos boas dos produtos, vale organizar uma sessão antes de começarmos: é o que mais pesa na aparência final do site."
+        },
+        {
+          "item": "A lista das linhas de produto",
+          "detalhe": "Com as especificações técnicas de cada uma."
+        },
+        {
+          "item": "Informações da empresa",
+          "detalhe": "História, estrutura e setores atendidos, para a página institucional."
+        },
+        {
+          "item": "Acesso ao domínio scaisul.com.br",
+          "detalhe": "Para configurarmos o endereço."
+        },
+        {
+          "item": "Uma reunião de escopo no início e retorno nas aprovações",
+          "detalhe": "É onde a quantidade exata de linhas de produto é definida."
+        }
+      ]
+    },
+    "suporte": {
+      "titulo": "Suporte após a entrega",
+      "introducao": "Depois que o site estiver no ar, a SoftCode acompanha por 2 meses sem custo adicional. Se aparecer algum erro ou algo não funcionar como combinado, corrigimos dentro desse período.",
+      "itens": [
+        "Correção de qualquer erro de funcionamento do site.",
+        "Suporte para dúvidas sobre o site.",
+        "Uma revisão de conteúdo antes da publicação."
+      ],
+      "nota": "Passados os 2 meses, manutenções e ajustes são orçados conforme o tamanho e a complexidade do pedido. Novas páginas e funcionalidades seguem a mesma lógica: são avaliadas e orçadas separadamente, sempre com o valor aprovado antes de qualquer execução."
+    },
+    "investimento": {
+      "titulo": "Investimento",
+      "introducao": "Duas opções para que a Scai do Sul escolha o que faz mais sentido. As duas incluem o mesmo site, as mesmas páginas, as mesmas linhas de produto e os mesmos cuidados técnicos. A diferença está no acabamento visual.",
+      "opcoes": [
+        {
+          "id": "com-animacoes",
+          "nome": "Com animações",
+          "resumo": "Visual mais moderno e sofisticado, com efeitos ao rolar a página e transições suaves entre as seções.",
+          "valorCentavos": 200000,
+          "formaPagamento": "25% de entrada na aprovação e 75% na entrega",
+          "itens": [
+            "Todas as páginas institucionais e o catálogo por linha",
+            "Animações em textos e componentes",
+            "Efeitos ao rolar a página e transições suaves",
+            "Cuidados técnicos de busca, velocidade e LGPD",
+            "2 meses de suporte após a entrega"
+          ],
+          "destaque": true
+        },
+        {
+          "id": "sem-animacoes",
+          "nome": "Sem animações",
+          "resumo": "Layout limpo e direto, com carregamento mais rápido, mantendo o tom profissional.",
+          "valorCentavos": 180000,
+          "formaPagamento": "25% de entrada na aprovação e 75% na entrega",
+          "itens": [
+            "Todas as páginas institucionais e o catálogo por linha",
+            "Layout limpo, sem efeitos ao rolar",
+            "Carregamento mais rápido e visual objetivo",
+            "Cuidados técnicos de busca, velocidade e LGPD",
+            "2 meses de suporte após a entrega"
+          ],
+          "destaque": false
+        }
+      ],
+      "observacoes": ["Valores válidos até a data de validade desta proposta."]
+    },
+    "pagamento": {
+      "titulo": "Como o pagamento funciona",
+      "introducao": "O pagamento é dividido em duas partes: uma entrada para dar início ao projeto e o restante somente quando o site estiver pronto, testado e aprovado.",
+      "parcelas": [
+        { "rotulo": "Entrada, ao aprovar a proposta", "percentual": 25 },
+        { "rotulo": "Pagamento final, com o site entregue e aprovado", "percentual": 75 }
+      ],
+      "nota": "Os valores da tabela seguem a opção recomendada. Para a outra, valem os mesmos percentuais sobre o valor escolhido.",
+      "cancelamento": {
+        "titulo": "Se o projeto precisar ser cancelado",
+        "texto": "Se por algum motivo a Scai do Sul precisar cancelar o projeto após o início dos trabalhos, a entrada paga não será reembolsada, pois cobre o tempo e os recursos já dedicados. Como o pagamento final só acontece na entrega completa, não haverá nenhuma cobrança adicional além da entrada já realizada."
+      }
+    },
+    "custosRecorrentes": {
+      "titulo": "Custos que não estão no valor",
+      "texto": "O site será construído sobre uma infraestrutura que, no volume de acessos de um site institucional, opera dentro do plano gratuito. Não há previsão de mensalidade de hospedagem.",
+      "itens": [
+        {
+          "item": "Renovação anual do domínio scaisul.com.br",
+          "detalhe": "Fica por conta da Scai do Sul, paga direto ao registrador."
+        }
+      ]
+    },
+    "indicacao": {
+      "titulo": "Programa de indicação",
+      "percentual": 10,
+      "texto": "Como agrado a quem confia no nosso trabalho, a Scai do Sul passa a fazer parte do programa de indicação da SoftCode. Se indicar alguém e essa pessoa ou empresa fechar um projeto conosco, vocês recebem 10% do valor do primeiro projeto fechado por indicação de vocês. O valor é pago assim que o projeto indicado for quitado. Não há custo nem obrigação nenhuma para participar."
+    },
+    "sobre": {
+      "titulo": "Sobre a SoftCode",
+      "texto": "A SoftCode é uma software house brasileira que constrói sites e sistemas sob medida para empresas de médio porte. Trabalhamos com times pequenos e contato direto: você fala com quem escreve o código, não com um intermediário."
+    },
+    "finais": {
+      "titulo": "Considerações finais",
+      "paragrafos": [
+        "Esta proposta foi elaborada a partir da conversa inicial e da análise do site que a Scai do Sul tem hoje. A ideia é entregar algo à altura de uma empresa com a bagagem de vocês: um site que apresente a companhia com solidez, mostre a linha de produtos com o detalhe que ela merece e transforme visita em pedido de orçamento.",
+        "Qualquer dúvida, ajuste ou pedido de esclarecimento, estamos à disposição."
+      ],
+      "contato": "SoftCode · softcodedv@gmail.com"
+    },
+    "aceite": {
+      "titulo": "Aceite",
+      "texto": "Se fizer sentido, escolha o formato que se encaixa e confirme abaixo. A partir daí preparamos o contrato e marcamos o início do planejamento.",
+      "mostrarPdf": true
+    }
+  }
+}

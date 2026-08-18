@@ -114,21 +114,13 @@ export async function duplicar(dados: FormData): Promise<void> {
   if (novo) redirect(`/admin/${novo}`);
 }
 
-export async function mudarStatus(dados: FormData): Promise<void> {
-  await exigirAdminOuErro();
-  const status = String(dados.get("status"));
-  if (!(STATUS_PROPOSTA as readonly string[]).includes(status)) return;
-
-  await alterarStatus(String(dados.get("id")), status);
-  revalidatePath("/admin");
-}
 
 /**
  * Troca de status em um clique, chamada pela trilha.
  *
- * Existe separada de `mudarStatus` (que recebe FormData e serve aos botões de
- * arquivar) porque aqui quem chama é um componente de cliente com o id em mãos,
- * e um `<form>` escondido só para isso seria cerimônia sem ganho.
+ * Recebe id e status direto, sem FormData: quem chama é um componente de
+ * cliente com o id em mãos, e um `<form>` escondido só para isso seria
+ * cerimônia sem ganho.
  */
 export async function definirStatus(id: string, status: string): Promise<EstadoFormulario> {
   await exigirAdminOuErro();

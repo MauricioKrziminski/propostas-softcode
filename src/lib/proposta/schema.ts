@@ -353,12 +353,13 @@ export const conteudoSchema = z.strictObject({
   aceite: aceiteSchema.optional(),
 });
 
-export const STATUS_PROPOSTA = [
-  "rascunho",
-  "enviada",
-  "aceita",
-  "arquivada",
-] as const;
+/**
+ * Três estados, e só. "Arquivada" existiu por uma rodada e saiu: ela só tirava
+ * a proposta da vista, o que ninguém precisava, e quem quer sumir com uma
+ * proposta hoje exclui. Estado que ninguém usa é estado que confunde a leitura
+ * da lista e a regra de prontidão.
+ */
+export const STATUS_PROPOSTA = ["rascunho", "enviada", "aceita"] as const;
 
 /**
  * A proposta inteira. O formato bate 1:1 com a linha de `propostas` da Fase 2,

@@ -17,11 +17,8 @@ import { STATUS_PROPOSTA } from "@/lib/proposta/schema";
  * editor, achar a capa, mexer num campo de seleção e salvar: quatro passos para
  * a ação mais frequente do painel, que acontece toda vez que um link vai para o
  * WhatsApp. Agora é um clique, no lugar onde o status já estava sendo mostrado.
- *
- * "Arquivada" fica fora da trilha de propósito: não é um estágio adiante, é uma
- * saída lateral.
  */
-const TRILHA = STATUS_PROPOSTA.filter((s) => s !== "arquivada");
+const TRILHA = STATUS_PROPOSTA;
 
 export function TrilhaDeStatus({
   status,
@@ -40,15 +37,6 @@ export function TrilhaDeStatus({
       await definirStatus(id, novo);
       navegador.refresh();
     });
-  }
-
-  if (status === "arquivada") {
-    return (
-      <span className="etiqueta-mesa inline-flex items-center gap-2 text-[var(--mesa-tinta-apagada)]">
-        <span aria-hidden className="h-px w-6 bg-[var(--mesa-fio-forte)]" />
-        arquivada
-      </span>
-    );
   }
 
   const atual = Math.max(0, TRILHA.indexOf(status as (typeof TRILHA)[number]));

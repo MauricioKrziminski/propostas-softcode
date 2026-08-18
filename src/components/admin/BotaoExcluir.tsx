@@ -1,19 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useRef } from "react";
 
 import { excluir } from "@/app/admin/acoes";
 
 /**
- * Excluir de verdade, com um passo no meio.
+ * Excluir, com modal de confirmação.
  *
- * Não existe lixeira nem desfazer: a linha sai do banco e o link morre. Por isso
- * o botão pede confirmação, e por isso a confirmação é INLINE, com o nome da
- * empresa na frente, em vez de um `confirm()` do navegador. Caixa nativa é
- * genérica ("tem certeza?"), some no celular e não diz o que vai embora.
+ * O `<dialog>` é nativo de propósito: ele já traz o que uma modal precisa ter e
+ * que quase toda modal caseira erra, ou seja, foco preso dentro dela, `Esc`
+ * fechando, fundo inerte e leitura correta por leitor de tela. Escrever isso na
+ * mão seria mais código para chegar em menos.
  *
- * A confirmação expira sozinha em seis segundos. Botão que fica armado
- * esperando um clique distraído é como se apaga a proposta errada.
+ * O texto nomeia a empresa e diz o que se perde. Não existe lixeira nem
+ * desfazer: a linha sai do banco e o link que está no WhatsApp do cliente para
+ * de abrir.
  */
 export function BotaoExcluir({
   id,
@@ -25,48 +26,59 @@ export function BotaoExcluir({
   /** Na capa da proposta o botão ocupa a linha inteira; na lista, não. */
   largo?: boolean;
 }) {
-  const [armado, setArmado] = useState(false);
+  const modal = useRef<HTMLDialogElement>(null);
 
-  useEffect(() => {
-    if (!armado) return;
-    const relogio = setTimeout(() => setArmado(false), 6000);
-    return () => clearTimeout(relogio);
-  }, [armado]);
-
-  if (!armado) {
-    return (
+  return (
+    <>
       <button
         type="button"
-        onClick={() => setArmado(true)}
+        onClick={() => modal.current?.showModal()}
         className={`botao-mesa ${largo ? "w-full" : ""}`}
       >
         Excluir
       </button>
-    );
-  }
 
-  return (
-    <span
-      className={`flex flex-wrap items-center gap-2 ${largo ? "w-full" : ""}`}
-      role="alert"
-    >
-      <span className="text-sm text-[var(--mesa-aviso)]">
-        Excluir {empresa} para sempre?
-      </span>
+      <dialog
+        ref={modal}
+        aria-labelledby={`excluir-titulo-${id}`}
+        className="painel-mesa mesa m-auto w-[min(92vw,26rem)] p-0 text-[var(--mesa-tinta)] backdrop:bg-black/70"
+      >
+        <div className="p-6">
+          <p className="etiqueta-mesa">excluir proposta</p>
 
-      <form action={excluir}>
-        <input type="hidden" name="id" value={id} />
-        <button
-          type="submit"
-          className="botao-mesa border-[var(--mesa-aviso)] text-[var(--mesa-aviso)]"
-        >
-          Sim, excluir
-        </button>
-      </form>
+          <h2
+            id={`excluir-titulo-${id}`}
+            className="titulo-mesa mt-3 text-[1.75rem] text-[var(--mesa-tinta)]"
+          >
+            {empresa}
+          </h2>
 
-      <button type="button" onClick={() => setArmado(false)} className="botao-mesa">
-        Cancelar
-      </button>
-    </span>
+          <p className="mt-4 leading-relaxed text-[var(--mesa-tinta-suave)]">
+            A proposta sai do banco e o link que o cliente tem para de abrir. Não há
+            desfazer.
+          </p>
+
+          <div className="mt-7 flex flex-wrap items-center justify-end gap-3">
+            {/* `method="dialog"` fecha sem enviar nada: é o cancelamento que o
+                próprio elemento oferece, sem estado nenhum para manter. */}
+            <form method="dialog">
+              <button type="submit" className="botao-mesa">
+                Cancelar
+              </button>
+            </form>
+
+            <form action={excluir}>
+              <input type="hidden" name="id" value={id} />
+              <button
+                type="submit"
+                className="botao-mesa border-[var(--mesa-aviso)] text-[var(--mesa-aviso)]"
+              >
+                Excluir para sempre
+              </button>
+            </form>
+          </div>
+        </div>
+      </dialog>
+    </>
   );
 }
