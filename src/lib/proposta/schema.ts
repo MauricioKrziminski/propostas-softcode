@@ -199,6 +199,99 @@ export const sobreSchema = z.strictObject({
     .describe("Cases"),
 });
 
+/**
+ * As cinco seções abaixo vieram dos orçamentos em PDF que a SoftCode já enviava
+ * (`Desktop/orçamento`). Elas existiam no papel e não existiam no site, que é
+ * como a proposta on-line acabava contando menos que o anexo que ela substitui.
+ */
+
+export const suporteSchema = z.strictObject({
+  titulo: textoCurto.optional().describe("Título da seção"),
+  introducao: textoMedio.optional().describe("O que o acompanhamento cobre e por quanto tempo"),
+  itens: z
+    .array(textoMedio)
+    .min(1)
+    .max(10)
+    .describe("O que está incluído no período de suporte"),
+  nota: textoLongo.optional().describe("O que acontece depois que o período acaba"),
+});
+
+export const pagamentoSchema = z
+  .strictObject({
+    titulo: textoCurto.optional().describe("Título da seção"),
+    introducao: textoMedio.optional().describe("Como o pagamento é dividido"),
+    parcelas: z
+      .array(
+        z.strictObject({
+          rotulo: textoCurto.describe('Ex.: "Entrada, ao aprovar a proposta"'),
+          /**
+           * PERCENTUAL, nunca valor. O valor de cada parcela é derivado da opção
+           * de investimento na hora de renderizar. Guardar o valor aqui seria
+           * guardar dinheiro em dois lugares, e foi assim que o PDF antigo já
+           * saiu com a tabela de pagamento desatualizada depois de um reajuste.
+           */
+          percentual: z
+            .number()
+            .int()
+            .min(1)
+            .max(100)
+            .describe("Percentual do valor total, inteiro"),
+          quando: textoCurto.optional().describe("Detalhe do momento, se precisar"),
+        }),
+      )
+      .min(1)
+      .max(6)
+      .describe("Parcelas, em percentual do total"),
+    nota: textoMedio.optional().describe("Ressalva sobre a tabela"),
+    cancelamento: z
+      .strictObject({
+        titulo: textoCurto.optional().describe("Título do bloco"),
+        texto: textoLongo.describe("O que acontece se o projeto for cancelado"),
+      })
+      .optional()
+      .describe("Regra de cancelamento"),
+  })
+  .refine((p) => p.parcelas.reduce((soma, x) => soma + x.percentual, 0) === 100, {
+    message: "A soma das parcelas precisa dar exatamente 100%",
+    path: ["parcelas"],
+  });
+
+export const indicacaoSchema = z.strictObject({
+  titulo: textoCurto.optional().describe("Título da seção"),
+  texto: textoLongo.describe("Como funciona o programa de indicação"),
+  percentual: z
+    .number()
+    .int()
+    .min(1)
+    .max(50)
+    .describe("Percentual pago sobre o primeiro projeto indicado"),
+});
+
+export const custosRecorrentesSchema = z.strictObject({
+  titulo: textoCurto.optional().describe("Título da seção"),
+  texto: textoLongo.describe("O que fica de fora do valor e por quê"),
+  itens: z
+    .array(
+      z.strictObject({
+        item: textoCurto.describe("Nome do custo"),
+        detalhe: textoMedio.optional().describe("De quem é e com que frequência"),
+      }),
+    )
+    .max(6)
+    .optional()
+    .describe("Custos recorrentes, se houver"),
+});
+
+export const finaisSchema = z.strictObject({
+  titulo: textoCurto.optional().describe("Título da seção"),
+  paragrafos: z
+    .array(textoLongo)
+    .min(1)
+    .max(4)
+    .describe("Fecho da proposta, antes do aceite"),
+  contato: textoCurto.optional().describe("Linha de contato do rodapé da seção"),
+});
+
 export const aceiteSchema = z.strictObject({
   titulo: textoCurto.optional().describe("Título da seção"),
   texto: textoMedio.optional().describe("Frase acima do botão de aceite"),
@@ -210,16 +303,28 @@ export const aceiteSchema = z.strictObject({
 
 /* ─────────────────────────── documento ─────────────────────────── */
 
+/**
+ * A ordem aqui é a ordem canônica da proposta, e ela conta uma história:
+ * entendo o problema, proponho a solução, detalho o escopo, mostro como
+ * trabalho, quando entrego, o que preciso de você, o que acontece depois da
+ * entrega, quanto custa, como se paga, o que não está incluído, e só então o
+ * aceite. Dinheiro entra depois de todo o valor já ter sido mostrado.
+ */
 export const CHAVES_SECAO = [
   "entendimento",
   "solucao",
   "escopo",
   "processo",
   "cronograma",
-  "investimento",
-  "foraDoEscopo",
   "responsabilidades",
+  "suporte",
+  "investimento",
+  "pagamento",
+  "custosRecorrentes",
+  "foraDoEscopo",
+  "indicacao",
   "sobre",
+  "finais",
   "aceite",
 ] as const;
 
@@ -236,10 +341,15 @@ export const conteudoSchema = z.strictObject({
   escopo: escopoSchema.optional(),
   processo: processoSchema.optional(),
   cronograma: cronogramaSchema.optional(),
-  investimento: investimentoSchema.optional(),
-  foraDoEscopo: foraDoEscopoSchema.optional(),
   responsabilidades: responsabilidadesSchema.optional(),
+  suporte: suporteSchema.optional(),
+  investimento: investimentoSchema.optional(),
+  pagamento: pagamentoSchema.optional(),
+  custosRecorrentes: custosRecorrentesSchema.optional(),
+  foraDoEscopo: foraDoEscopoSchema.optional(),
+  indicacao: indicacaoSchema.optional(),
   sobre: sobreSchema.optional(),
+  finais: finaisSchema.optional(),
   aceite: aceiteSchema.optional(),
 });
 
@@ -306,8 +416,28 @@ export type Investimento = z.infer<typeof investimentoSchema>;
 export type OpcaoInvestimento = z.infer<typeof opcaoInvestimentoSchema>;
 export type ForaDoEscopo = z.infer<typeof foraDoEscopoSchema>;
 export type Responsabilidades = z.infer<typeof responsabilidadesSchema>;
+export type Suporte = z.infer<typeof suporteSchema>;
+export type Pagamento = z.infer<typeof pagamentoSchema>;
+export type Indicacao = z.infer<typeof indicacaoSchema>;
+export type CustosRecorrentes = z.infer<typeof custosRecorrentesSchema>;
 export type Sobre = z.infer<typeof sobreSchema>;
+export type Finais = z.infer<typeof finaisSchema>;
 export type Aceite = z.infer<typeof aceiteSchema>;
+
+/**
+ * Valor de cada parcela, DERIVADO do total. O resto da divisão vai para a última
+ * parcela: sem isso, 25% e 75% de R$ 1.999,99 somariam um centavo a menos que o
+ * valor cobrado, e é o tipo de diferença que o cliente percebe.
+ */
+export function valoresDasParcelas(
+  totalCentavos: number,
+  percentuais: number[],
+): number[] {
+  const parciais = percentuais.map((p) => Math.floor((totalCentavos * p) / 100));
+  const soma = parciais.reduce((s, v) => s + v, 0);
+  if (parciais.length > 0) parciais[parciais.length - 1] += totalCentavos - soma;
+  return parciais;
+}
 
 /** Caminho público completo: é a comparação exata que resolve a proposta. */
 export function caminhoPublico(p: Pick<Proposta, "slug" | "token">): string {

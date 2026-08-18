@@ -1,7 +1,7 @@
 import { renderToBuffer } from "@react-pdf/renderer";
 
 import { DocumentoProposta } from "@/lib/pdf/DocumentoProposta";
-import { buscarPropostaPorCaminho } from "@/lib/proposta/seed";
+import { buscarPropostaPorCaminho } from "@/lib/proposta/repositorio";
 import { caminhoPublico } from "@/lib/proposta/schema";
 import { estaExpirada } from "@/lib/proposta/formatar";
 
@@ -23,7 +23,7 @@ export async function GET(
   { params }: { params: Promise<{ proposta: string }> },
 ) {
   const { proposta: caminho } = await params;
-  const proposta = buscarPropostaPorCaminho(caminho);
+  const proposta = await buscarPropostaPorCaminho(caminho);
 
   if (!proposta || proposta.status === "rascunho") {
     return new Response("Não encontrado", { status: 404 });

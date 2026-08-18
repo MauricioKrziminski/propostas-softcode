@@ -14,7 +14,7 @@ import { COR, FONTE } from "./tema";
 import { ETAPAS } from "@/lib/proposta/processo";
 import { CONTATO } from "@/lib/contato";
 import { formatarDataLonga, formatarValor } from "@/lib/proposta/formatar";
-import { caminhoPublico, type Proposta } from "@/lib/proposta/schema";
+import { caminhoPublico, valoresDasParcelas, type Proposta } from "@/lib/proposta/schema";
 
 /**
  * O PDF da proposta.
@@ -230,6 +230,20 @@ export function DocumentoProposta({ proposta }: { proposta: Proposta }) {
   let n = 0;
   const proximo = () => String(++n).padStart(2, "0");
 
+  /* A tabela de pagamento mostra dinheiro que NÃO está gravado na proposta: ele
+     é derivado da opção recomendada. Guardar o valor da parcela junto do valor
+     da opção é como o PDF antigo saía com a tabela desatualizada depois de um
+     reajuste. */
+  const opcaoDeReferencia =
+    conteudo.investimento?.opcoes.find((o) => o.destaque) ?? conteudo.investimento?.opcoes[0];
+  const valoresDoPagamento =
+    conteudo.pagamento && opcaoDeReferencia
+      ? valoresDasParcelas(
+          opcaoDeReferencia.valorCentavos,
+          conteudo.pagamento.parcelas.map((p) => p.percentual),
+        )
+      : undefined;
+
   return (
     <Document
       title={`Proposta para ${cliente.empresa}`}
@@ -439,6 +453,54 @@ export function DocumentoProposta({ proposta }: { proposta: Proposta }) {
           </View>
         )}
 
+        {conteudo.responsabilidades && (
+          <View style={{ marginBottom: 26 }}>
+            <Cabecalho
+              etiqueta={proximo()}
+              titulo={conteudo.responsabilidades.titulo ?? "O que precisamos de você"}
+            />
+            {conteudo.responsabilidades.introducao && (
+              <Text style={e.paragrafo}>{conteudo.responsabilidades.introducao}</Text>
+            )}
+            {conteudo.responsabilidades.itens.map((it, i) => (
+              <View key={i} style={e.linhaTabela} wrap={false}>
+                <Text style={[e.etiqueta, { width: 22 }]}>
+                  {String(i + 1).padStart(2, "0")}
+                </Text>
+                <View style={{ flex: 1 }}>
+                  <Text>{it.item}</Text>
+                  {it.detalhe && (
+                    <Text style={[e.neblina, { fontSize: 9 }]}>{it.detalhe}</Text>
+                  )}
+                </View>
+              </View>
+            ))}
+            {conteudo.responsabilidades.nota && (
+              <Text style={[e.neblina, { marginTop: 8 }]}>
+                {conteudo.responsabilidades.nota}
+              </Text>
+            )}
+          </View>
+        )}
+
+        {conteudo.suporte && (
+          <View style={{ marginBottom: 26 }}>
+            <Cabecalho
+              etiqueta={proximo()}
+              titulo={conteudo.suporte.titulo ?? "Suporte após a entrega"}
+            />
+            {conteudo.suporte.introducao && (
+              <Text style={e.paragrafo}>{conteudo.suporte.introducao}</Text>
+            )}
+            {conteudo.suporte.itens.map((item, i) => (
+              <Item key={i}>{item}</Item>
+            ))}
+            {conteudo.suporte.nota && (
+              <Text style={[e.neblina, { marginTop: 8 }]}>{conteudo.suporte.nota}</Text>
+            )}
+          </View>
+        )}
+
         {conteudo.investimento && (
           <View style={{ marginBottom: 26 }} break>
             <Cabecalho
@@ -483,6 +545,78 @@ export function DocumentoProposta({ proposta }: { proposta: Proposta }) {
           </View>
         )}
 
+        {conteudo.pagamento && (
+          <View style={{ marginBottom: 26 }}>
+            <Cabecalho
+              etiqueta={proximo()}
+              titulo={conteudo.pagamento.titulo ?? "Como o pagamento funciona"}
+            />
+            {conteudo.pagamento.introducao && (
+              <Text style={e.paragrafo}>{conteudo.pagamento.introducao}</Text>
+            )}
+
+            <View wrap={false}>
+              {conteudo.pagamento.parcelas.map((parcela, i) => (
+                <View key={i} style={e.linhaTabela}>
+                  <Text style={{ width: 44, color: COR.acento }}>{parcela.percentual}%</Text>
+                  <Text style={{ flex: 1 }}>{parcela.rotulo}</Text>
+                  {valoresDoPagamento && (
+                    <Text style={{ color: COR.navy }}>
+                      {formatarValor(valoresDoPagamento[i])}
+                    </Text>
+                  )}
+                </View>
+              ))}
+              {valoresDoPagamento && opcaoDeReferencia && (
+                <View style={e.linhaTabela}>
+                  <Text style={[e.neblina, { width: 44 }]}>100%</Text>
+                  <Text style={[e.neblina, { flex: 1 }]}>
+                    Total ({opcaoDeReferencia.nome})
+                  </Text>
+                  <Text style={{ color: COR.navy }}>
+                    {formatarValor(opcaoDeReferencia.valorCentavos)}
+                  </Text>
+                </View>
+              )}
+            </View>
+
+            {conteudo.pagamento.nota && (
+              <Text style={[e.neblina, { fontSize: 9, marginTop: 6 }]}>
+                {conteudo.pagamento.nota}
+              </Text>
+            )}
+
+            {conteudo.pagamento.cancelamento && (
+              <View style={[e.cartao, { marginTop: 10 }]} wrap={false}>
+                <Text style={{ fontFamily: FONTE.display, fontWeight: 700, fontSize: 11, color: COR.navy }}>
+                  {conteudo.pagamento.cancelamento.titulo ?? "Se o projeto precisar ser cancelado"}
+                </Text>
+                <Text style={[e.neblina, { marginTop: 3 }]}>
+                  {conteudo.pagamento.cancelamento.texto}
+                </Text>
+              </View>
+            )}
+          </View>
+        )}
+
+        {conteudo.custosRecorrentes && (
+          <View style={{ marginBottom: 26 }} wrap={false}>
+            <Cabecalho
+              etiqueta={proximo()}
+              titulo={conteudo.custosRecorrentes.titulo ?? "Custos que não estão no valor"}
+            />
+            <Text style={e.paragrafo}>{conteudo.custosRecorrentes.texto}</Text>
+            {conteudo.custosRecorrentes.itens?.map((item, i) => (
+              <View key={i} style={e.linhaTabela}>
+                <Text style={{ flex: 1 }}>{item.item}</Text>
+                {item.detalhe && (
+                  <Text style={[e.neblina, { flex: 1 }]}>{item.detalhe}</Text>
+                )}
+              </View>
+            ))}
+          </View>
+        )}
+
         {conteudo.foraDoEscopo && (
           <View style={{ marginBottom: 26 }}>
             <Cabecalho
@@ -500,33 +634,27 @@ export function DocumentoProposta({ proposta }: { proposta: Proposta }) {
           </View>
         )}
 
-        {conteudo.responsabilidades && (
-          <View style={{ marginBottom: 26 }}>
+        {conteudo.indicacao && (
+          <View style={{ marginBottom: 26 }} wrap={false}>
             <Cabecalho
               etiqueta={proximo()}
-              titulo={conteudo.responsabilidades.titulo ?? "O que precisamos de você"}
+              titulo={conteudo.indicacao.titulo ?? "Programa de indicação"}
             />
-            {conteudo.responsabilidades.introducao && (
-              <Text style={e.paragrafo}>{conteudo.responsabilidades.introducao}</Text>
-            )}
-            {conteudo.responsabilidades.itens.map((it, i) => (
-              <View key={i} style={e.linhaTabela} wrap={false}>
-                <Text style={[e.etiqueta, { width: 22 }]}>
-                  {String(i + 1).padStart(2, "0")}
-                </Text>
-                <View style={{ flex: 1 }}>
-                  <Text>{it.item}</Text>
-                  {it.detalhe && (
-                    <Text style={[e.neblina, { fontSize: 9 }]}>{it.detalhe}</Text>
-                  )}
-                </View>
-              </View>
-            ))}
-            {conteudo.responsabilidades.nota && (
-              <Text style={[e.neblina, { marginTop: 8 }]}>
-                {conteudo.responsabilidades.nota}
+            <View style={{ flexDirection: "row", gap: 14 }}>
+              <Text
+                style={{
+                  fontFamily: FONTE.display,
+                  fontWeight: 700,
+                  fontSize: 30,
+                  lineHeight: 1.3,
+                  color: COR.acento,
+                  width: 70,
+                }}
+              >
+                {conteudo.indicacao.percentual}%
               </Text>
-            )}
+              <Text style={{ flex: 1 }}>{conteudo.indicacao.texto}</Text>
+            </View>
           </View>
         )}
 
@@ -548,6 +676,25 @@ export function DocumentoProposta({ proposta }: { proposta: Proposta }) {
                 </Text>
               </View>
             ))}
+          </View>
+        )}
+
+        {conteudo.finais && (
+          <View style={{ marginBottom: 26 }} wrap={false}>
+            <Cabecalho
+              etiqueta={proximo()}
+              titulo={conteudo.finais.titulo ?? "Considerações finais"}
+            />
+            {conteudo.finais.paragrafos.map((paragrafo, i) => (
+              <Text key={i} style={e.paragrafo}>
+                {paragrafo}
+              </Text>
+            ))}
+            {conteudo.finais.contato && (
+              <View style={{ marginTop: 6, backgroundColor: COR.azulClaro, padding: 10 }}>
+                <Text style={{ color: COR.navy }}>{conteudo.finais.contato}</Text>
+              </View>
+            )}
           </View>
         )}
 

@@ -62,7 +62,10 @@
             "Diagnóstico logístico: página dedicada, com formulário próprio e mais detalhado",
             "Contato: formulário, dados da empresa e link direto para o WhatsApp"
           ],
-          "entregaveis": ["As oito páginas no ar", "Estrutura pronta para novos textos"]
+          "entregaveis": [
+            "As oito páginas no ar",
+            "Estrutura pronta para novos textos"
+          ]
         },
         {
           "titulo": "Serviços em destaque na home",
@@ -85,7 +88,10 @@
             "Materiais gratuitos: para baixar, o visitante deixa nome e e-mail",
             "Botão de WhatsApp fixo: aparece em todas as páginas, sempre visível"
           ],
-          "entregaveis": ["Formulários enviando por e-mail", "Mecânica de download do material pronta"]
+          "entregaveis": [
+            "Formulários enviando por e-mail",
+            "Mecânica de download do material pronta"
+          ]
         },
         {
           "titulo": "Cuidados técnicos incluídos",
@@ -97,7 +103,10 @@
             "Meta Pixel para campanhas no Instagram e Facebook",
             "SSL (cadeado), aviso de cookies e política de privacidade"
           ],
-          "entregaveis": ["Analytics e Search Console ativos", "Site com SSL e LGPD em dia"]
+          "entregaveis": [
+            "Analytics e Search Console ativos",
+            "Site com SSL e LGPD em dia"
+          ]
         }
       ]
     },
@@ -254,6 +263,53 @@
       "titulo": "Aceite",
       "texto": "Se fizer sentido, escolha o formato que se encaixa e confirme abaixo. A partir daí preparamos o contrato e marcamos o início do planejamento.",
       "mostrarPdf": true
+    },
+    "suporte": {
+      "titulo": "Suporte após a entrega",
+      "introducao": "Depois que o site estiver no ar, a SoftCode acompanha por 2 meses sem custo adicional. Se aparecer algum erro ou algo não funcionar como combinado, corrigimos dentro desse período.",
+      "itens": [
+        "Correção de qualquer erro de funcionamento do site.",
+        "Suporte para dúvidas sobre o site.",
+        "Uma revisão de conteúdo antes da publicação."
+      ],
+      "nota": "Passados os 2 meses, manutenções e ajustes são orçados conforme o tamanho e a complexidade do pedido. Novas páginas e funcionalidades seguem a mesma lógica: são avaliadas e orçadas separadamente, sempre com o valor aprovado antes de qualquer execução."
+    },
+    "pagamento": {
+      "titulo": "Como o pagamento funciona",
+      "introducao": "O pagamento é dividido em duas partes: uma entrada para dar início ao projeto e o restante somente quando o site estiver pronto, testado e aprovado.",
+      "parcelas": [
+        {
+          "rotulo": "Entrada, ao aprovar a proposta",
+          "percentual": 25
+        },
+        {
+          "rotulo": "Pagamento final, com o site entregue e aprovado",
+          "percentual": 75
+        }
+      ],
+      "nota": "Os valores da tabela seguem a opção recomendada. Para as outras, valem os mesmos percentuais sobre o valor escolhido.",
+      "cancelamento": {
+        "titulo": "Se o projeto precisar ser cancelado",
+        "texto": "Se por algum motivo a Barba Log precisar cancelar o projeto após o início dos trabalhos, a entrada paga não será reembolsada, pois cobre o tempo e os recursos já dedicados. Como o pagamento final só acontece na entrega completa, não haverá nenhuma cobrança adicional além da entrada já realizada."
+      }
+    },
+    "custosRecorrentes": {
+      "titulo": "Custos que não estão no valor",
+      "texto": "O site é construído sobre uma infraestrutura que, no volume de acessos de um site institucional, opera dentro do plano gratuito. Não há previsão de mensalidade de hospedagem.",
+      "itens": [
+        {
+          "item": "Renovação anual do domínio",
+          "detalhe": "Fica por conta da Barba Log, pago direto ao registrador."
+        }
+      ]
+    },
+    "finais": {
+      "titulo": "Considerações finais",
+      "paragrafos": [
+        "Esta proposta foi elaborada a partir da conversa inicial e do que a Barba Log tem hoje. A ideia é entregar um site à altura da consultoria: que apresente o know-how técnico com clareza e transforme visita em pedido de diagnóstico.",
+        "Qualquer dúvida, ajuste ou pedido de esclarecimento, estamos à disposição."
+      ],
+      "contato": "SoftCode · softcodedv@gmail.com"
     }
   }
 }

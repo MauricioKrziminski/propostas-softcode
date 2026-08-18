@@ -5,17 +5,19 @@
 ## Contexto
 
 Site de **propostas comerciais da SoftCode**: apresentação e envio de propostas
-para clientes. A página pública está implementada e alimentada por um JSON em
-`src/seed/`, validado pelo mesmo schema Zod que o banco vai usar.
+para clientes. A página pública é alimentada pelo Postgres do Supabase, validado
+pelo mesmo schema Zod que os componentes usam. O `/admin` monta e edita as
+propostas.
 
-Ainda **em aberto**: banco (Supabase decidido, não instalado), ORM (Drizzle
-decidido) e o admin. A animação usa `motion`, não instalar GSAP nem Lenis sem
-alinhamento (a decisão e o porquê estão no plano).
+Ainda **em aberto**: tracking de visualização, registro do aceite e e-mail
+(Resend). A animação usa `motion`, não instalar GSAP nem Lenis sem alinhamento
+(a decisão e o porquê estão no plano).
 
 ## Stack
 
-- **Next.js 16** (App Router)
+- **Next.js 16** (App Router, `proxy.ts` no lugar do antigo middleware)
 - **React 19**
+- **Supabase (Postgres) + Drizzle ORM**, acesso 100% no servidor
 - **TypeScript** (strict), alias de import `@/*` → `src/*`
 - **Tailwind CSS v4** (via `@tailwindcss/postcss`)
 - **ESLint 9** (flat config, `eslint-config-next`)
@@ -38,6 +40,12 @@ Instalação de dependências: `npm install <pacote>`.
 | `npm start` | Roda o build de produção |
 | `npm run lint` | ESLint |
 | `npm run valida:mobile` | Validação mobile em 390×844 real (com o dev server no ar) |
+| `npm run semear` | Insere as propostas de `src/seed/` no banco (idempotente pelo slug) |
+| `npm run banco:gerar` | Gera SQL de migração a partir de `src/lib/banco/esquema.ts` |
+
+Variáveis de ambiente em `.env.local` (modelo em `.env.example`): `DATABASE_URL`
+(pooler de transação do Supabase, porta 6543), `ADMIN_SENHA_HASH`
+(`node scripts/gerar-senha.mjs "senha"`) e `SESSAO_SEGREDO`.
 
 `valida:mobile` roda ao final de **toda** fase. Ele verifica, num viewport de
 iPhone: overflow horizontal, alvos de toque de 44px, ausência de `100vh`,
@@ -100,7 +108,20 @@ proposta**, o seed atual é a proposta real da Barba Log, não um exemplo.
   reprova quem voltar a `once: true`.
 - **`@media print` é o PDF do cliente**, não sobra de CSS. Qualquer elemento
   novo que anime precisa entrar no reset de `src/styles/print.css`.
-- **Dinheiro é inteiro em centavos.** Nunca float.
+- **Dinheiro é inteiro em centavos.** Nunca float. E dinheiro derivado é
+  CALCULADO, nunca guardado: o valor de cada parcela sai do total da opção
+  recomendada (`valoresDasParcelas`), senão um reajuste deixa a tabela de
+  pagamento mostrando o preço velho.
+- **Migração de banco é arquivo SQL revisado**, em `drizzle/`, aplicado à parte.
+  Nada de `drizzle-kit push` num banco que guarda proposta já enviada.
+- **Leitura de proposta é TOLERANTE:** seção fora do formato é registrada no log
+  e omitida, nunca derruba a página. Campo novo entra sempre opcional. O cliente
+  abriu o link do WhatsApp; ele não pode receber 500.
+- **`/admin`: toda página e toda action chamam `exigirAdmin()` na primeira
+  linha.** O `proxy.ts` só faz checagem otimista de cookie; Server Action é
+  endpoint HTTP e pode ser chamada sem passar por rota nenhuma.
+- **Slug e token nunca mudam depois de criados.** Os dois formam o link que já
+  está no WhatsApp do cliente. Precisando de endereço novo, duplique.
 
 ## Escrita (vale para tudo)
 

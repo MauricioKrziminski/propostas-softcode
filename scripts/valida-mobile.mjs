@@ -489,6 +489,41 @@ checar(paginas >= 6, `${paginas - 1} páginas`, `só ${paginas - 1} páginas, o 
 const pdfSemToken = await api.get(`${BASE}/barba-log-0000000000/pdf`);
 checar(pdfSemToken.status() === 404, "token errado no PDF dá 404", `token errado devolveu ${pdfSemToken.status()}`);
 
+/* ───────────── admin fechado ─────────────
+   A proposta é pública por posse do token; o painel não é público de jeito
+   nenhum. Estas três verificações cobrem as três formas de errar isso: rota
+   aberta, cookie forjado aceito, e tela de entrada quebrada. */
+console.log("\n▸ admin fechado");
+
+const admSemCookie = await api.get(`${BASE}/admin`, { maxRedirects: 0 });
+checar(
+  [307, 302, 303].includes(admSemCookie.status()),
+  `/admin sem sessão redireciona (${admSemCookie.status()})`,
+  `/admin sem sessão devolveu ${admSemCookie.status()}, deveria redirecionar`,
+);
+
+/* Cookie inventado passa pelo proxy (que só olha se existe) e precisa morrer no
+   `exigirAdmin()`, que confere a assinatura. É o teste que prova que o proxy não
+   é a autorização. */
+const apiForjada = await request.newContext({
+  extraHTTPHeaders: { cookie: "sessao_admin=99999999999999.assinaturafalsa" },
+});
+const admForjado = await apiForjada.get(`${BASE}/admin`, { maxRedirects: 0 });
+checar(
+  [307, 302, 303].includes(admForjado.status()),
+  "cookie forjado é recusado pela assinatura",
+  `cookie forjado devolveu ${admForjado.status()}: o HMAC não está sendo conferido`,
+);
+await apiForjada.dispose();
+
+const entrada = await api.get(`${BASE}/admin/entrar`);
+const htmlEntrada = await entrada.text();
+checar(
+  entrada.status() === 200 && htmlEntrada.includes('type="password"'),
+  "tela de entrada responde com campo de senha",
+  `tela de entrada devolveu ${entrada.status()} sem campo de senha`,
+);
+
 await api.dispose();
 
 /* ───────────── 5. foco de teclado ───────────── */

@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { buscarPropostaPorCaminho } from "@/lib/proposta/seed";
+import { buscarPropostaPorCaminho } from "@/lib/proposta/repositorio";
 
 /**
  * O card do WhatsApp é a primeira impressão da proposta, vem antes de qualquer
@@ -29,7 +29,7 @@ export default async function Imagem({
   params: Promise<{ proposta: string }>;
 }) {
   const { proposta: caminho } = await params;
-  const proposta = buscarPropostaPorCaminho(caminho);
+  const proposta = await buscarPropostaPorCaminho(caminho);
 
   const empresa = proposta?.cliente.empresa ?? "SoftCode";
   const projeto = proposta?.tituloProjeto ?? "Proposta comercial";

@@ -3,8 +3,8 @@ import { notFound } from "next/navigation";
 import dynamic from "next/dynamic";
 import type { Metadata } from "next";
 
-import { buscarPropostaPorCaminho } from "@/lib/proposta/seed";
-import { caminhoPublico, type ChaveSecao } from "@/lib/proposta/schema";
+import { buscarPropostaPorCaminho } from "@/lib/proposta/repositorio";
+import { CHAVES_SECAO, caminhoPublico, type ChaveSecao } from "@/lib/proposta/schema";
 import { estaExpirada } from "@/lib/proposta/formatar";
 
 import { Hero } from "@/components/secoes/Hero";
@@ -17,6 +17,11 @@ import { Cronograma } from "@/components/secoes/Cronograma";
 import { Investimento } from "@/components/secoes/Investimento";
 import { ForaDoEscopo } from "@/components/secoes/ForaDoEscopo";
 import { Responsabilidades } from "@/components/secoes/Responsabilidades";
+import { Suporte } from "@/components/secoes/Suporte";
+import { Pagamento } from "@/components/secoes/Pagamento";
+import { CustosRecorrentes } from "@/components/secoes/CustosRecorrentes";
+import { Indicacao } from "@/components/secoes/Indicacao";
+import { Finais } from "@/components/secoes/Finais";
 import { Sobre } from "@/components/secoes/Sobre";
 import { Aceite } from "@/components/secoes/Aceite";
 import { Expirada } from "@/components/secoes/Expirada";
@@ -32,18 +37,10 @@ const LuzDoPonteiro = dynamic(() =>
   import("@/components/motion/LuzDoPonteiro").then((m) => m.LuzDoPonteiro),
 );
 
-const ORDEM_CANONICA: ChaveSecao[] = [
-  "entendimento",
-  "solucao",
-  "escopo",
-  "processo",
-  "cronograma",
-  "investimento",
-  "foraDoEscopo",
-  "responsabilidades",
-  "sobre",
-  "aceite",
-];
+/* Espelha CHAVES_SECAO do schema: entendo o problema, proponho, detalho, mostro
+   como trabalho e quando entrego, digo o que preciso de você e o que acontece
+   depois da entrega, e só então falo de dinheiro. */
+const ORDEM_CANONICA: ChaveSecao[] = [...CHAVES_SECAO];
 
 /**
  * Três tons, não dois. A divisão continua SECA, sem gradiente, sem blur, sem
@@ -59,13 +56,18 @@ const CLARO = "#ffffff";
 const AZUL_CLARO = "#f0f6ff";
 const NOITE = "#0a1420";
 
-const CAPITULOS_NOITE = new Set<ChaveSecao>(["processo", "investimento", "aceite"]);
+const CAPITULOS_NOITE = new Set<ChaveSecao>([
+  "processo",
+  "investimento",
+  "pagamento",
+  "aceite",
+]);
 
 type Props = { params: Promise<{ proposta: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { proposta: caminho } = await params;
-  const proposta = buscarPropostaPorCaminho(caminho);
+  const proposta = await buscarPropostaPorCaminho(caminho);
   if (!proposta) return { title: "Proposta" };
 
   return {
@@ -77,7 +79,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function PaginaProposta({ params }: Props) {
   const { proposta: caminho } = await params;
-  const proposta = buscarPropostaPorCaminho(caminho);
+  const proposta = await buscarPropostaPorCaminho(caminho);
 
   if (!proposta || proposta.status === "rascunho") notFound();
 
@@ -95,6 +97,11 @@ export default async function PaginaProposta({ params }: Props) {
   }
 
   const ordem = conteudo.ordem ?? ORDEM_CANONICA;
+
+  /* A opção destacada é a referência da tabela de pagamento. Sem destaque, vale
+     a primeira: melhor mostrar valores de uma opção do que tabela sem número. */
+  const opcaoDeReferencia =
+    conteudo.investimento?.opcoes.find((o) => o.destaque) ?? conteudo.investimento?.opcoes[0];
 
   /** A seção existe? Precisa ser decidido ANTES de numerar. */
   const presente = (chave: ChaveSecao): boolean => {
@@ -119,14 +126,33 @@ export default async function PaginaProposta({ params }: Props) {
         return <Processo dados={conteudo.processo!} numero={numero} />;
       case "cronograma":
         return <Cronograma dados={conteudo.cronograma!} numero={numero} />;
-      case "investimento":
-        return <Investimento dados={conteudo.investimento!} numero={numero} />;
-      case "foraDoEscopo":
-        return <ForaDoEscopo dados={conteudo.foraDoEscopo!} numero={numero} />;
       case "responsabilidades":
         return <Responsabilidades dados={conteudo.responsabilidades!} numero={numero} />;
+      case "suporte":
+        return <Suporte dados={conteudo.suporte!} numero={numero} />;
+      case "investimento":
+        return <Investimento dados={conteudo.investimento!} numero={numero} />;
+      case "pagamento":
+        /* Os valores da tabela vêm da opção recomendada, calculados na hora.
+           Guardá-los no conteúdo seria manter dinheiro em dois lugares. */
+        return (
+          <Pagamento
+            dados={conteudo.pagamento!}
+            numero={numero}
+            totalCentavos={opcaoDeReferencia?.valorCentavos}
+            nomeDaOpcao={opcaoDeReferencia?.nome}
+          />
+        );
+      case "custosRecorrentes":
+        return <CustosRecorrentes dados={conteudo.custosRecorrentes!} numero={numero} />;
+      case "foraDoEscopo":
+        return <ForaDoEscopo dados={conteudo.foraDoEscopo!} numero={numero} />;
+      case "indicacao":
+        return <Indicacao dados={conteudo.indicacao!} numero={numero} />;
       case "sobre":
         return <Sobre dados={conteudo.sobre!} numero={numero} />;
+      case "finais":
+        return <Finais dados={conteudo.finais!} numero={numero} />;
       case "aceite":
         return (
           <Aceite
