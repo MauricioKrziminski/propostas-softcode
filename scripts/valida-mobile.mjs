@@ -215,6 +215,16 @@ const travada = await pg.evaluate(() => {
 });
 checar(!!travada && travada.alto && travada.grudado, `seção do processo trava (${travada?.altura}px de percurso)`, "a seção do processo não está travando");
 
+/* WebGL é enfeite de DESKTOP. No celular nem o chunk deve ser baixado — quem
+   abre pelo WhatsApp está no 4G. */
+const webgl = await pg.evaluate(() => ({
+  canvas: document.querySelectorAll("header canvas").length,
+  contextos: [...document.querySelectorAll("canvas")].filter((c) => {
+    try { return !!c.getContext("webgl"); } catch { return false; }
+  }).length,
+}));
+checar(webgl.canvas === 0, "nenhum canvas WebGL no celular", `${webgl.canvas} canvas WebGL renderizado em 390px — deveria ser exclusivo de desktop`);
+
 /* Orçamento de vidro: backdrop-filter é o efeito mais caro em Android
    intermediário. Teto de 5 elementos; e o prefixo -webkit- é obrigatório para
    iOS 16-17, onde a versão sem prefixo não existe. */

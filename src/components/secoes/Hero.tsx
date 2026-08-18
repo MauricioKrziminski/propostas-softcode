@@ -1,9 +1,20 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { motion, useReducedMotion, useTransform } from "motion/react";
 import { formatarDataLonga, textoValidade } from "@/lib/proposta/formatar";
 import { LogoSoftCode } from "@/components/ui/LogoSoftCode";
 import { usePercurso } from "@/components/motion/percurso";
+import { useMidia, DESKTOP_FINO } from "@/components/motion/midia";
+
+/**
+ * O campo WebGL entra por `next/dynamic` com `ssr: false`: ele é enfeite de
+ * desktop e não pode custar um byte no bundle inicial de quem abre no celular.
+ */
+const CampoWebGL = dynamic(
+  () => import("@/components/motion/CampoWebGL").then((m) => m.CampoWebGL),
+  { ssr: false },
+);
 
 /**
  * HERO — capítulo noite, e a primeira dobra da proposta.
@@ -37,6 +48,13 @@ export function Hero({
   const menosMovimento = useReducedMotion();
   const { alvo, progresso } = usePercurso(["start start", "end start"]);
 
+  /**
+   * O chunk do WebGL só é BAIXADO se as guardas passarem. Renderizar o
+   * componente e deixar o efeito desistir lá dentro ainda custaria o download
+   * no 4G de quem abriu pelo WhatsApp — e a promessa é "mobile enxuto".
+   */
+  const comCampo = useMidia(DESKTOP_FINO);
+
   const escalaNome = useTransform(progresso, [0, 1], [1, 0.55]);
   const opacidadeNome = useTransform(progresso, [0, 0.75], [1, 0]);
   const subidaNome = useTransform(progresso, [0, 1], ["0%", "-14%"]);
@@ -51,6 +69,11 @@ export function Hero({
       data-capitulo="noite"
       className="relative isolate flex min-h-[100dvh] flex-col justify-between overflow-hidden bg-noite px-6 pb-14 pt-6 sm:px-10"
     >
+      {/* Campo em WebGL — desktop apenas. As camadas de gradiente abaixo
+          continuam existindo e SÃO o fallback: no celular e com reduced-motion
+          a primeira dobra é exatamente elas. */}
+      {comCampo && !menosMovimento && <CampoWebGL />}
+
       {/* três camadas, três faixas — é a faixa que dá profundidade */}
       <motion.div
         aria-hidden
