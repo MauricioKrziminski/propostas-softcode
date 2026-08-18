@@ -1,4 +1,5 @@
 import { Secao } from "@/components/ui/Secao";
+import { rotulo } from "@/lib/proposta/formatar";
 import { BlocoExpansivel } from "@/components/ui/BlocoExpansivel";
 import { Revelar, ListaRevelada, ItemRevelado } from "@/components/motion/Revelar";
 import type { Escopo as Dados } from "@/lib/proposta/schema";
@@ -7,11 +8,11 @@ import type { Escopo as Dados } from "@/lib/proposta/schema";
  * Sem animação de entrada nos blocos: é a seção mais densa da proposta, e
  * movimento aqui atrapalha a leitura em vez de servi-la.
  */
-export function Escopo({ dados }: { dados: Dados }) {
+export function Escopo({ dados, numero }: { dados: Dados; numero: number }) {
   return (
     <Secao
       id="escopo"
-      etiqueta="03"
+      etiqueta={rotulo(numero)}
       titulo={dados.titulo ?? "Escopo detalhado"}
       ritmo="denso"
     >

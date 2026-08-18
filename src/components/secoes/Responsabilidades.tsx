@@ -1,4 +1,5 @@
 import { Secao } from "@/components/ui/Secao";
+import { rotulo } from "@/lib/proposta/formatar";
 import { Revelar, ListaRevelada, ItemRevelado } from "@/components/motion/Revelar";
 import type { Responsabilidades as Dados } from "@/lib/proposta/schema";
 
@@ -10,11 +11,11 @@ import type { Responsabilidades as Dados } from "@/lib/proposta/schema";
  * e deixar isso escrito na proposta muda a conversa de "vocês atrasaram" para
  * "faltou o material que combinamos".
  */
-export function Responsabilidades({ dados }: { dados: Dados }) {
+export function Responsabilidades({ dados, numero }: { dados: Dados; numero: number }) {
   return (
     <Secao
       id="responsabilidades"
-      etiqueta="08"
+      etiqueta={rotulo(numero)}
       titulo={dados.titulo ?? "O que precisamos de você"}
       ritmo="denso"
     >

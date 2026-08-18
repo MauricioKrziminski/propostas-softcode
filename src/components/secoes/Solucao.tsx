@@ -1,12 +1,13 @@
 import { Secao } from "@/components/ui/Secao";
+import { rotulo } from "@/lib/proposta/formatar";
 import { Revelar, ListaRevelada, ItemRevelado } from "@/components/motion/Revelar";
 import type { Solucao as Dados } from "@/lib/proposta/schema";
 
-export function Solucao({ dados }: { dados: Dados }) {
+export function Solucao({ dados, numero }: { dados: Dados; numero: number }) {
   return (
     <Secao
       id="solucao"
-      etiqueta="02"
+      etiqueta={rotulo(numero)}
       titulo={dados.titulo ?? "A solução proposta"}
     >
       <Revelar como="p" className="text-lg leading-relaxed text-neblina">

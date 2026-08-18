@@ -19,7 +19,6 @@
   --color-osso: #ffffff;
   --color-acento: #2563eb;
   --color-acento-claro: #1d4ed8;
-  --color-azul-sec: #1a3a5c;
   --color-linha: #e2e8f0;
   --color-linha-azul: #c7d9f5;
 
@@ -66,11 +65,6 @@ body {
   line-height: 1.02;
   letter-spacing: -0.02em;
   text-wrap: balance;
-}
-
-.tipo-texto {
-  font-family: var(--font-texto);
-  font-weight: 400;
 }
 
 .numero {
@@ -138,15 +132,6 @@ body {
   }
 }
 
-@keyframes acender {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
 @keyframes deslocar {
   to {
     transform: translateY(var(--deslocamento, -14%));
@@ -162,6 +147,23 @@ body {
     opacity: 1;
     transform: scale(1);
   }
+}
+
+/* ── vidro do projeto ──
+   NUNCA usar `backdrop-blur-*` do Tailwind: ele emite só `backdrop-filter`, sem
+   o prefixo, e em iOS 16-17 a versão sem prefixo não existe — o vidro some no
+   iPhone justamente do cliente. Toda peça de vidro passa por aqui.
+
+   E não adianta conferir isso em runtime: o Chromium trata `-webkit-` como
+   alias e apaga a declaração do CSSOM. A verificação é no código-fonte. */
+.vidro {
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
+}
+
+.vidro-sutil {
+  -webkit-backdrop-filter: blur(8px) saturate(120%);
+  backdrop-filter: blur(8px) saturate(120%);
 }
 
 /* Estado de repouso do cabeçalho fixo. Precisa vir ANTES do @supports:
@@ -193,39 +195,6 @@ body {
       animation: deslocar linear both;
       animation-timeline: scroll(root);
       animation-range: 0 100svh;
-    }
-
-    .filete-secao {
-      transform-origin: left center;
-      animation: desenhar-x linear both;
-      animation-timeline: view();
-      animation-range: entry 20% cover 45%;
-    }
-
-    .filete-processo {
-      transform-origin: top center;
-      animation: desenhar-y linear both;
-      animation-timeline: view();
-      animation-range: entry 50% exit 45%;
-    }
-
-    .etapa-luz {
-      animation: acender linear both;
-      animation-timeline: view();
-      animation-range: entry 45% cover 62%;
-    }
-
-    .etapa-numero {
-      animation: brotar linear both;
-      animation-timeline: view();
-      animation-range: entry 35% cover 65%;
-    }
-
-    .etapa-borda {
-      transform-origin: top center;
-      animation: desenhar-y linear both;
-      animation-timeline: view();
-      animation-range: entry 40% cover 75%;
     }
 
     .linha-tempo {
@@ -273,11 +242,6 @@ body {
       animation-range: entry 38% cover 66%;
     }
 
-    .aspas-grande {
-      animation: brotar linear both;
-      animation-timeline: view();
-      animation-range: entry 25% cover 55%;
-    }
   }
 }
 
@@ -382,10 +346,6 @@ body {
     transform-origin: top center;
     animation: aba-abrir 1100ms cubic-bezier(0.6, 0, 0.2, 1) 700ms both;
   }
-  .convite-aba {
-    transform-origin: top center;
-    animation: aba-abrir 1100ms cubic-bezier(0.6, 0, 0.2, 1) 700ms both;
-  }
   .convite-conteudo {
     animation: conteudo-subir 700ms cubic-bezier(0.2, 0.8, 0.2, 1) 1500ms both;
   }
@@ -413,32 +373,31 @@ body {
     animation-timeline: none !important;
     scroll-behavior: auto !important;
   }
+  /* Estes seletores precisam existir de fato no DOM. Os antigos
+     (.etapa-luz, .aspas-grande, .filete-*, .palavra-sobe, .corda) foram
+     removidos: eram nomes sem contraparte no TSX, e faziam a lista parecer
+     mais protetora do que era. */
   .assinatura-nome,
-  .etapa-luz,
-  .aspas-grande,
-  .etapa-numero,
   .ponto-fase,
   .convite-cartao,
   .convite-conteudo {
     opacity: 1 !important;
     transform: none !important;
   }
-  .filete-secao,
-  .filete-processo,
   .linha-tempo,
   .barra-fase,
-  .etapa-borda,
   .borda-topo,
   .borda-base,
   .borda-esq,
   .borda-dir,
-  .camada-parallax,
-  .corda {
+  .camada-parallax {
     transform: none !important;
     opacity: 1 !important;
   }
-  /* sem movimento, a aba do envelope não comunica nada: some */
-  .convite-aba {
+  /* sem movimento, a aba do envelope não comunica nada: some.
+     O nome tem que casar com o do TSX (.convite-aba-auto) — quando não casava,
+     a aba ficava visível e PARADA cobrindo o topo do cartão. */
+  .convite-aba-auto {
     display: none !important;
   }
 }
@@ -458,7 +417,7 @@ body {
     transition: opacity 220ms ease;
     background: radial-gradient(
       18rem circle at var(--mx, 50%) var(--my, 50%),
-      rgb(61 59 243 / 0.22),
+      color-mix(in oklab, var(--color-acento) 16%, transparent),
       transparent 65%
     );
   }

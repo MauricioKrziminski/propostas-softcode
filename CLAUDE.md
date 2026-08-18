@@ -5,11 +5,12 @@
 ## Contexto
 
 Site de **propostas comerciais da SoftCode**: apresentação e envio de propostas
-para clientes. Este repositório está no estágio de esqueleto — apenas o scaffold
-do Next.js, sem features implementadas.
+para clientes. A página pública está implementada e alimentada por um JSON em
+`src/seed/`, validado pelo mesmo schema Zod que o banco vai usar.
 
-Decisões ainda **em aberto** (não instalar nada disso sem alinhamento prévio):
-banco de dados, ORM e biblioteca de animação.
+Ainda **em aberto**: banco (Supabase decidido, não instalado), ORM (Drizzle
+decidido) e o admin. A animação usa `motion` — não instalar GSAP nem Lenis sem
+alinhamento (a decisão e o porquê estão no plano).
 
 ## Stack
 
@@ -75,9 +76,18 @@ proposta** — o seed atual é a proposta real da Barba Log, não um exemplo.
   abaixo do bloco anula o `display: flex` de dentro dele e o elemento nunca
   aparece — foi exatamente assim que o cabeçalho fixo ficou invisível por uma
   fase inteira sem ninguém notar.
-- **A divisória entre seções é a própria diferença de cor.** Sem linha e sem SVG
-  de onda: uma curva de gradiente que cede como corda (`Corda.tsx`) e se desloca
-  no scroll. Os tons alternados são decididos pela página, não pela seção.
+- **A divisória entre seções é a própria diferença de cor**, e é SECA: sem
+  gradiente, sem blur, sem curva. Os tons alternados são decididos pela página,
+  nunca pela seção.
+- **A etiqueta numérica da seção vem da POSIÇÃO**, via `rotulo(numero)` — nunca
+  fixa no componente. Fixa, duas seções acabaram ambas com "08".
+- **Vidro só pelas classes `.vidro`/`.vidro-sutil`.** Nunca `backdrop-blur-*` do
+  Tailwind: ele emite só `backdrop-filter`, sem o prefixo, e em iOS 16-17 o vidro
+  some. O prefixo NÃO dá para verificar em runtime (o Chromium apaga o alias do
+  CSSOM) — a checagem é no código-fonte. Teto de 5 elementos com vidro na página.
+- **`animation-timeline` só existe no iOS 26+ e nunca no Firefox.** Portanto: CSS
+  scroll-driven é só para DECORAÇÃO. Todo efeito que o cliente precisa ver usa
+  `useScroll` do motion, que é rAF e roda em todo iPhone.
 - **Título de seção NUNCA é sticky.** Comia a viewport do celular e disputava
   atenção com o conteúdo. O validador falha se voltar.
 - **Reveal de componente é por TEMPO, não por scroll.** `Revelar.tsx` (motion).

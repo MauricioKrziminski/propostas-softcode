@@ -1,4 +1,5 @@
 import { Secao } from "@/components/ui/Secao";
+import { rotulo } from "@/lib/proposta/formatar";
 import { Revelar } from "@/components/motion/Revelar";
 import { SecaoTravada } from "@/components/motion/SecaoTravada";
 import { ETAPAS, type Etapa } from "@/lib/proposta/processo";
@@ -13,13 +14,13 @@ import type { Processo as Dados } from "@/lib/proposta/schema";
  *
  * Com reduced-motion a seção não trava — vira lista empilhada.
  */
-export function Processo({ dados }: { dados: Dados }) {
+export function Processo({ dados, numero }: { dados: Dados; numero: number }) {
   if (!dados.mostrar) return null;
 
   return (
     <Secao
       id="processo"
-      etiqueta="04"
+      etiqueta={rotulo(numero)}
       titulo={dados.titulo ?? "Como trabalhamos"}
       largura="ampla"
       ritmo="denso"

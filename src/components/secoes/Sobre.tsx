@@ -1,12 +1,13 @@
 import { Secao } from "@/components/ui/Secao";
+import { rotulo } from "@/lib/proposta/formatar";
 import { Revelar, ListaRevelada, ItemRevelado } from "@/components/motion/Revelar";
 import type { Sobre as Dados } from "@/lib/proposta/schema";
 
-export function Sobre({ dados }: { dados: Dados }) {
+export function Sobre({ dados, numero }: { dados: Dados; numero: number }) {
   return (
     <Secao
       id="sobre"
-      etiqueta="08"
+      etiqueta={rotulo(numero)}
       titulo={dados.titulo ?? "Sobre a SoftCode"}
     >
       <Revelar como="p" className="text-lg leading-relaxed text-neblina">

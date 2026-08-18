@@ -17,7 +17,7 @@
  * e salva screenshots e um PDF em .playwright/ para conferência visual.
  */
 import { chromium, devices } from "@playwright/test";
-import { mkdir } from "node:fs/promises";
+import { mkdir, readFile } from "node:fs/promises";
 
 const BASE = process.argv[2] ?? "http://localhost:3000";
 const CAMINHO = "/barba-log-7fk2m9x4qd";
@@ -62,6 +62,30 @@ async function abrirProposta(pagina) {
     await pagina.waitForTimeout(150);
   }
   return pagina.locator("#convite").count();
+}
+
+/**
+ * Rola a página como um usuário rolaria, em passos.
+ *
+ * `scrollTo(bottom)` de uma vez não serve: o `whileInView` do motion dispara por
+ * IntersectionObserver, então tudo que foi PULADO nunca entra em tela e fica
+ * legitimamente invisível. O teste então acusava falha onde não havia.
+ */
+async function rolarAPagina(pagina) {
+  const { altura, tela } = await pagina.evaluate(() => ({
+    altura: document.body.scrollHeight,
+    tela: window.innerHeight,
+  }));
+  // O passo precisa ser MENOR que a viewport, senão o conteúdo entre um passo e
+  // outro nunca chega a ficar em tela e o IntersectionObserver do motion não
+  // dispara — o teste acusaria como travado algo que o usuário veria normalmente.
+  const passo = Math.floor(tela * 0.7);
+  for (let y = passo; y < altura; y += passo) {
+    await pagina.evaluate((v) => window.scrollTo({ top: v, behavior: "instant" }), y);
+    await pagina.waitForTimeout(130);
+  }
+  await pagina.evaluate((v) => window.scrollTo({ top: v, behavior: "instant" }), altura - tela);
+  await pagina.waitForTimeout(800);
 }
 
 await mkdir(SAIDA, { recursive: true });
@@ -178,20 +202,58 @@ const travada = await pg.evaluate(() => {
 });
 checar(!!travada && travada.alto && travada.grudado, `seção do processo trava (${travada?.altura}px de percurso)`, "a seção do processo não está travando");
 
+/* Orçamento de vidro: backdrop-filter é o efeito mais caro em Android
+   intermediário. Teto de 5 elementos; e o prefixo -webkit- é obrigatório para
+   iOS 16-17, onde a versão sem prefixo não existe. */
+const vidro = await pg.evaluate(() => {
+  const comVidro = [...document.querySelectorAll("*")].filter((e) => {
+    const bf = getComputedStyle(e).backdropFilter;
+    return bf && bf !== "none";
+  });
+  return { total: comVidro.length };
+});
+checar(vidro.total <= 5, `${vidro.total} elemento(s) com backdrop-filter (teto 5)`, `${vidro.total} elementos com backdrop-filter — o teto é 5`);
+
+/* O prefixo NÃO dá para verificar em runtime: o Chromium trata
+   `-webkit-backdrop-filter` como alias e apaga a declaração do CSSOM
+   (`getPropertyValue` devolve ""). A verificação tem que ser no código-fonte. */
+const fonteCss = [
+  await readFile("src/app/globals.css", "utf8"),
+  await readFile("src/styles/print.css", "utf8"),
+].join("\n");
+const blocosComVidro = [...fonteCss.matchAll(/[^{}]*\{[^{}]*backdrop-filter[^{}]*\}/g)].map((m) => m[0]);
+const semPrefixo = blocosComVidro.filter(
+  (b) => /(?<!-webkit-)backdrop-filter\s*:/.test(b) && !/-webkit-backdrop-filter\s*:/.test(b) && !/none/.test(b),
+);
+checar(semPrefixo.length === 0, `${blocosComVidro.length} bloco(s) de vidro, todos com -webkit-`, `${semPrefixo.length} bloco(s) sem -webkit-backdrop-filter (o vidro some em iOS 16-17)`, semPrefixo.map((b) => b.slice(0, 70)).join(" | "));
+
+const utilitariaTailwind = await pg.evaluate(() =>
+  [...document.querySelectorAll("[class*='backdrop-blur']")].length,
+);
+checar(utilitariaTailwind === 0, "nenhuma utility backdrop-blur do Tailwind", `${utilitariaTailwind} elemento(s) usam backdrop-blur-* — o Tailwind não emite o prefixo, use .vidro`);
+
 /* Os reveals por mola do motion precisam existir de fato. */
 const molas = await pg.evaluate(
   () => document.getAnimations().filter((a) => !a.timeline || a.timeline.constructor.name === "DocumentTimeline").length,
 );
 checar(molas > 0, `${molas} animações por tempo (motion) ativas`, "nenhuma animação por tempo — os reveals do motion não dispararam");
 
-await pg.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-await pg.waitForTimeout(800);
-const invisiveis = await pg.evaluate(() =>
-  [...document.querySelectorAll("[data-reveal], [data-stagger] > *, .palavra-sobe")]
+await rolarAPagina(pg);
+const reveals = await pg.evaluate(() => {
+  // O motion/react escreve `style="opacity: N"` inline — é assim que se acha um
+  // reveal de verdade. Os seletores antigos ([data-reveal], .palavra-sobe) não
+  // existem no DOM há várias fases: a verificação passava inspecionando vazio.
+  // `aria-hidden` é isento: são os painéis inativos da seção travada, que
+  // DEVEM estar em opacity 0 — é assim que um painel dá lugar ao outro.
+  const candidatos = [...document.querySelectorAll("[style*='opacity'], .palavra-clip")]
+    .filter((e) => !e.closest('[aria-hidden="true"]'));
+  const invisiveis = candidatos
     .filter((e) => parseFloat(getComputedStyle(e).opacity) < 0.05)
-    .map((e) => e.tagName.toLowerCase() + "." + (e.className || "").toString().split(" ")[0]),
-);
-checar(invisiveis.length === 0, "nenhum reveal travado invisível após o scroll", `${invisiveis.length} elemento(s) invisíveis`, invisiveis.slice(0, 6).join(", "));
+    .map((e) => `${e.tagName.toLowerCase()}.${(e.className || "").toString().split(" ")[0]} em #${e.closest("section")?.id ?? "?"}`);
+  return { total: candidatos.length, invisiveis };
+});
+checar(reveals.total > 0, `${reveals.total} elementos de reveal inspecionados`, "nenhum elemento de reveal no DOM — a verificação estaria passando no vácuo");
+checar(reveals.invisiveis.length === 0, "nenhum reveal travado invisível após o scroll", `${reveals.invisiveis.length} elemento(s) invisíveis`, reveals.invisiveis.slice(0, 6).join(", "));
 
 await pg.evaluate(() => window.scrollTo(0, 0));
 await pg.waitForTimeout(500);
@@ -214,17 +276,29 @@ const movimento = await pgRm.evaluate(() => {
     const s = getComputedStyle(e);
     if (s.animationName !== "none") animando.push(e.tagName.toLowerCase() + "." + (e.className || "").toString().split(" ")[0]);
   }
-  const escondidos = [...document.querySelectorAll("[data-reveal], [data-stagger] > *, .palavra-sobe, .assinatura-nome")]
+  const candidatos = [...document.querySelectorAll("[style*='opacity'], .palavra-clip, .assinatura-nome")]
+    .filter((e) => !e.closest('[aria-hidden="true"]'));
+  const escondidos = candidatos
     .filter((e) => parseFloat(getComputedStyle(e).opacity) < 0.99)
     .map((e) => e.tagName.toLowerCase());
-  const transformados = [...document.querySelectorAll(".palavra-sobe, .filete-secao, .barra-fase, .linha-tempo, .borda-topo, .onda-mare")]
+  const comTransform = [...document.querySelectorAll(".barra-fase, .linha-tempo, .ponto-fase, .borda-topo, .borda-dir, .borda-base, .borda-esq, .camada-parallax, .assinatura-nome")];
+  const transformados = comTransform
     .filter((e) => !["none", "matrix(1, 0, 0, 1, 0, 0)"].includes(getComputedStyle(e).transform))
     .map((e) => (e.className || "").toString().split(" ")[0]);
-  return { animando: animando.slice(0, 6), escondidos: escondidos.slice(0, 6), transformados: transformados.slice(0, 6), vivas: document.getAnimations().length };
+  return { animando: animando.slice(0, 6), escondidos: escondidos.slice(0, 6), transformados: transformados.slice(0, 6), candidatos: candidatos.length, comTransform: comTransform.length };
 });
 checar(movimento.animando.length === 0, "nada animando", `${movimento.animando.length} elemento(s) ainda com animação`, movimento.animando.join(", "));
+checar(movimento.candidatos > 0 && movimento.comTransform > 0, `inspecionando ${movimento.candidatos} reveals e ${movimento.comTransform} transforms`, "seletores vazios — reduced-motion estaria passando no vácuo");
 checar(movimento.escondidos.length === 0, "todo conteúdo visível", "conteúdo escondido com reduced-motion", movimento.escondidos.join(", "));
 checar(movimento.transformados.length === 0, "nenhum transform residual (filetes e bordas em estado final)", "transform residual com reduced-motion", movimento.transformados.join(", "));
+
+/* A aba do envelope precisa sumir com reduced-motion — parada, ela cobre o topo
+   do cartão. O CSS escondia uma classe que o TSX não usava. */
+const abaVisivel = await pgRm.evaluate(() => {
+  const aba = document.querySelector(".convite-aba-auto");
+  return aba ? getComputedStyle(aba).display !== "none" : false;
+});
+checar(!abaVisivel, "aba do envelope escondida com reduced-motion", "a aba do envelope ficou visível e parada sobre o cartão");
 
 await pgRm.screenshot({ path: `${SAIDA}/390-reduced-motion.png`, fullPage: true });
 await ctxRm.close();
@@ -239,7 +313,8 @@ await pgP.emulateMedia({ media: "print" });
 await pgP.waitForTimeout(500);
 
 const impressao = await pgP.evaluate(() => {
-  const emBranco = [...document.querySelectorAll("section, [data-reveal], [data-stagger] > *, .palavra-sobe")]
+  const emBranco = [...document.querySelectorAll("section, [style*='opacity'], .palavra-clip")]
+    .filter((e) => !e.closest('[aria-hidden="true"]'))
     .filter((e) => parseFloat(getComputedStyle(e).opacity) < 0.99 || getComputedStyle(e).visibility === "hidden")
     .map((e) => e.id || (e.className || "").toString().split(" ")[0] || e.tagName.toLowerCase());
   const grudados = [...document.querySelectorAll("*")]
@@ -248,7 +323,13 @@ const impressao = await pgP.evaluate(() => {
   const cortados = [...document.querySelectorAll(".palavra-clip")]
     .filter((e) => getComputedStyle(e).overflow !== "visible").length;
   const rodape = document.querySelector(".print-only");
+  const comVidro = [...document.querySelectorAll("*")].filter((e) => {
+    const s = getComputedStyle(e);
+    return (s.backdropFilter && s.backdropFilter !== "none") ||
+           (s.webkitBackdropFilter && s.webkitBackdropFilter !== "none");
+  }).length;
   return {
+    comVidro,
     emBranco: emBranco.slice(0, 8),
     grudados: grudados.slice(0, 5),
     cortados,
@@ -260,6 +341,7 @@ const impressao = await pgP.evaluate(() => {
 checar(impressao.emBranco.length === 0, "nenhuma seção sai em branco", "seções invisíveis na impressão", impressao.emBranco.join(", "));
 checar(impressao.grudados.length === 0, "nada fixed/sticky", "elementos grudados na impressão", impressao.grudados.join(", "));
 checar(impressao.cortados === 0, "recorte das palavras liberado no papel", `${impressao.cortados} título(s) ainda com recorte`);
+checar(impressao.comVidro === 0, "nenhum backdrop-filter sobrevive à impressão", `${impressao.comVidro} elemento(s) com vidro no papel — vira borrão cinza sobre o texto`);
 checar(/rgb\(255,\s*255,\s*255\)/.test(impressao.fundo), `paleta invertida (fundo ${impressao.fundo})`, `fundo de impressão não é branco: ${impressao.fundo}`);
 checar(impressao.rodapeVisivel, "rodapé .print-only visível (URL e validade)", "rodapé .print-only não aparece na impressão");
 

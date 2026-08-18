@@ -84,3 +84,14 @@ export function textoValidade(validaAte: string, hoje = hojeISO()): string {
   if (dias === 1) return "Válida até amanhã";
   return `Válida por mais ${dias} dias`;
 }
+
+/**
+ * Etiqueta numérica de uma seção, a partir da POSIÇÃO dela na proposta.
+ *
+ * Antes cada componente trazia a própria etiqueta fixa, e duas seções acabaram
+ * ambas com "08". Derivar da posição elimina a classe do problema — e é o único
+ * jeito de a numeração continuar certa quando `conteudo.ordem` reordena tudo.
+ */
+export function rotulo(posicao: number): string {
+  return String(posicao).padStart(2, "0");
+}

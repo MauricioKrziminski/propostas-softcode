@@ -1,4 +1,5 @@
 import { Secao } from "@/components/ui/Secao";
+import { rotulo } from "@/lib/proposta/formatar";
 import { Revelar, ListaRevelada, ItemRevelado } from "@/components/motion/Revelar";
 import type { Entendimento as Dados } from "@/lib/proposta/schema";
 
@@ -8,11 +9,11 @@ import type { Entendimento as Dados } from "@/lib/proposta/schema";
  * Movimento deliberadamente discreto aqui — um reveal curto e nada mais. Se
  * esta seção chamar atenção para a animação em vez do texto, ela falhou.
  */
-export function Entendimento({ dados }: { dados: Dados }) {
+export function Entendimento({ dados, numero }: { dados: Dados; numero: number }) {
   return (
     <Secao
       id="entendimento"
-      etiqueta="01"
+      etiqueta={rotulo(numero)}
       titulo={dados.titulo ?? "O que entendemos"}
       ritmo="respiro"
     >

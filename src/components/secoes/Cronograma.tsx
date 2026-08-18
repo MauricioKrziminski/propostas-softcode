@@ -1,4 +1,5 @@
 import { Secao } from "@/components/ui/Secao";
+import { rotulo } from "@/lib/proposta/formatar";
 import { Revelar, ListaRevelada, ItemRevelado } from "@/components/motion/Revelar";
 import type { Cronograma as Dados } from "@/lib/proposta/schema";
 
@@ -9,12 +10,12 @@ import type { Cronograma as Dados } from "@/lib/proposta/schema";
  * para baixo (`scaleY`) enquanto a seção atravessa a viewport, e cada barra de
  * fase cresce com `scaleX` — nunca `width`, que dispararia layout por frame.
  */
-export function Cronograma({ dados }: { dados: Dados }) {
+export function Cronograma({ dados, numero }: { dados: Dados; numero: number }) {
   const total = dados.fases.reduce((s, f) => s + f.semanas, 0);
   const maior = Math.max(...dados.fases.map((f) => f.semanas));
 
   return (
-    <Secao id="cronograma" etiqueta="05" titulo={dados.titulo ?? "Cronograma"}>
+    <Secao id="cronograma" etiqueta={rotulo(numero)} titulo={dados.titulo ?? "Cronograma"}>
       <Revelar como="p" className="mb-12 text-neblina">
         <span className="numero text-navy">{total} semanas</span> no total, do
         planejamento à publicação.

@@ -5,6 +5,7 @@ import { Secao } from "@/components/ui/Secao";
 import { Botao } from "@/components/ui/Botao";
 import { formatarValor } from "@/lib/proposta/formatar";
 import { linkEmail } from "@/lib/contato";
+import { rotulo } from "@/lib/proposta/formatar";
 import type { Aceite as Dados, OpcaoInvestimento } from "@/lib/proposta/schema";
 
 /**
@@ -20,11 +21,13 @@ export function Aceite({
   opcoes,
   empresa,
   projeto,
+  numero,
 }: {
   dados: Dados;
   opcoes: OpcaoInvestimento[];
   empresa: string;
   projeto: string;
+  numero: number;
 }) {
   const [escolhida, setEscolhida] = useState<string | null>(
     opcoes.find((o) => o.destaque)?.id ?? (opcoes.length === 1 ? opcoes[0].id : null),
@@ -46,7 +49,7 @@ export function Aceite({
   return (
     <Secao
       id="aceite"
-      etiqueta="09"
+      etiqueta={rotulo(numero)}
       titulo={dados.titulo ?? "Aceite"}
       largura="ampla"
       ritmo="respiro"
@@ -78,7 +81,7 @@ export function Aceite({
                   value={o.id}
                   checked={escolhida === o.id}
                   onChange={() => setEscolhida(o.id)}
-                  className="mt-1 accent-[#c79a3b]"
+                  className="mt-1 accent-acento"
                 />
                 <span>
                   <span className="block text-navy">{o.nome}</span>

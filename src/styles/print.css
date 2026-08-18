@@ -20,28 +20,27 @@
     transform: none !important;
     opacity: 1 !important;
     filter: none !important;
+    /* `filter` e `backdrop-filter` são propriedades DISTINTAS: sem esta linha,
+       um painel de vidro imprime como borrão cinza por cima do texto. */
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
     box-shadow: none !important;
     will-change: auto !important;
   }
 
   /* 2. Tudo que só apareceria via reveal nasce revelado.
         Qualquer efeito novo que anime PRECISA entrar nesta lista. */
-  [data-reveal],
-  [data-stagger] > *,
+  /* `[style*="opacity"]` é o que cobre os estilos inline do motion/react — é
+     por ele que os reveals por tempo nascem revelados no papel. Os seletores
+     .etapa-*, .filete-* e .aspas-grande saíram: não existem no DOM. */
   [style*="opacity"],
-  .etapa-luz,
-  .etapa-numero,
-  .etapa-borda,
   .barra-fase,
   .ponto-fase,
   .linha-tempo,
-  .filete-processo,
-  .filete-secao,
   .borda-topo,
   .borda-dir,
   .borda-base,
   .borda-esq,
-  .aspas-grande,
   .assinatura-nome,
   .camada-parallax {
     opacity: 1 !important;
@@ -67,25 +66,17 @@
   #convite {
     display: none !important;
   }
-  [data-sticky],
   [class*="sticky"],
   [class*="fixed"] {
     position: static !important;
     backdrop-filter: none !important;
   }
   /* fundo de secao alternado vira branco no papel */
-  main > div {
-    background: #ffffff !important;
-  }
 
   /* 4. Blocos expansíveis abertos. O listener beforeprint marca `open` em todos;
         isto aqui cobre o caso do pseudo-elemento já suportado. */
   details > summary {
     list-style: none;
-  }
-  details::details-content {
-    content-visibility: visible !important;
-    block-size: auto !important;
   }
 
   /* 5. A paleta da tela já é branco com azul — no papel só garantimos que
@@ -118,7 +109,7 @@
     break-inside: auto;
   }
   .cartao-investimento,
-  .etapa-processo,
+  .painel-etapa,
   .fase-cronograma,
   .case-item,
   blockquote {

@@ -84,37 +84,51 @@ export default async function PaginaProposta({ params }: Props) {
 
   const ordem = conteudo.ordem ?? ORDEM_CANONICA;
 
-  const secoes: Partial<Record<ChaveSecao, React.ReactNode>> = {
-    entendimento: conteudo.entendimento && (
-      <Entendimento dados={conteudo.entendimento} />
-    ),
-    solucao: conteudo.solucao && <Solucao dados={conteudo.solucao} />,
-    escopo: conteudo.escopo && <Escopo dados={conteudo.escopo} />,
-    processo: conteudo.processo && <Processo dados={conteudo.processo} />,
-    cronograma: conteudo.cronograma && <Cronograma dados={conteudo.cronograma} />,
-    investimento: conteudo.investimento && (
-      <Investimento dados={conteudo.investimento} />
-    ),
-    foraDoEscopo: conteudo.foraDoEscopo && (
-      <ForaDoEscopo dados={conteudo.foraDoEscopo} />
-    ),
-    responsabilidades: conteudo.responsabilidades && (
-      <Responsabilidades dados={conteudo.responsabilidades} />
-    ),
-    sobre: conteudo.sobre && <Sobre dados={conteudo.sobre} />,
-    aceite: conteudo.aceite && conteudo.investimento && (
-      <Aceite
-        dados={conteudo.aceite}
-        opcoes={conteudo.investimento.opcoes}
-        empresa={cliente.empresa}
-        projeto={proposta.tituloProjeto}
-      />
-    ),
+  /** A seção existe? Precisa ser decidido ANTES de numerar. */
+  const presente = (chave: ChaveSecao): boolean => {
+    if (chave === "aceite") return Boolean(conteudo.aceite && conteudo.investimento);
+    return Boolean(conteudo[chave]);
   };
 
-  const blocos = ordem
-    .map((chave) => ({ chave, node: secoes[chave] }))
-    .filter((b) => Boolean(b.node));
+  /**
+   * A etiqueta ("01", "02"...) vem da POSIÇÃO, não do componente. Era fixa em
+   * cada seção, e por isso Sobre e Responsabilidades vinham ambas com "08".
+   * Como `conteudo.ordem` pode reordenar tudo, derivar é o único jeito certo.
+   */
+  const montar = (chave: ChaveSecao, numero: number): React.ReactNode => {
+    switch (chave) {
+      case "entendimento":
+        return <Entendimento dados={conteudo.entendimento!} numero={numero} />;
+      case "solucao":
+        return <Solucao dados={conteudo.solucao!} numero={numero} />;
+      case "escopo":
+        return <Escopo dados={conteudo.escopo!} numero={numero} />;
+      case "processo":
+        return <Processo dados={conteudo.processo!} numero={numero} />;
+      case "cronograma":
+        return <Cronograma dados={conteudo.cronograma!} numero={numero} />;
+      case "investimento":
+        return <Investimento dados={conteudo.investimento!} numero={numero} />;
+      case "foraDoEscopo":
+        return <ForaDoEscopo dados={conteudo.foraDoEscopo!} numero={numero} />;
+      case "responsabilidades":
+        return <Responsabilidades dados={conteudo.responsabilidades!} numero={numero} />;
+      case "sobre":
+        return <Sobre dados={conteudo.sobre!} numero={numero} />;
+      case "aceite":
+        return (
+          <Aceite
+            dados={conteudo.aceite!}
+            opcoes={conteudo.investimento!.opcoes}
+            empresa={cliente.empresa}
+            projeto={proposta.tituloProjeto}
+            numero={numero}
+          />
+        );
+    }
+  };
+
+  const blocos = ordem.filter(presente);
 
   /** O hero é o tom 0; a primeira seção começa no tom 1, e daí alterna. */
   const tomDe = (i: number) => TONS[(i + 1) % 2];
@@ -134,16 +148,9 @@ export default async function PaginaProposta({ params }: Props) {
       />
 
       <main>
-        {blocos.map((bloco, i) => (
-          <Fragment key={bloco.chave}>
-            <div
-              style={{
-                backgroundColor: tomDe(i),
-                ["--tom" as string]: tomDe(i),
-              }}
-            >
-              {bloco.node}
-            </div>
+        {blocos.map((chave, i) => (
+          <Fragment key={chave}>
+            <div style={{ backgroundColor: tomDe(i) }}>{montar(chave, i + 1)}</div>
           </Fragment>
         ))}
       </main>

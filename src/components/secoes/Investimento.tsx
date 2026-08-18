@@ -1,4 +1,5 @@
 import { Secao } from "@/components/ui/Secao";
+import { rotulo } from "@/lib/proposta/formatar";
 import { Contador } from "@/components/motion/Contador";
 import { Revelar, ListaRevelada, ItemRevelado } from "@/components/motion/Revelar";
 import type { Investimento as Dados } from "@/lib/proposta/schema";
@@ -26,7 +27,7 @@ function BordaDesenhada({ destaque }: { destaque: boolean }) {
   );
 }
 
-export function Investimento({ dados }: { dados: Dados }) {
+export function Investimento({ dados, numero }: { dados: Dados; numero: number }) {
   const colunas =
     dados.opcoes.length === 1
       ? "sm:grid-cols-1"
@@ -37,7 +38,7 @@ export function Investimento({ dados }: { dados: Dados }) {
   return (
     <Secao
       id="investimento"
-      etiqueta="06"
+      etiqueta={rotulo(numero)}
       titulo={dados.titulo ?? "Investimento"}
       largura="ampla"
       ritmo="denso"

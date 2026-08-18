@@ -97,7 +97,7 @@ export function CabecalhoFixo({
   return (
     <div
       aria-hidden
-      className="cabecalho-fixo fixed inset-x-0 top-0 z-50 h-[var(--altura-cabecalho)] items-center justify-between gap-4 border-b border-linha bg-fundo/85 px-6 backdrop-blur-sm sm:px-8"
+      className="cabecalho-fixo fixed inset-x-0 top-0 z-50 h-[var(--altura-cabecalho)] items-center justify-between gap-4 border-b border-linha vidro-sutil bg-fundo/85 px-6 sm:px-8"
     >
       <LogoCliente empresa={empresa} url={logoCliente} />
       <LogoSoftCode className="h-12 w-auto" />
@@ -108,10 +108,11 @@ export function CabecalhoFixo({
 /**
  * Slot do logo do cliente, sempre monocromático em osso.
  *
- * A cor não é customizável de propósito: logo colorido de terceiro brigaria com
- * o índigo da SoftCode e faria a proposta parecer um documento de duas marcas
- * mal costuradas. A monocromia vem de `mask-image` — a forma do arquivo recorta
- * uma área preenchida com --color-osso, então nenhum pixel da cor original passa.
+ * A cor não é customizável de propósito: logo colorido de terceiro faria a
+ * proposta parecer um documento de duas marcas mal costuradas. A monocromia vem
+ * de `mask-image` — a forma do arquivo recorta uma área preenchida com
+ * --color-navy, então nenhum pixel da cor original passa. Precisa ser navy, e
+ * não osso: sobre o cabeçalho branco, osso seria branco sobre branco.
  *
  * Sem logo, o nome da empresa em Playfair ocupa o mesmo lugar.
  */
@@ -128,7 +129,7 @@ function LogoCliente({ empresa, url }: { empresa: string; url?: string }) {
     <span
       role="img"
       aria-label={empresa}
-      className="block h-5 w-28 bg-osso"
+      className="block h-6 w-28 bg-navy"
       style={{
         maskImage: `url("${url}")`,
         WebkitMaskImage: `url("${url}")`,

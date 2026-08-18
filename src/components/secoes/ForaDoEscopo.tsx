@@ -1,4 +1,5 @@
 import { Secao } from "@/components/ui/Secao";
+import { rotulo } from "@/lib/proposta/formatar";
 import { Revelar, ListaRevelada, ItemRevelado } from "@/components/motion/Revelar";
 import type { ForaDoEscopo as Dados } from "@/lib/proposta/schema";
 
@@ -7,11 +8,11 @@ import type { ForaDoEscopo as Dados } from "@/lib/proposta/schema";
  * Uma seção quieta faz as outras respirarem — e o conteúdo aqui pede sobriedade,
  * não apresentação.
  */
-export function ForaDoEscopo({ dados }: { dados: Dados }) {
+export function ForaDoEscopo({ dados, numero }: { dados: Dados; numero: number }) {
   return (
     <Secao
       id="fora-do-escopo"
-      etiqueta="07"
+      etiqueta={rotulo(numero)}
       titulo={dados.titulo ?? "Fora do escopo"}
       ritmo="denso"
     >
