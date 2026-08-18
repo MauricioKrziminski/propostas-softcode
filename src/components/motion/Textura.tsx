@@ -4,7 +4,7 @@
  * Um feTurbulence em data URI, em opacidade baixíssima: nenhuma requisição e
  * nenhum PNG no bundle, só para o branco não parecer cor chapada.
  *
- * A separação entre seções NÃO depende disto — quem faz o trabalho é a
+ * A separação entre seções NÃO depende disto, quem faz o trabalho é a
  * alternância de fundo decidida pela página. Isto é só a textura por cima.
  */
 const GRAO =

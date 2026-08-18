@@ -20,7 +20,7 @@ import {
  *
  * DUAS DECISÕES que definem se isso parece fluido ou quebrado:
  *
- * 1. O movimento é CONTÍNUO, derivado do progresso — não um estado que troca
+ * 1. O movimento é CONTÍNUO, derivado do progresso, não um estado que troca
  *    em limiares. Com troca discreta, rolar dentro de um passo não move nada e
  *    depois salta: o dedo anda e a tela não responde. Aqui cada painel tem
  *    opacidade, deslocamento e escala como função do scroll, então há sempre
@@ -28,7 +28,7 @@ import {
  *
  * 2. Os painéis vivem numa PILHA DE GRID (todos em `grid-area: 1/1`), não em
  *    `absolute` alternando com `relative`. Alternar posicionamento troca quem
- *    define a altura do contêiner e dispara reflow a cada troca — era a origem
+ *    define a altura do contêiner e dispara reflow a cada troca: era a origem
  *    do travamento. Em grid, a altura é a do painel mais alto e nunca muda.
  *
  * Com reduced-motion NÃO trava nada: os painéis saem empilhados e a seção rola
@@ -78,7 +78,7 @@ export function SecaoTravada({
     restDelta: 0.001,
   });
 
-  // O índice serve só para o rótulo e para o `aria-hidden` — nunca para animar.
+  // O índice serve só para o rótulo e para o `aria-hidden`, nunca para animar.
   useMotionValueEvent(scrollYProgress, "change", (v) => {
     const i = Math.min(paineis.length - 1, Math.max(0, Math.floor(v * paineis.length)));
     setAtivo((anterior) => (anterior === i ? anterior : i));
@@ -156,11 +156,11 @@ function PainelTravado({
    * Opacidade e posição usam janelas DIFERENTES, e é isso que faz a coisa
    * funcionar:
    *
-   * · a POSIÇÃO percorre a janela inteira do painel — sempre há movimento
+   * · a POSIÇÃO percorre a janela inteira do painel, sempre há movimento
    *   proporcional ao dedo, que é o que faltava quando a troca era discreta;
    * · a OPACIDADE troca numa janela estreita, quase sequencial. Com as duas na
    *   mesma janela larga, os painéis ficavam legíveis ao mesmo tempo e os dois
-   *   textos se sobrepunham no meio da transição — ilegível.
+   *   textos se sobrepunham no meio da transição, ilegível.
    *
    * A sobreposição sobrou em 4% de um passo: o suficiente para dissolver em vez
    * de piscar, e curto demais para alguém tentar ler os dois.

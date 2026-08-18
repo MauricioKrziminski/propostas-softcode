@@ -4,12 +4,12 @@ import { Revelar, ListaRevelada, ItemRevelado } from "@/components/motion/Revela
 import type { Responsabilidades as Dados } from "@/lib/proposta/schema";
 
 /**
- * "O que precisamos de você" — reaproveitada dos orçamentos em PDF que a
+ * "O que precisamos de você", reaproveitada dos orçamentos em PDF que a
  * SoftCode já enviava.
  *
  * Vale por um motivo comercial: quase todo atraso de projeto começa aqui, e ter
  * isso escrito muda a conversa de "vocês atrasaram" para "faltou o material que
- * combinamos". Por isso cada item é um cartão numerado, e não um bullet — dá
+ * combinamos". Por isso cada item é um cartão numerado, e não um bullet, dá
  * peso de checklist, não de rodapé.
  */
 export function Responsabilidades({ dados, numero }: { dados: Dados; numero: number }) {

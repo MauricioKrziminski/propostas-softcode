@@ -3,7 +3,7 @@
 
 /* ═══════════════════ identidade SoftCode ═══════════════════
    Fundo branco com azul, herdado dos orçamentos em PDF que a SoftCode já
-   enviava — é a identidade que os clientes dela já reconhecem. Tipografia
+   enviava: é a identidade que os clientes dela já reconhecem. Tipografia
    do site da marca: Playfair Display nos títulos, Geist no corpo.
    ═══════════════════════════════════════════════════════════ */
 
@@ -24,7 +24,7 @@
   /* ── noite: os capítulos escuros ──
      Vidro só existe se houver algo atrás dele. Sobre branco chapado, o
      backdrop-filter cobra GPU e não entrega nada. Por isso 2 ou 3 seções viram
-     capítulo escuro — e é nelas que o vidro e o metal acontecem. De quebra, o
+     capítulo escuro, e é nelas que o vidro e o metal acontecem. De quebra, o
      contraste entre capítulo claro e escuro vira o ritmo da página. */
   --color-noite: #0a1420;
   --color-noite-elevada: #132131;
@@ -130,7 +130,7 @@ body {
 }
 
 /* O anel de foco usa o acento do CONTEXTO: em capítulo escuro o azul escuro
-   sumiria. E `outline-color` vai declarado à parte de propósito — na forma
+   sumiria. E `outline-color` vai declarado à parte de propósito, na forma
    abreviada, alguns elementos (summary, a) caíam para `currentColor`, o que
    deixava o anel navy sobre fundo claro e quase preto sobre o botão azul.
 
@@ -144,7 +144,7 @@ body {
   border-radius: 3px;
   /* `transition-colors` do Tailwind v4 inclui `outline-color`. Sem esta linha o
      anel LEVA ~300ms para ficar visível, e nesse meio-tempo ele é
-     `currentColor` — navy sobre fundo claro, e quase preto sobre o botão azul.
+     `currentColor`, navy sobre fundo claro, e quase preto sobre o botão azul.
      Retorno de foco precisa ser imediato. */
   transition-property: none;
 }
@@ -201,7 +201,7 @@ body {
 
 /* ── vidro do projeto ──
    NUNCA usar `backdrop-blur-*` do Tailwind: ele emite só `backdrop-filter`, sem
-   o prefixo, e em iOS 16-17 a versão sem prefixo não existe — o vidro some no
+   o prefixo, e em iOS 16-17 a versão sem prefixo não existe, o vidro some no
    iPhone justamente do cliente. Toda peça de vidro passa por aqui.
 
    E não adianta conferir isso em runtime: o Chromium trata `-webkit-` como
@@ -329,7 +329,7 @@ body {
   }
 }
 
-/* Varredura de brilho no hover — anima só transform, custo praticamente nulo. */
+/* Varredura de brilho no hover, anima só transform, custo praticamente nulo. */
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -546,7 +546,7 @@ body {
     opacity: 1 !important;
   }
   /* sem movimento, a aba do envelope não comunica nada: some.
-     O nome tem que casar com o do TSX (.convite-aba-auto) — quando não casava,
+     O nome tem que casar com o do TSX (.convite-aba-auto), quando não casava,
      a aba ficava visível e PARADA cobrindo o topo do cartão. */
   .convite-aba-auto {
     display: none !important;

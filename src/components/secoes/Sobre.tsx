@@ -8,7 +8,7 @@ import type { Sobre as Dados } from "@/lib/proposta/schema";
  * Sobre a SoftCode e os cases.
  *
  * O case é apresentado com o RESULTADO em destaque tipográfico e o nome do
- * cliente como legenda — a ordem inversa da usual, e proposital: quem lê uma
+ * cliente como legenda, a ordem inversa da usual, e proposital: quem lê uma
  * proposta quer saber o que aconteceu, não de quem é a logo.
  */
 export function Sobre({ dados, numero }: { dados: Dados; numero: number }) {

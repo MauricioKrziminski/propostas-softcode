@@ -4,11 +4,11 @@ import { useRef } from "react";
 import { useScroll, useSpring, useTransform, type MotionValue } from "motion/react";
 
 /**
- * PERCURSO DE SCROLL — o motor do que o cliente PRECISA ver.
+ * PERCURSO DE SCROLL, o motor do que o cliente PRECISA ver.
  *
  * Por que não CSS `view()`/`scroll()`: `animation-timeline` só existe no iOS 26+
  * e nunca no Firefox. Um cliente com iPhone em iOS 18 abre o link do WhatsApp e
- * vê tudo parado. O `useScroll` do motion é rAF — roda em todo aparelho.
+ * vê tudo parado. O `useScroll` do motion é rAF, roda em todo aparelho.
  *
  * A regra do projeto passa a ser:
  *   · decoração (filetes, brilhos de fundo) → CSS scroll-driven, some em silêncio

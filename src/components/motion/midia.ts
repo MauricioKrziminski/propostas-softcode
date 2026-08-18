@@ -7,7 +7,7 @@ import { useSyncExternalStore } from "react";
  *
  * `useSyncExternalStore` em vez de `useState` + `useEffect`: além de ser o que
  * o React 19 pede para fonte externa (e o que o lint cobra), ele reavalia
- * quando a consulta muda — girar o tablet ou plugar um mouse passa a ligar ou
+ * quando a consulta muda, girar o tablet ou plugar um mouse passa a ligar ou
  * desligar o efeito sozinho, sem recarregar a página.
  *
  * No servidor devolve `false`: nada que dependa de viewport pode ser assumido
@@ -25,5 +25,5 @@ export function useMidia(consulta: string): boolean {
   );
 }
 
-/** Desktop com ponteiro fino — o único lugar onde enfeite pesado é aceitável. */
+/** Desktop com ponteiro fino, o único lugar onde enfeite pesado é aceitável. */
 export const DESKTOP_FINO = "(min-width: 1024px) and (pointer: fine)";

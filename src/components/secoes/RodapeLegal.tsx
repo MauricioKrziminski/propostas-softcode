@@ -7,7 +7,7 @@ import { formatarDataCurta } from "@/lib/proposta/formatar";
  * e não há publicidade nesta página, então um banner de consentimento só
  * sugeriria um rastreamento comercial que não existe.
  *
- * Traz também o bloco `.print-only` com URL e validade — no papel, o leitor
+ * Traz também o bloco `.print-only` com URL e validade, no papel, o leitor
  * precisa saber de onde o documento veio. Margin box de @page não renderiza
  * conteúdo em navegador, então isso é um elemento real no DOM.
  */

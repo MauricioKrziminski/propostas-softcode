@@ -18,7 +18,7 @@ export function Expirada({
   projeto: string;
   validaAte: string;
 }) {
-  const mensagem = `Olá! Sou da ${empresa}. A proposta "${projeto}" expirou, mas ainda temos interesse — podemos retomar a conversa?`;
+  const mensagem = `Olá! Sou da ${empresa}. A proposta "${projeto}" expirou, mas ainda temos interesse. Podemos retomar a conversa?`;
 
   return (
     <main className="mx-auto flex min-h-[100dvh] w-full max-w-3xl flex-col justify-center px-6 py-16 sm:px-8">
@@ -27,7 +27,7 @@ export function Expirada({
       </p>
 
       <h1 className="tipo-display text-titulo">
-        Esta proposta expirou — vamos conversar
+        Esta proposta expirou, vamos conversar
       </h1>
 
       <p className="mt-6 text-lg leading-relaxed text-neblina">
@@ -39,8 +39,8 @@ export function Expirada({
       </p>
 
       <p className="mt-4 text-neblina">
-        Se ainda fizer sentido, é rápido preparar uma versão atualizada — em
-        geral no mesmo dia.
+        Se ainda fizer sentido, é rápido preparar uma versão atualizada,
+        em geral no mesmo dia.
       </p>
 
       <div className="mt-10 flex flex-wrap gap-4">
@@ -54,7 +54,7 @@ export function Expirada({
           Retomar pelo WhatsApp
         </BotaoLink>
         <BotaoLink
-          href={linkEmail(`Retomar proposta — ${empresa}`, mensagem)}
+          href={linkEmail(`Retomar proposta: ${empresa}`, mensagem)}
         >
           Retomar por e-mail
         </BotaoLink>

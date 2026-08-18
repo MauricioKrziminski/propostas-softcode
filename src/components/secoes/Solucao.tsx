@@ -6,7 +6,7 @@ import type { Solucao as Dados } from "@/lib/proposta/schema";
 /**
  * Os pilares da solução, em cartões numerados.
  *
- * O numeral fica ATRÁS do título, em escala grande e opacidade baixa — dá peso
+ * O numeral fica ATRÁS do título, em escala grande e opacidade baixa, dá peso
  * ao cartão sem competir com a leitura, e é o mesmo recurso do painel de etapa,
  * o que amarra as duas seções no mesmo vocabulário.
  *

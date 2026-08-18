@@ -5,7 +5,7 @@ import { useEffect } from "react";
 /**
  * Abre todo `<details>` antes de imprimir e restaura depois.
  *
- * Sem isto, o escopo detalhado — a seção mais densa da proposta — sai do PDF
+ * Sem isto, o escopo detalhado, a seção mais densa da proposta, sai do PDF
  * com só os títulos. O `details::details-content` do print.css cobre os
  * navegadores que já suportam o pseudo-elemento; este listener cobre o resto.
  *

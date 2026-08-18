@@ -10,7 +10,7 @@ import { useEffect, useRef, useState } from "react";
  *
  * Fallbacks que sustentam isso:
  *   · SSR, então não há piscada da proposta antes do convite;
- *   · <noscript> o esconde — sem JS não haveria como fechá-lo;
+ *   · <noscript> o esconde, sem JS não haveria como fechá-lo;
  *   · `.so-tela` o remove da impressão;
  *   · com reduced-motion nada gira: o cartão já nasce pronto com o botão;
  *   · Esc e Enter também abrem, e o foco vai para o botão.

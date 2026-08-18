@@ -41,7 +41,7 @@ export const entendimentoSchema = z.strictObject({
       autor: textoCurto.optional().describe("Quem disse"),
     })
     .optional()
-    .describe("Citação literal — é o que prova que você ouviu"),
+    .describe("Citação literal: é o que prova que você ouviu"),
 });
 
 export const solucaoSchema = z.strictObject({
@@ -105,7 +105,7 @@ export const cronogramaSchema = z.strictObject({
           .int()
           .positive()
           .max(104)
-          .describe("Duração em semanas — usada para a proporção da barra"),
+          .describe("Duração em semanas, usada para a proporção da barra"),
         descricao: textoMedio.optional().describe("O que acontece nesta fase"),
       }),
     )
@@ -120,7 +120,7 @@ export const opcaoInvestimentoSchema = z.strictObject({
     .string()
     .trim()
     .regex(/^[a-z0-9-]+$/, "Use apenas minúsculas, números e hífen")
-    .describe("Identificador estável — é o que fica gravado no aceite"),
+    .describe("Identificador estável: é o que fica gravado no aceite"),
   nome: textoCurto.describe('Nome da opção, ex.: "Completo"'),
   resumo: textoMedio.describe("Para quem esta opção faz sentido"),
   valorCentavos: centavos.describe("Valor total em centavos"),
@@ -146,7 +146,7 @@ export const investimentoSchema = z.strictObject({
     .array(opcaoInvestimentoSchema)
     .min(1)
     .max(3)
-    .describe("De 1 a 3 opções — cliente escolhe QUAL, não SE"),
+    .describe("De 1 a 3 opções. O cliente escolhe QUAL, não SE"),
   observacoes: z
     .array(textoMedio)
     .max(5)
@@ -160,7 +160,7 @@ export const foraDoEscopoSchema = z.strictObject({
     .array(textoMedio)
     .min(1)
     .max(15)
-    .describe("O que NÃO está incluído — explícito, sem rodeio"),
+    .describe("O que NÃO está incluído, explícito e sem rodeio"),
   nota: textoMedio
     .optional()
     .describe("Ex.: pode ser orçado à parte quando fizer sentido"),
@@ -190,7 +190,7 @@ export const sobreSchema = z.strictObject({
       z.strictObject({
         cliente: textoCurto.describe("Nome do cliente"),
         segmento: textoCurto.describe("Segmento de atuação"),
-        resultado: textoMedio.describe("Resultado mensurável — evite adjetivo"),
+        resultado: textoMedio.describe("Resultado mensurável, sem adjetivo"),
         url: z.url().optional().describe("Link do case, se público"),
       }),
     )
@@ -251,7 +251,7 @@ export const STATUS_PROPOSTA = [
 ] as const;
 
 /**
- * A proposta inteira. O formato bate 1:1 com a linha de `propostas` da Fase 2 —
+ * A proposta inteira. O formato bate 1:1 com a linha de `propostas` da Fase 2,
  * é por isso que o JSON do seed não vira trabalho jogado fora.
  */
 export const propostaSchema = z
@@ -265,12 +265,12 @@ export const propostaSchema = z
       .describe("Parte legível da URL"),
     token: z
       .string()
-      .length(10, "O token é nanoid(10) — nunca sequencial, nunca derivado")
+      .length(10, "O token é nanoid(10), nunca sequencial e nunca derivado")
       .regex(/^[A-Za-z0-9_-]+$/)
       .describe("Parte secreta da URL. É ela que autoriza o acesso"),
     cliente: z.strictObject({
       nome: textoCurto.describe("Pessoa de contato"),
-      empresa: textoCurto.describe("Empresa — vai em escala gigante no hero"),
+      empresa: textoCurto.describe("Empresa. Vai em escala gigante no hero"),
       email: z.email().optional().describe("E-mail do contato"),
       logoUrl: z
         .string()
@@ -278,7 +278,7 @@ export const propostaSchema = z
         .min(1)
         .optional()
         .describe(
-          "Logo do cliente (SVG/PNG). Renderizado monocromático em osso, via máscara — a cor não é customizável",
+          "Logo do cliente (SVG/PNG). Renderizado monocromático em osso, via máscara. A cor não é customizável",
         ),
     }),
     tituloProjeto: textoCurto.describe("Nome do projeto"),

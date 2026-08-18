@@ -1,9 +1,9 @@
 /**
- * Tokens do PDF — espelham `globals.css`, mas vivem aqui de propósito.
+ * Tokens do PDF, espelham `globals.css`, mas vivem aqui de propósito.
  *
  * O `@react-pdf/renderer` não enxerga o CSS da página: ele tem o próprio motor
  * de layout (flexbox, sem grid, sem pseudo-elemento, sem variável CSS). Mudar a
- * paleta na tela exige mudar aqui — foi assim que o card do WhatsApp já ficou
+ * paleta na tela exige mudar aqui: foi assim que o card do WhatsApp já ficou
  * uma fase inteira em verde enquanto a página era azul.
  */
 export const COR = {

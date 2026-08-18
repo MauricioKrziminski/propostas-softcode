@@ -2,14 +2,14 @@ import type { ReactNode } from "react";
 
 /**
  * `<details>` nativo, de propósito: acessível por teclado sem uma linha de JS,
- * anunciado corretamente por leitor de tela e — o que mais importa aqui —
+ * anunciado corretamente por leitor de tela e, o que mais importa aqui,
  * imprimível. O `print.css` e o listener `beforeprint` abrem todos antes do PDF.
  *
  * Vira um CARTÃO que gruda no topo e recua conforme o próximo chega: a pilha
  * comunica "o escopo é uma lista finita, dá para ver o fim". O `top` cresce com
  * o índice para os cartões empilharem em escadinha em vez de um cobrir o outro.
  *
- * O sticky é do CARTÃO, não do título da seção — título de seção sticky é
+ * O sticky é do CARTÃO, não do título da seção, título de seção sticky é
  * proibido no projeto, e o validador falha se voltar.
  */
 export function BlocoExpansivel({

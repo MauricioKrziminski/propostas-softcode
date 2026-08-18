@@ -9,7 +9,7 @@
  *     WhatsApp já marcaria a proposta como visualizada e dispararia o e-mail de
  *     "o cliente abriu" antes de o cliente abrir.
  *
- * A página sempre renderiza normalmente para eles — o card precisa do HTML e do
+ * A página sempre renderiza normalmente para eles, o card precisa do HTML e do
  * OG image. O que muda é apenas se o acesso vira evento no banco.
  */
 
@@ -40,7 +40,7 @@ export function ehCrawlerDePreview(userAgent: string | null | undefined): boolea
 
 /**
  * Cabeçalhos relevantes para decidir se um acesso conta como leitura humana.
- * Recebe um objeto simples para não acoplar este módulo ao `Headers` do Next —
+ * Recebe um objeto simples para não acoplar este módulo ao `Headers` do Next,
  * assim ele é testável sem subir servidor.
  */
 export type CabecalhosDeAcesso = {

@@ -5,7 +5,7 @@ import { motion, useReducedMotion, type Variants } from "motion/react";
 
 /**
  * Título que se monta palavra a palavra, cada uma subindo de dentro do próprio
- * recorte com mola. Por TEMPO, não por scroll — ver o comentário em Revelar.tsx.
+ * recorte com mola. Por TEMPO, não por scroll, ver o comentário em Revelar.tsx.
  */
 const CONTAINER: Variants = {
   oculto: {},

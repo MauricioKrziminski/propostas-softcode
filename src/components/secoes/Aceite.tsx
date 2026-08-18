@@ -8,13 +8,13 @@ import { linkEmail } from "@/lib/contato";
 import type { Aceite as Dados, OpcaoInvestimento } from "@/lib/proposta/schema";
 
 /**
- * Capítulo NOITE — a página abre e encerra no mesmo registro, e o CTA final
+ * Capítulo NOITE, a página abre e encerra no mesmo registro, e o CTA final
  * ganha o tratamento mais forte da peça: vidro, borda metálica girando e
  * varredura de brilho no hover.
  *
  * FASE 1: sem banco, o aceite abre o e-mail já preenchido com a opção escolhida.
  * FASE 2: esta MESMA interface passa a chamar a Server Action que grava
- * timestamp, IP, user-agent e `opcao_id` — nada aqui precisa ser redesenhado.
+ * timestamp, IP, user-agent e `opcao_id`, nada aqui precisa ser redesenhado.
  *
  * O aviso de registro fica no fluxo, acima do botão, e não atrás de um link: é
  * ele que dá validade ao aceite, não um disclaimer defensivo.
@@ -44,7 +44,7 @@ export function Aceite({
     `Olá, aqui é da ${empresa}.`,
     "",
     `Aceitamos a proposta "${projeto}"`,
-    opcao ? `Opção escolhida: ${opcao.nome} — ${formatarValor(opcao.valorCentavos)}` : "",
+    opcao ? `Opção escolhida: ${opcao.nome} (${formatarValor(opcao.valorCentavos)})` : "",
     "",
     "Podem seguir com o contrato.",
   ]
@@ -106,13 +106,13 @@ export function Aceite({
           <strong className="text-noite-texto">
             Ao confirmar, registramos data, hora, endereço IP e navegador.
           </strong>{" "}
-          É esse registro que dá validade jurídica ao seu aceite — ele cumpre o
+          É esse registro que dá validade jurídica ao seu aceite: ele cumpre o
           papel da assinatura no PDF, sem precisar imprimir nada.
         </p>
 
         <div className="flex flex-wrap items-center gap-4">
           <a
-            href={linkEmail(`Aceite da proposta — ${empresa}`, corpo)}
+            href={linkEmail(`Aceite da proposta: ${empresa}`, corpo)}
             aria-disabled={!opcao}
             className={`alvo-toque varredura relative inline-flex items-center justify-center overflow-hidden rounded-full px-9 py-4 text-sm uppercase tracking-[0.14em] transition-colors duration-200 motion-reduce:transition-none ${
               opcao
@@ -120,13 +120,13 @@ export function Aceite({
                 : "pointer-events-none bg-noite-linha text-noite-neblina"
             }`}
           >
-            {opcao ? `Aceitar — ${opcao.nome}` : "Escolha uma opção acima"}
+            {opcao ? `Aceitar: ${opcao.nome}` : "Escolha uma opção acima"}
           </a>
 
           {dados.mostrarPdf && (
             /* Vai para o PDF gerado no servidor, não para o `window.print()`.
-               O documento impresso é uma peça própria — capa, numeração de
-               página e bloco de assinatura —, e não uma captura da tela. */
+               O documento impresso é uma peça própria, capa, numeração de
+               página e bloco de assinatura, e não uma captura da tela. */
             <BotaoLink
               href={`/${caminho}/pdf`}
               target="_blank"

@@ -4,7 +4,7 @@ import { Revelar, ListaRevelada, ItemRevelado } from "@/components/motion/Revela
 import type { ForaDoEscopo as Dados } from "@/lib/proposta/schema";
 
 /**
- * Seção deliberadamente SÓBRIA — sem cartão, sem vidro, sem numeral gigante.
+ * Seção deliberadamente SÓBRIA, sem cartão, sem vidro, sem numeral gigante.
  *
  * Uma seção quieta faz as outras respirarem, e o conteúdo aqui pede exatamente
  * isso: dizer o que não está incluído sem soar defensivo nem decorado. O único

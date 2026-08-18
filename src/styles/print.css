@@ -2,7 +2,7 @@
 
    Isto não é sobra de CSS: é o export em PDF da proposta. Cliente corporativo
    anexa o arquivo no processo interno dele, então o que sai daqui precisa ser
-   um documento apresentável — e, acima de tudo, COMPLETO.
+   um documento apresentável, e, acima de tudo, COMPLETO.
 
    O risco número um é o reveal de scroll: sem o reset abaixo, toda seção que o
    navegador considera "fora da timeline" imprime com opacity 0 e o cliente
@@ -30,8 +30,8 @@
 
   /* 2. Tudo que só apareceria via reveal nasce revelado.
         Qualquer efeito novo que anime PRECISA entrar nesta lista. */
-  /* `[style*="opacity"]` é o que cobre os estilos inline do motion/react — é
-     por ele que os reveals por tempo nascem revelados no papel. Os seletores
+  /* `[style*="opacity"]` é o que cobre os estilos inline do motion/react:
+     é por ele que os reveals por tempo nascem revelados no papel. Os seletores
      .etapa-*, .filete-* e .aspas-grande saíram: não existem no DOM. */
   [style*="opacity"],
   .ponto-fase,
@@ -59,7 +59,7 @@
   }
 
   /* 3. Nada fixo ou grudado: no papel isso vira elemento repetido ou sobreposto.
-        Inclui o fundo em movimento e o grão — no papel o fundo é branco. */
+        Inclui o fundo em movimento e o grão, no papel o fundo é branco. */
   .cabecalho-fixo,
   .so-tela,
   #convite {
@@ -78,7 +78,7 @@
     list-style: none;
   }
 
-  /* 5. A paleta da tela já é branco com azul — no papel só garantimos que
+  /* 5. A paleta da tela já é branco com azul, no papel só garantimos que
         os fundos de seção não gastem tinta e que o texto fique preto o
         bastante para impressora a laser. */
   html,
@@ -129,7 +129,7 @@
   }
 
   /* 8. Rodapé impresso vem de um elemento REAL no DOM.
-        Margin box de @page não renderiza conteúdo em navegador — aquilo é
+        Margin box de @page não renderiza conteúdo em navegador: aquilo é
         território de motor de impressão de servidor. */
   .print-only {
     display: block !important;

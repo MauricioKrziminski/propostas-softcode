@@ -3,7 +3,7 @@ import { CONTATO } from "@/lib/contato";
 /**
  * 404 genérico de propósito: a mensagem é idêntica para link inexistente,
  * token errado e proposta em rascunho. A resposta nunca confirma se um slug
- * existe — é a contrapartida de a URL ser a única autorização.
+ * existe: é a contrapartida de a URL ser a única autorização.
  */
 export default function NaoEncontrada() {
   return (
@@ -13,7 +13,7 @@ export default function NaoEncontrada() {
       <h1 className="tipo-display text-titulo">Não encontramos esta página</h1>
 
       <p className="mt-6 text-lg leading-relaxed text-neblina">
-        O link pode ter sido copiado pela metade — isso acontece bastante quando
+        O link pode ter sido copiado pela metade. Isso acontece bastante quando
         ele passa por aplicativo de mensagem. Confira se o endereço veio inteiro.
       </p>
 

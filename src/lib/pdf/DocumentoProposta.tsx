@@ -19,7 +19,7 @@ import { caminhoPublico, type Proposta } from "@/lib/proposta/schema";
 /**
  * O PDF da proposta.
  *
- * NÃO é uma cópia da tela — é uma tradução. O `@react-pdf/renderer` tem motor
+ * NÃO é uma cópia da tela: é uma tradução. O `@react-pdf/renderer` tem motor
  * próprio: flexbox sim, grid não, pseudo-elemento não, variável CSS não. Tentar
  * reproduzir vidro, parallax e seção travada seria trabalho perdido para um
  * resultado pior. O que atravessa é o design system: as mesmas cores, a mesma
@@ -27,7 +27,7 @@ import { caminhoPublico, type Proposta } from "@/lib/proposta/schema";
  * etiquetas numeradas e filete de acento.
  *
  * O que o papel ganha e a tela não tem: capa própria, sumário com página,
- * numeração de rodapé e um bloco de assinatura — porque cliente corporativo
+ * numeração de rodapé e um bloco de assinatura, porque cliente corporativo
  * anexa isto num processo interno.
  */
 
@@ -37,7 +37,7 @@ const raiz = path.join(process.cwd(), "src", "lib", "pdf");
  * A logo entra como BUFFER, não como caminho.
  *
  * Com um caminho absoluto o `Image` do react-pdf tenta buscar por `fetch` e
- * falha em SILÊNCIO: o PDF sai válido, do mesmo tamanho, só que sem a imagem —
+ * falha em SILÊNCIO: o PDF sai válido, do mesmo tamanho, só que sem a imagem,
  * defeito que nenhuma verificação de status pegaria. Lido uma vez, no módulo.
  */
 const LOGO = {
@@ -113,10 +113,10 @@ const e = StyleSheet.create({
   neblina: { color: COR.neblina },
 
   /* O marcador de lista é um FILETE DESENHADO, não um caractere.
-     Com "—" dentro de um Text de 10pt de largura o traço encostava na palavra
-     seguinte — e pior: disputava leitura com os travessões que existem DENTRO
-     do próprio item ("Home — apresentação clara da Barba Log"). Desenhado, ele
-     é curto, fino, azul e tem folga garantida por caixa própria. */
+     Com um travessão dentro de um Text de 10pt de largura o traço encostava
+     na palavra seguinte, e pior: disputava leitura com a pontuação do próprio
+     item. Desenhado, ele é curto, fino, azul e tem folga garantida por caixa
+     própria. */
   itemLinha: { flexDirection: "row", marginBottom: 5 },
   marcadorCaixa: { width: 16, paddingTop: 7 },
   marcador: { height: 1.5, width: 7, backgroundColor: COR.acento },
@@ -161,7 +161,7 @@ const e = StyleSheet.create({
 
   /* Rodapé SEM `position: absolute`. Com absolute + left/right, o layout
      estourava ("unsupported number: -2.07e+21") quando o documento inteiro era
-     montado — reproduzia só com o conteúdo real, nunca com texto sintético.
+     montado, reproduzia só com o conteúdo real, nunca com texto sintético.
      Um Text `fixed` no fluxo é o caminho robusto: repete em toda página e não
      depende de cálculo de caixa absoluta. */
   rodape: {
@@ -191,7 +191,7 @@ function Cabecalho({ etiqueta, titulo }: { etiqueta: string; titulo: string }) {
 /**
  * Item de lista. O marcador é desenhado (ver `marcador` no StyleSheet) e mora
  * numa coluna própria, então nunca encosta no texto. `divisoria` troca o
- * espaçamento por uma linha entre itens — é o formato de "Fora do escopo".
+ * espaçamento por uma linha entre itens: é o formato de "Fora do escopo".
  */
 function Item({
   children,
@@ -232,7 +232,7 @@ export function DocumentoProposta({ proposta }: { proposta: Proposta }) {
 
   return (
     <Document
-      title={`Proposta — ${cliente.empresa}`}
+      title={`Proposta para ${cliente.empresa}`}
       author="SoftCode"
       subject={proposta.tituloProjeto}
     >
@@ -291,7 +291,7 @@ export function DocumentoProposta({ proposta }: { proposta: Proposta }) {
                 </Text>
                 {conteudo.entendimento.citacaoCliente.autor && (
                   <Text style={[e.neblina, { marginTop: 6, fontSize: 9 }]}>
-                    — {conteudo.entendimento.citacaoCliente.autor}
+                    {conteudo.entendimento.citacaoCliente.autor}
                   </Text>
                 )}
               </View>
@@ -414,7 +414,7 @@ export function DocumentoProposta({ proposta }: { proposta: Proposta }) {
                     </Text>
                     <Text style={e.neblina}>{fase.duracao}</Text>
                   </View>
-                  {/* A barra impressa carrega a MESMA proporção da tela — é o
+                  {/* A barra impressa carrega a MESMA proporção da tela: é o
                       único jeito de o cronograma continuar comparável no papel. */}
                   <View style={{ height: 4, backgroundColor: COR.linha, marginTop: 4 }}>
                     <View

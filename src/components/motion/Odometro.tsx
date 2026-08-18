@@ -7,7 +7,7 @@ import { formatarValor } from "@/lib/proposta/formatar";
 /**
  * Odômetro: cada dígito é uma coluna 0–9 que sobe até parar no número certo.
  *
- * O valor final é renderizado no SERVIDOR e substituído no cliente — sem JS,
+ * O valor final é renderizado no SERVIDOR e substituído no cliente, sem JS,
  * com reduced-motion, ou se o observer não disparar, o cliente lê o preço
  * correto de imediato. Animação nunca é pré-requisito para ler um valor.
  *
@@ -70,7 +70,7 @@ function Digito({
 }) {
   const ehDigito = /\d/.test(caractere);
 
-  // Separadores e o "R$" não rolam — só os algarismos.
+  // Separadores e o "R$" não rolam, só os algarismos.
   if (!ehDigito) {
     return (
       <span aria-hidden className={caractere === " " ? "w-[0.28em]" : undefined}>

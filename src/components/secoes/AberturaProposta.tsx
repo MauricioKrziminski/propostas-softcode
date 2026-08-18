@@ -8,7 +8,7 @@ import { Convite } from "./Convite";
  *
  * Enquanto o convite está em cena, a proposta fica `inert` (sem foco, sem
  * leitura por leitor de tela) e o corpo não rola. Ao abrir, o convite sai em
- * escala e a proposta entra — as duas animações se sobrepõem, então a passagem
+ * escala e a proposta entra, as duas animações se sobrepõem, então a passagem
  * parece uma coisa só e não dois estados piscando.
  */
 export function AberturaProposta({
@@ -33,7 +33,7 @@ export function AberturaProposta({
   }, [aberto]);
 
   // Quando o convite sai, o foco iria parar no <body> e o próximo Tab começaria
-  // do nada. Mandamos o foco para o início da proposta — é para onde a atenção
+  // do nada. Mandamos o foco para o início da proposta: é para onde a atenção
   // de quem usa teclado ou leitor de tela precisa ir.
   useEffect(() => {
     if (!aberto) return;

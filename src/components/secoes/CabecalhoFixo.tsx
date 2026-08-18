@@ -11,7 +11,7 @@ import { useProgressoDaPagina } from "@/components/motion/percurso";
  * documento tem tamanho conhecido e você está aqui". Num documento longo lido no
  * celular, isso segura quem desistiria no meio.
  *
- * Vem do `useScroll` (rAF), não de `scroll(root)` do CSS — a barra precisa
+ * Vem do `useScroll` (rAF), não de `scroll(root)` do CSS, a barra precisa
  * funcionar no iPhone do cliente, e `animation-timeline` só existe no iOS 26+.
  */
 export function CabecalhoFixo({
@@ -25,7 +25,7 @@ export function CabecalhoFixo({
   const progresso = useProgressoDaPagina();
 
   // O cabeçalho só entra depois que o hero sai de cena. Vem de `useScroll`
-  // (rAF) e não de `scroll(root)` do CSS — precisa aparecer no iPhone do
+  // (rAF) e não de `scroll(root)` do CSS, precisa aparecer no iPhone do
   // cliente, e `animation-timeline` não existe antes do iOS 26.
   //
   // Com reduced-motion ele nasce visível e fica: quem pediu menos movimento não
@@ -50,7 +50,7 @@ export function CabecalhoFixo({
 }
 
 /**
- * Logo do cliente, monocromático em navy por `mask-image` — a forma do arquivo
+ * Logo do cliente, monocromático em navy por `mask-image`, a forma do arquivo
  * recorta uma área preenchida, então nenhum pixel da cor original passa. Logo
  * colorido de terceiro faria a proposta parecer documento de duas marcas mal
  * costuradas.

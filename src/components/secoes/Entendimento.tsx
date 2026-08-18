@@ -6,7 +6,7 @@ import type { Entendimento as Dados } from "@/lib/proposta/schema";
 /**
  * A seção mais importante da página: o problema do cliente, nas palavras dele.
  *
- * Capítulo CLARO de propósito — é a seção de leitura mais longa, e texto extenso
+ * Capítulo CLARO de propósito: é a seção de leitura mais longa, e texto extenso
  * se lê melhor em fundo claro. O peso visual vem da citação, tratada como peça
  * editorial: aspa gigante em Fraunces com WONK, texto em display, filete de
  * acento. Ela é a prova de que você ouviu, então merece a escala de um título.

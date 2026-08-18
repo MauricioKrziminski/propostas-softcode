@@ -1,7 +1,7 @@
 /**
  * As 6 etapas do processo da SoftCode.
  *
- * Conteúdo FIXO, igual em toda proposta — por isso mora no código e não no JSON.
+ * Conteúdo FIXO, igual em toda proposta, por isso mora no código e não no JSON.
  * O que a proposta controla é só se a seção aparece (`processo.mostrar`).
  *
  * Esta é a seção que precisa comunicar cuidado em cada etapa: cada uma diz o que

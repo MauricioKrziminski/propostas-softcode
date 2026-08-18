@@ -9,11 +9,11 @@ import "./globals.css";
  * FRAUNCES é a escolha de display por causa de dois eixos raros: `WONK`
  * (irregularidade) e `SOFT` (arredondamento). Em `WONK 0` ela é uma serifada
  * séria; em `WONK 1` fica editorial e torta. A hierarquia inteira sai de um
- * arquivo só, e a dose de ousadia é um número — não uma troca de fonte.
+ * arquivo só, e a dose de ousadia é um número, não uma troca de fonte.
  * `axes` é obrigatório: sem declarar, o arquivo vem só com `wght`.
  *
  * SATOSHI é auto-hospedada porque não existe no Google Fonts (Fontshare,
- * licença ITF FFL — uso comercial e self-host liberados). É a grotesca de
+ * licença ITF FFL, uso comercial e self-host liberados). É a grotesca de
  * agência premiada; não parece fonte padrão de dev tool.
  *
  * GEIST MONO carrega só os números: preço em fonte proporcional dança de

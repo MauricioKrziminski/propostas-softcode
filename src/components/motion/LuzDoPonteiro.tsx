@@ -6,7 +6,7 @@ import { useEffect } from "react";
  * Alimenta `--mx`/`--my` nos cartões com a posição do ponteiro.
  *
  * Só registra quando existe ponteiro fino E o usuário não pediu menos
- * movimento. No celular nada disto roda — lá a mesma luz é conduzida pelo
+ * movimento. No celular nada disto roda, lá a mesma luz é conduzida pelo
  * scroll (`.etapa-luz`, em globals.css), que é o driver que existe no touch.
  *
  * Usa `pointermove` no container (um listener, não um por cartão) e escreve

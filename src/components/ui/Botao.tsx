@@ -1,7 +1,7 @@
 import type { ComponentProps, ReactNode } from "react";
 
 /**
- * Os 44×44px mínimos são garantidos AQUI, no componente, e não em cada uso —
+ * Os 44×44px mínimos são garantidos AQUI, no componente, e não em cada uso,
  * é a única forma de a regra não se perder na décima tela.
  */
 const BASE =

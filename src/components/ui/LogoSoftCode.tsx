@@ -1,14 +1,14 @@
 import Image from "next/image";
 
 /**
- * Logo da SoftCode em cor original — o gradiente #1B63EC → #6E2ED0 conversa com
+ * Logo da SoftCode em cor original, o gradiente #1B63EC → #6E2ED0 conversa com
  * o azul de acento em vez de brigar, então não há motivo para descolorir a marca.
  *
  * O arquivo é uma lockup QUADRADA (viewBox 1024×1024, símbolo em cima e nome
  * embaixo): `w-auto` segue essa proporção 1:1, então altura pequena rende marca
  * minúscula. Por isso as alturas aqui são generosas.
  *
- * Em capítulo escuro entra a variante de fundo escuro, onde o "Soft" é claro —
+ * Em capítulo escuro entra a variante de fundo escuro, onde o "Soft" é claro,
  * a versão padrão tem o nome em navy e sumiria.
  */
 export function LogoSoftCode({

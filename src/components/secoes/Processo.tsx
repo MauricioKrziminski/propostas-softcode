@@ -6,7 +6,7 @@ import { ETAPAS, type Etapa } from "@/lib/proposta/processo";
 import type { Processo as Dados } from "@/lib/proposta/schema";
 
 /**
- * A alma da página — capítulo NOITE, e a seção que trava.
+ * A alma da página, capítulo NOITE, e a seção que trava.
  *
  * As 6 etapas não passam correndo: a seção prende na tela e cada etapa assume o
  * lugar da anterior conforme o dedo rola. É o formato que faz o cliente ler as
@@ -16,7 +16,7 @@ import type { Processo as Dados } from "@/lib/proposta/schema";
  * dele, e o contraste com as seções claras é o que dá ritmo à página sem
  * precisar de divisória.
  *
- * Com reduced-motion a seção não trava — vira lista empilhada.
+ * Com reduced-motion a seção não trava, vira lista empilhada.
  */
 export function Processo({ dados, numero }: { dados: Dados; numero: number }) {
   if (!dados.mostrar) return null;

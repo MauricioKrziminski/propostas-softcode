@@ -24,7 +24,7 @@ import { RodapeLegal } from "@/components/secoes/RodapeLegal";
 import { AberturaProposta } from "@/components/secoes/AberturaProposta";
 import { Textura } from "@/components/motion/Textura";
 
-/** JS de enfeite entra por dynamic import — não pesa no carregamento inicial. */
+/** JS de enfeite entra por dynamic import, não pesa no carregamento inicial. */
 const PreparaImpressao = dynamic(() =>
   import("@/components/motion/PreparaImpressao").then((m) => m.PreparaImpressao),
 );
@@ -46,14 +46,14 @@ const ORDEM_CANONICA: ChaveSecao[] = [
 ];
 
 /**
- * Três tons, não dois. A divisão continua SECA — sem gradiente, sem blur, sem
- * curva —, mas agora existe um terceiro registro: o capítulo NOITE.
+ * Três tons, não dois. A divisão continua SECA, sem gradiente, sem blur, sem
+ * curva, mas agora existe um terceiro registro: o capítulo NOITE.
  *
  * Ele resolve duas coisas de uma vez: vidro só existe se houver algo atrás
  * dele (sobre branco chapado o backdrop-filter cobra GPU e não entrega nada),
  * e o contraste claro/escuro vira o ritmo da página sem precisar de divisória.
  *
- * Os capítulos escuros são os momentos-âncora — onde o cliente decide.
+ * Os capítulos escuros são os momentos-âncora, onde o cliente decide.
  */
 const CLARO = "#ffffff";
 const AZUL_CLARO = "#f0f6ff";
@@ -69,7 +69,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!proposta) return { title: "Proposta" };
 
   return {
-    title: `${proposta.tituloProjeto} — proposta para ${proposta.cliente.empresa}`,
+    title: `${proposta.tituloProjeto}: proposta para ${proposta.cliente.empresa}`,
     description: `Proposta comercial da SoftCode para a ${proposta.cliente.empresa}.`,
     robots: { index: false, follow: false },
   };

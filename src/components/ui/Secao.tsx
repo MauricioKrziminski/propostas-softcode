@@ -9,7 +9,7 @@ import { Revelar } from "@/components/motion/Revelar";
  * celular e disputava atenção com o conteúdo. O título entra, é lido, e sai
  * junto com a seção.
  *
- * O fundo também não é definido aqui — quem alterna os tons e coloca a corda
+ * O fundo também não é definido aqui, quem alterna os tons e coloca a corda
  * entre um e outro é a página.
  */
 export function Secao({

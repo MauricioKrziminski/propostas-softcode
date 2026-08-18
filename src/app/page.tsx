@@ -1,7 +1,7 @@
 import { CONTATO } from "@/lib/contato";
 
 /**
- * Raiz institucional mínima. ZERO links para propostas — não existe listagem
+ * Raiz institucional mínima. ZERO links para propostas, não existe listagem
  * neste site, e esta página não pode virar a porta dos fundos de uma.
  */
 export default function Home() {
@@ -13,7 +13,7 @@ export default function Home() {
 
       <p className="mt-6 text-lg leading-relaxed text-neblina">
         Este endereço hospeda propostas individuais. Cada cliente recebe um link
-        próprio, enviado diretamente por nós — não há listagem pública nem busca.
+        próprio, enviado diretamente por nós. Não há listagem pública nem busca.
       </p>
 
       <p className="mt-4 text-neblina">

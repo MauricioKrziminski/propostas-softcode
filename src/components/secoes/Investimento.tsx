@@ -10,7 +10,7 @@ import type { Investimento as Dados } from "@/lib/proposta/schema";
  *
  * O cartão em destaque tem tratamento ESTRUTURALMENTE diferente, não só mais
  * claro: borda metálica girando, vidro, selo deslocado para fora da caixa e o
- * valor maior. Os outros dois são superfície lisa — a diferença precisa ser
+ * valor maior. Os outros dois são superfície lisa, a diferença precisa ser
  * legível de relance, sem ler uma palavra.
  *
  * O valor entra por odômetro, mas o número final vem do servidor: animação

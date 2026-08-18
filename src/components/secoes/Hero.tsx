@@ -6,13 +6,13 @@ import { LogoSoftCode } from "@/components/ui/LogoSoftCode";
 import { usePercurso } from "@/components/motion/percurso";
 
 /**
- * HERO — capítulo noite, e a primeira dobra da proposta.
+ * HERO, capítulo noite, e a primeira dobra da proposta.
  *
  * Três camadas de parallax com FAIXAS diferentes, não só amplitudes diferentes:
  * faixas iguais leem como um plano só deslizando, por mais que as distâncias
  * variem. É a faixa que cria profundidade.
  *
- * O gesto assinatura — o nome do cliente encolhendo até dar lugar ao cabeçalho —
+ * O gesto assinatura, o nome do cliente encolhendo até dar lugar ao cabeçalho,
  * é conduzido por `useScroll`, e não por `scroll(root)` do CSS: é o efeito que o
  * cliente PRECISA ver, e `animation-timeline` não existe antes do iOS 26.
  *
@@ -51,12 +51,12 @@ export function Hero({
       data-capitulo="noite"
       className="relative isolate flex min-h-[100dvh] flex-col justify-between overflow-hidden bg-noite px-6 pb-14 pt-6 sm:px-10"
     >
-      {/* O campo em WebGL foi RETIRADO daqui — ver CampoWebGL.tsx. Ele lavava
+      {/* O campo em WebGL foi RETIRADO daqui, ver CampoWebGL.tsx. Ele lavava
           o hero de branco no Brave/Chromium do cliente, e um hero ilegível
           custa muito mais do que o efeito vale. As camadas abaixo sempre foram
           o fallback dele; agora são a primeira dobra inteira. */}
 
-      {/* três camadas, três faixas — é a faixa que dá profundidade */}
+      {/* três camadas, três faixas: é a faixa que dá profundidade */}
       <motion.div
         aria-hidden
         className="pointer-events-none absolute -right-1/3 -top-1/4 z-0 h-[80dvh] w-[130vw] rounded-full bg-[radial-gradient(circle,var(--color-acento-noite)_0%,transparent_62%)] opacity-25 blur-3xl sm:w-[75vw]"

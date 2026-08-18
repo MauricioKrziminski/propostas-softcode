@@ -11,7 +11,7 @@ import type { Escopo as Dados } from "@/lib/proposta/schema";
  * cima, deixando uma escadinha visível. O cliente vê quantos módulos existem sem
  * precisar rolar tudo, e abre só o que interessa a ele.
  *
- * Sem `space-y` entre os cartões — a pilha depende de eles se encostarem.
+ * Sem `space-y` entre os cartões, a pilha depende de eles se encostarem.
  */
 export function Escopo({ dados, numero }: { dados: Dados; numero: number }) {
   return (

@@ -11,7 +11,7 @@ import type { Cronograma as Dados } from "@/lib/proposta/schema";
  * A linha do tempo se desenha conforme a seção atravessa a viewport.
  *
  * O traço vem de `useScroll` (rAF) e não de `view()` do CSS: aqui o progresso do
- * scroll É o conteúdo — a linha crescendo é a metáfora do projeto avançando —
+ * scroll É o conteúdo, a linha crescendo é a metáfora do projeto avançando,
  * e isso precisa acontecer também no iPhone do cliente, onde
  * `animation-timeline` não existe antes do iOS 26.
  *
@@ -106,8 +106,8 @@ export function Cronograma({ dados, numero }: { dados: Dados; numero: number }) 
  *
  * Com `animation-timeline: view()` ela ficava congelada em `scaleX(0.79)` e
  * nunca mudava: a barra tem 6px de altura, então as fases `entry` e `cover` do
- * view timeline são quase instantâneas e o progresso trava num ponto arbitrário
- * — as barras saíam 21% mais curtas do que a duração que representam. E, como
+ * view timeline são quase instantâneas e o progresso trava num ponto
+ * arbitrário: as barras saíam 21% mais curtas do que a duração que representam. E, como
  * `animation-timeline` só existe no iOS 26+, metade do público nunca veria
  * animação nenhuma ali.
  *

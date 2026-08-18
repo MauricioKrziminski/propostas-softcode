@@ -8,14 +8,14 @@ import type { ReactNode } from "react";
  *
  * Reveal conduzido por `animation-timeline: view()` é uma FUNÇÃO da posição do
  * scroll: o elemento só se move enquanto você rola, e para no instante em que
- * você para. Quem rola rápido — que é o normal no celular — vê tudo já no
+ * você para. Quem rola rápido, que é o normal no celular, vê tudo já no
  * estado final e conclui, com razão, que não tem animação nenhuma.
  *
  * Aqui a animação é por TEMPO: entra na viewport, dispara e roda até o fim com
  * mola, independente do scroll. É isso que se lê como "animado".
  *
- * O scroll-driven continua onde ele é o certo — a corda entre seções, o filete
- * do processo, o gesto do hero — porque ali o progresso do scroll É o conteúdo
+ * O scroll-driven continua onde ele é o certo, a corda entre seções, o filete
+ * do processo, o gesto do hero, porque ali o progresso do scroll É o conteúdo
  * da animação.
  */
 

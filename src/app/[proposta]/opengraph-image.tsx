@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import { buscarPropostaPorCaminho } from "@/lib/proposta/seed";
 
 /**
- * O card do WhatsApp é a primeira impressão da proposta — vem antes de qualquer
+ * O card do WhatsApp é a primeira impressão da proposta, vem antes de qualquer
  * scroll. Usa a paleta da página (branco com azul, herdada dos PDFs da SoftCode)
  * para que o link já pareça a peça, e não um anexo genérico.
  *
@@ -15,7 +15,7 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 /* Espelham os tokens de `globals.css`. O ImageResponse não enxerga o CSS da
-   página, então mudar a paleta lá exige mudar aqui — o card já ficou uma fase
+   página, então mudar a paleta lá exige mudar aqui, o card já ficou uma fase
    inteira em verde-escuro enquanto a página era azul. */
 const FUNDO = "#ffffff";
 const AZUL_CLARO = "#f0f6ff";

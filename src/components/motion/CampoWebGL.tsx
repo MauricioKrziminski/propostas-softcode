@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 /**
  * ⚠️ NÃO ESTÁ EM USO. Ver o bloco "POR QUE SAIU" no fim deste comentário.
  *
- * Campo animado em WebGL atrás do nome do cliente — só no desktop.
+ * Campo animado em WebGL atrás do nome do cliente, só no desktop.
  *
  * POR QUE NÃO three.js: isto é um fragment shader num quad de tela cheia, não
  * uma cena 3D. Os sites premiados que auditei pagam de 515KB a 1,48MB por
@@ -13,14 +13,14 @@ import { useEffect, useRef } from "react";
  * um motor 3D inteiro para desenhar um degradê em movimento seria pagar vinte
  * vezes o orçamento por nada.
  *
- * GUARDAS — o efeito só existe quando todas passam:
- *   · `(min-width: 1024px) and (pointer: fine)` — é enfeite de desktop. No
+ * GUARDAS, o efeito só existe quando todas passam:
+ *   · `(min-width: 1024px) and (pointer: fine)`: é enfeite de desktop. No
  *     celular, que é onde o cliente abre o link do WhatsApp, nem carrega;
  *   · `prefers-reduced-motion: no-preference`;
  *   · contexto WebGL disponível (GPU bloqueada, driver antigo, etc.).
  *
  * Em qualquer falha o componente não desenha nada e as camadas de gradiente do
- * hero continuam valendo — o fallback é o estado normal da página, não um
+ * hero continuam valendo, o fallback é o estado normal da página, não um
  * degradado.
  *
  * BATERIA: pausa quando a aba sai de foco e quando o hero sai da viewport. Um
@@ -33,19 +33,19 @@ import { useEffect, useRef } from "react";
  * ilegível. Em Chromium headless o mesmo código renderizava certo, o que
  * atrasou o diagnóstico.
  *
- * Provado por eliminação: com `opacity: 0` no canvas — camada ainda composta na
- * GPU — o hero volta ao normal. Ou seja, é o CONTEÚDO desenhado que está claro
+ * Provado por eliminação: com `opacity: 0` no canvas, camada ainda composta na
+ * GPU, o hero volta ao normal. Ou seja, é o CONTEÚDO desenhado que está claro
  * demais, não a presença da camada.
  *
  * Três correções tentadas, nenhuma resolveu:
- *   1. `gl.clear()` a cada quadro (faltava mesmo, e é obrigatório — mas não era
+ *   1. `gl.clear()` a cada quadro (faltava mesmo, e é obrigatório, mas não era
  *      a causa);
  *   2. alfa pré-multiplicado no shader, já que o canvas nasce com
  *      premultipliedAlpha ligado;
  *   3. trocar o z-index negativo por empilhamento positivo.
  *
  * Suspeita ainda não confirmada: `blendFunc` incompatível com saída
- * pré-multiplicada — para cor pré-multiplicada o correto é `ONE,
+ * pré-multiplicada, para cor pré-multiplicada o correto é `ONE,
  * ONE_MINUS_SRC_ALPHA`, e não `SRC_ALPHA, ONE_MINUS_SRC_ALPHA`. Fica anotado
  * para quem retomar.
  */
@@ -71,7 +71,7 @@ export function CampoWebGL() {
     `;
 
     /**
-     * FBM com hash barato — sem textura, sem lookup. Duas cores de marca
+     * FBM com hash barato, sem textura, sem lookup. Duas cores de marca
      * (#1B63EC e #6E2ED0) misturadas por um campo que respira devagar, e um
      * grão fino por cima para o degradê não bandar em tela grande.
      */
@@ -199,7 +199,7 @@ export function CampoWebGL() {
       acumulado = (agora - inicio) / 1000;
       // LIMPAR A CADA QUADRO é obrigatório: com blending ligado e sem limpeza,
       // cada quadro compõe sobre o anterior e o canvas satura até virar um véu
-      // quase opaco — que cobre o fundo escuro do hero e deixa o texto claro
+      // quase opaco, que cobre o fundo escuro do hero e deixa o texto claro
       // ilegível. O navegador só limpa sozinho quando lhe convém; não dá para
       // depender disso.
       gl.clear(gl.COLOR_BUFFER_BIT);

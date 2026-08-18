@@ -14,9 +14,9 @@
     "entendimento": {
       "titulo": "O que entendemos",
       "paragrafos": [
-        "A Barba Log é uma consultoria em logística com know-how técnico real — diagnóstico, projetos de centro de distribuição, WMS, supply chain, transportes e treinamento corporativo. O que falta não é competência: é um lugar onde quem nunca ouviu falar de vocês entenda, em menos de um minuto, o que vocês fazem, para quem e por que são a escolha certa.",
+        "A Barba Log é uma consultoria em logística com know-how técnico real: diagnóstico, projetos de centro de distribuição, WMS, supply chain, transportes e treinamento corporativo. O que falta não é competência: é um lugar onde quem nunca ouviu falar de vocês entenda, em menos de um minuto, o que vocês fazem, para quem e por que são a escolha certa.",
         "Hoje cada contato novo depende de explicação individual. Sem um site que apresente a consultoria com clareza, todo lead começa do zero e consome tempo de quem deveria estar entregando projeto.",
-        "O segundo ponto é a captação. Vocês têm conteúdo técnico que o mercado procura — e conteúdo técnico bem posicionado é o que faz um cliente de médio porte chegar já sabendo que quer conversar."
+        "O segundo ponto é a captação. Vocês têm conteúdo técnico que o mercado procura, e conteúdo técnico bem posicionado é o que faz um cliente de médio porte chegar já sabendo que quer conversar."
       ],
       "citacaoCliente": {
         "texto": "Quero que qualquer pessoa que entre no site entenda rapidamente o que a Barba Log faz, para quem e por que é a escolha certa.",
@@ -25,7 +25,7 @@
     },
     "solucao": {
       "titulo": "O que vamos fazer",
-      "resumo": "Criar o site da Barba Log do zero — moderno, claro e pensado para atrair clientes. Além de apresentar a consultoria, o site vai ter ferramentas para capturar o contato de quem tiver interesse: formulários inteligentes, materiais para download e botão de WhatsApp sempre visível.",
+      "resumo": "Criar o site da Barba Log do zero: moderno, claro e pensado para atrair clientes. Além de apresentar a consultoria, o site vai ter ferramentas para capturar o contato de quem tiver interesse: formulários inteligentes, materiais para download e botão de WhatsApp sempre visível.",
       "pilares": [
         {
           "titulo": "Clareza em menos de um minuto",
@@ -89,7 +89,7 @@
         },
         {
           "titulo": "Cuidados técnicos incluídos",
-          "resumo": "SEO, responsividade, integrações e segurança — tudo já dentro do valor.",
+          "resumo": "SEO, responsividade, integrações e segurança. Tudo já dentro do valor.",
           "itens": [
             "Estrutura indexável, com título e meta descrição pensados por página",
             "Adaptação automática a celular, tablet e computador, validada à mão em iPhone e Android",
@@ -143,7 +143,7 @@
     },
     "investimento": {
       "titulo": "Investimento",
-      "introducao": "Três formatos do mesmo site. A diferença entre eles não é qualidade — é quanto de animação entra e como a relação continua depois da entrega.",
+      "introducao": "Três formatos do mesmo site. A diferença entre eles não é qualidade: é quanto de animação entra e como a relação continua depois da entrega.",
       "opcoes": [
         {
           "id": "sem-animacoes",
@@ -165,7 +165,7 @@
         {
           "id": "com-animacoes",
           "nome": "Com animações",
-          "resumo": "O mesmo site, com animações em textos e componentes — efeitos ao rolar e transições suaves.",
+          "resumo": "O mesmo site, com animações em textos e componentes: efeitos ao rolar e transições suaves.",
           "valorCentavos": 180000,
           "formaPagamento": "25% de entrada na aprovação e 75% na entrega",
           "prazo": "8 semanas",
@@ -196,7 +196,7 @@
       "observacoes": [
         "Valores válidos até a data de validade desta proposta.",
         "Em caso de cancelamento após o início, a entrada não é reembolsada e não há cobranças adicionais.",
-        "Hospedagem e domínio ficam por conta da Barba Log — podemos indicar opções."
+        "Hospedagem e domínio ficam por conta da Barba Log. Podemos indicar opções."
       ]
     },
     "foraDoEscopo": {
@@ -209,11 +209,11 @@
         "Hospedagem e domínio",
         "Gestão de campanhas de anúncio"
       ],
-      "nota": "Nada disso é impossível — só não está incluído nos valores acima. Qualquer um destes itens pode ser orçado à parte quando fizer sentido."
+      "nota": "Nada disso é impossível, só não está incluído nos valores acima. Qualquer um destes itens pode ser orçado à parte quando fizer sentido."
     },
     "responsabilidades": {
       "titulo": "O que precisamos de você",
-      "introducao": "O projeto anda no ritmo em que esses itens chegam. Quanto antes, melhor — e nada disso precisa estar pronto na assinatura.",
+      "introducao": "O projeto anda no ritmo em que esses itens chegam. Quanto antes, melhor. E nada disso precisa estar pronto na assinatura.",
       "itens": [
         {
           "item": "Logotipo em boa qualidade",

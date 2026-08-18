@@ -7,7 +7,7 @@ import { formatarValor } from "@/lib/proposta/formatar";
  * Contagem numérica ao entrar na viewport.
  *
  * O valor final é renderizado no servidor: sem JS, com reduced-motion ou com o
- * observer indisponível, o cliente vê o número certo — a animação nunca é
+ * observer indisponível, o cliente vê o número certo, a animação nunca é
  * pré-requisito para ler o preço.
  *
  * `IntersectionObserver`, nunca evento de scroll. `tabular-nums` no elemento

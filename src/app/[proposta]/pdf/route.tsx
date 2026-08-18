@@ -6,7 +6,7 @@ import { caminhoPublico } from "@/lib/proposta/schema";
 import { estaExpirada } from "@/lib/proposta/formatar";
 
 /**
- * `/{slug}-{token}/pdf` — o arquivo que o cliente corporativo anexa no processo
+ * `/{slug}-{token}/pdf`, o arquivo que o cliente corporativo anexa no processo
  * interno dele.
  *
  * Roda em Node porque `@react-pdf/renderer` precisa do sistema de arquivos para
@@ -39,7 +39,7 @@ export async function GET(
     headers: {
       "Content-Type": "application/pdf",
       // `inline` abre no visualizador do navegador; o cliente salva se quiser.
-      // `filename` é o que o PDF vira no computador dele — vale o cuidado.
+      // `filename` é o que o PDF vira no computador dele, vale o cuidado.
       "Content-Disposition": `inline; filename="${arquivo}"`,
       // Proposta expirada muda de conteúdo; e o documento nunca deve ser
       // cacheado por intermediário, porque a URL é a credencial.
