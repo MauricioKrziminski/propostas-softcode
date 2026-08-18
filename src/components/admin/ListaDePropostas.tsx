@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { duplicar, mudarStatus } from "@/app/admin/acoes";
 import type { ResumoProposta } from "@/lib/proposta/repositorio";
 import { BotaoCopiar } from "./BotaoCopiar";
+import { BotaoExcluir } from "./BotaoExcluir";
 import { Comando, type ItemDeComando } from "./Comando";
 import { TrilhaDeStatus } from "./TrilhaDeStatus";
 
@@ -31,6 +32,14 @@ export function ListaDePropostas({
 }) {
   const navegador = useRouter();
   const [busca, setBusca] = useState("");
+
+  function arquivar(id: string, status: string) {
+    const dados = new FormData();
+    dados.set("id", id);
+    dados.set("status", status);
+    void mudarStatus(dados);
+    navegador.refresh();
+  }
   const [mostrarArquivadas, setMostrarArquivadas] = useState(false);
 
   const visiveis = useMemo(() => {
@@ -68,6 +77,14 @@ export function ListaDePropostas({
       executar: () => {
         navigator.clipboard?.writeText(`${base}/${p.caminho}`);
       },
+    })),
+    /* Arquivar saiu da linha para dar lugar a excluir, mas continua existindo:
+       é o caminho para tirar da vista sem perder o registro. */
+    ...propostas.map((p) => ({
+      id: `arquivar-${p.id}`,
+      grupo: p.status === "arquivada" ? "desarquivar" : "arquivar",
+      rotulo: p.empresa,
+      executar: () => arquivar(p.id, p.status === "arquivada" ? "rascunho" : "arquivada"),
     })),
   ];
 
@@ -171,17 +188,7 @@ export function ListaDePropostas({
                   </button>
                 </form>
 
-                <form action={mudarStatus}>
-                  <input type="hidden" name="id" value={p.id} />
-                  <input
-                    type="hidden"
-                    name="status"
-                    value={p.status === "arquivada" ? "rascunho" : "arquivada"}
-                  />
-                  <button type="submit" className="botao-mesa">
-                    {p.status === "arquivada" ? "Desarquivar" : "Arquivar"}
-                  </button>
-                </form>
+                <BotaoExcluir id={p.id} empresa={p.empresa} />
               </div>
             </div>
           </li>

@@ -384,14 +384,39 @@ await pg.waitForTimeout(1500);
 await pg.screenshot({ path: ".playwright/admin-mesa.png" });
 await pg.goto(`${BASE}/admin`, { waitUntil: "networkidle" });
 await pg.screenshot({ path: ".playwright/admin-lista.png" });
+
+/* ───────────── 6. excluir ───────────── */
+/* A limpeza acontece PELO BOTÃO, não por SQL. Assim o teste que arruma a casa
+   também prova que excluir funciona, incluindo a confirmação em dois passos. */
+console.log("\n▸ excluir");
+await pg.fill('input[placeholder^="Buscar"]', EMPRESA);
+await pg.waitForTimeout(400);
+await pg.click('button:has-text("Excluir")');
+await pg.waitForTimeout(300);
+checar(
+  (await pg.content()).includes("para sempre?"),
+  "excluir pede confirmação antes",
+  "o botão excluiu sem confirmar",
+);
+await pg.click('button:has-text("Sim, excluir")');
+await pg.waitForTimeout(2500);
+
 await ctx.close();
 await navegador.close();
 
-/* ───────────── 6. limpeza ───────────── */
 const sql = postgres(process.env.DATABASE_URL, { prepare: false, max: 1 });
-const apagadas = await sql`delete from propostas where cliente->>'empresa' = ${EMPRESA} returning slug`;
+const [{ sobraram }] = await sql`
+  select count(*)::int as sobraram from propostas where cliente->>'empresa' = ${EMPRESA}
+`;
+/* Rede de segurança: se o botão falhou, a proposta de teste não pode ficar no
+   banco atrapalhando a próxima rodada. */
+if (sobraram > 0) await sql`delete from propostas where cliente->>'empresa' = ${EMPRESA}`;
 await sql.end();
-console.log(`\n▸ limpeza\n  ok    ${apagadas.length} proposta(s) de teste removida(s)`);
+checar(
+  sobraram === 0,
+  "proposta de teste excluída pelo painel",
+  `a proposta continuou no banco (${sobraram}), removida por SQL como remendo`,
+);
 
 console.log(
   falhas === 0
