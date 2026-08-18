@@ -12,7 +12,8 @@
  * cookie é montado exatamente como `src/lib/admin/sessao.ts` monta, então o que
  * está sendo testado continua sendo o caminho de verdade.
  */
-import { createHmac } from "node:crypto";
+import { createHmac, randomBytes, scryptSync } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
 import { chromium, devices, request } from "@playwright/test";
 import postgres from "postgres";
 
@@ -44,6 +45,81 @@ const cookieSessao = {
   httpOnly: true,
   sameSite: "Lax",
 };
+
+/* ───────────── 0. a senha ─────────────
+   O login precisa ser testado de verdade, e não pela senha do operador: ela é
+   dele e não entra em script. A saída é trocar o hash por um sorteado na hora,
+   entrar com ele e devolver o arquivo ao estado original.
+
+   Testar isso não é zelo excessivo. O hash já chegou truncado ao servidor uma
+   vez, porque o carregador de ambiente do Next expande cifrão como variável, e o
+   sintoma foi "senha incorreta" com a senha certa, sem uma linha de log. Todo o
+   resto do painel estava verde enquanto a porta da frente não abria.
+
+   Um segundo servidor numa porta própria seria mais limpo, mas o Next 16 recusa
+   dois `next dev` no mesmo diretório. */
+const ARQUIVO_ENV = ".env.local";
+const envOriginal = readFileSync(ARQUIVO_ENV, "utf8");
+
+const senhaDeTeste = randomBytes(12).toString("hex");
+const salDeTeste = randomBytes(16).toString("hex");
+const hashDeTeste = `scrypt:${salDeTeste}:${scryptSync(senhaDeTeste, salDeTeste, 64).toString("hex")}`;
+
+console.log("\n▸ entrar com senha");
+const navegadorSenha = await chromium.launch();
+try {
+  writeFileSync(
+    ARQUIVO_ENV,
+    envOriginal.replace(/^ADMIN_SENHA_HASH=.*$/m, `ADMIN_SENHA_HASH=${hashDeTeste}`),
+    "utf8",
+  );
+
+  const paginaSenha = await (await navegadorSenha.newContext()).newPage();
+  let entrou = false;
+
+  /* O Next recarrega o .env sozinho, mas leva alguns segundos. Em vez de dormir
+     um tempo arbitrário, tenta entrar até conseguir. */
+  for (let tentativa = 0; tentativa < 15 && !entrou; tentativa++) {
+    await paginaSenha.goto(`${BASE}/admin/entrar`, { waitUntil: "networkidle" });
+    await paginaSenha.fill("#senha", senhaDeTeste);
+    await paginaSenha.click('button[type="submit"]');
+    await paginaSenha.waitForTimeout(1200);
+    entrou = new URL(paginaSenha.url()).pathname === "/admin";
+  }
+  checar(
+    entrou,
+    "senha certa entra no painel",
+    "senha certa não entrou: o hash não chegou inteiro ao servidor",
+  );
+
+  if (entrou) {
+    await paginaSenha.context().clearCookies();
+    await paginaSenha.goto(`${BASE}/admin/entrar`, { waitUntil: "networkidle" });
+    await paginaSenha.fill("#senha", "senha-obviamente-errada");
+    await paginaSenha.click('button[type="submit"]');
+    await paginaSenha.waitForTimeout(1200);
+    checar(
+      (await paginaSenha.content()).includes("Senha incorreta"),
+      "senha errada é recusada",
+      "senha errada não mostrou mensagem de recusa",
+    );
+  }
+} finally {
+  await navegadorSenha.close();
+  try {
+    writeFileSync(ARQUIVO_ENV, envOriginal, "utf8");
+    const conferido = readFileSync(ARQUIVO_ENV, "utf8") === envOriginal;
+    console.log(
+      conferido
+        ? "  ok    senha do operador devolvida ao .env.local"
+        : "  FALHA o .env.local NÃO voltou ao original, confira antes de continuar",
+    );
+    if (!conferido) falhas++;
+  } catch (erro) {
+    falhas++;
+    console.log(`  FALHA não consegui restaurar o .env.local: ${erro.message}`);
+  }
+}
 
 const EMPRESA = "Cliente de Teste E2E";
 const navegador = await chromium.launch();

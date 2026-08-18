@@ -49,13 +49,37 @@ function iguais(a: string, b: string): boolean {
   return x.length === y.length && timingSafeEqual(x, y);
 }
 
-/** `scrypt$<sal>$<hash>`, no formato que `scripts/gerar-senha.mjs` imprime. */
+/**
+ * `scrypt:<sal>:<hash>`, no formato que `scripts/gerar-senha.mjs` grava.
+ *
+ * O separador é DOIS-PONTOS, e a razão é uma pegadinha que custou uma tarde: o
+ * carregador de ambiente do Next expande `$alguma_coisa` como referência a
+ * variável, então um hash `scrypt$sal$hash` chegava ao servidor como a palavra
+ * "scrypt" e mais nada. O `node --env-file` não expande, então todo diagnóstico
+ * fora do Next dizia que estava tudo certo enquanto o login recusava a senha
+ * correta.
+ *
+ * Formato inválido agora GRITA no log do servidor. Antes devolvia só "senha
+ * incorreta", que é a mensagem certa para senha errada e a pista errada para
+ * ambiente quebrado.
+ */
 export function senhaConfere(senha: string): boolean {
   const guardado = process.env.ADMIN_SENHA_HASH;
-  if (!guardado) return false;
+  if (!guardado) {
+    console.error("[admin] ADMIN_SENHA_HASH ausente. Rode: node scripts/gerar-senha.mjs \"sua senha\"");
+    return false;
+  }
 
-  const [algoritmo, sal, hash] = guardado.split("$");
-  if (algoritmo !== "scrypt" || !sal || !hash) return false;
+  const [algoritmo, sal, hash] = guardado.split(":");
+  if (algoritmo !== "scrypt" || !sal || !hash) {
+    console.error(
+      `[admin] ADMIN_SENHA_HASH fora do formato (recebi ${guardado.length} caracteres em ` +
+        `${guardado.split(":").length} parte(s), esperava 3 separadas por ":"). ` +
+        'Regere com: node scripts/gerar-senha.mjs "sua senha". ' +
+        "Se o valor tem cifrão, o Next expande e come o resto da linha.",
+    );
+    return false;
+  }
 
   return iguais(scryptSync(senha, sal, 64).toString("hex"), hash);
 }

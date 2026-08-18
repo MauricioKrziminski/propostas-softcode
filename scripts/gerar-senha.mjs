@@ -17,7 +17,11 @@ if (!senha || senha.length < 8) {
 }
 
 const sal = randomBytes(16).toString("hex");
-const linha = `ADMIN_SENHA_HASH=scrypt$${sal}$${scryptSync(senha, sal, 64).toString("hex")}`;
+/* Separador DOIS-PONTOS, nunca cifrão: o carregador de ambiente do Next expande
+   `$algo` como variável, e um hash com cifrão chega ao servidor truncado na
+   primeira ocorrência. Fora do Next isso não aparece, o que torna o defeito
+   especialmente chato de achar. */
+const linha = `ADMIN_SENHA_HASH=scrypt:${sal}:${scryptSync(senha, sal, 64).toString("hex")}`;
 
 /**
  * Por padrão o script GRAVA direto no `.env.local`, em vez de imprimir o hash na

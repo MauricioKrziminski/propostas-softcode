@@ -53,9 +53,35 @@ if (url) {
   }
 }
 
-if (hash && !hash.startsWith("scrypt$"))
+if (hash && hash.split(":").length !== 3)
   problemas.push('ADMIN_SENHA_HASH fora do formato: rode node scripts/gerar-senha.mjs "sua senha"');
 if (segredo && segredo.length < 32) problemas.push("SESSAO_SEGREDO curto demais");
+
+/**
+ * O teste que faltava: ler o ambiente COMO O SERVIDOR LÊ.
+ *
+ * O `node --env-file` entrega o valor cru; o carregador do Next passa por
+ * expansão de variáveis e transforma `$algo` no valor de `algo`, quase sempre
+ * vazio. Foi assim que um hash de senha perfeitamente válido virou a palavra
+ * "scrypt" dentro do servidor, com o login recusando a senha certa enquanto todo
+ * diagnóstico de fora dizia que estava tudo em ordem. Comparar os dois
+ * carregadores é o que transforma esse defeito mudo em uma linha de erro.
+ */
+/* O pacote é CommonJS: no import ESM ele chega dentro de `default`. */
+const { loadEnvConfig } = (await import("@next/env")).default;
+const cru = { DATABASE_URL: url, ADMIN_SENHA_HASH: hash, SESSAO_SEGREDO: segredo };
+loadEnvConfig(process.cwd(), true, { info: () => {}, error: () => {} });
+
+for (const [nome, valorCru] of Object.entries(cru)) {
+  const comoNext = process.env[nome] ?? "";
+  if (valorCru && comoNext !== valorCru) {
+    problemas.push(
+      `${nome} chega diferente no Next (${comoNext.length} caracteres contra ${valorCru.length}). ` +
+        "Quase sempre é cifrão no valor, que o Next expande como variável. " +
+        "Escape com \\$ ou troque por um valor sem cifrão.",
+    );
+  }
+}
 
 console.log(`  senha do painel  ${hash ? "configurada" : "AUSENTE"}`);
 console.log(`  segredo de sessão ${segredo ? `${segredo.length} caracteres` : "AUSENTE"}`);
