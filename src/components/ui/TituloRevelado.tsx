@@ -12,6 +12,13 @@ const CONTAINER: Variants = {
   visivel: { transition: { staggerChildren: 0.055 } },
 };
 
+/** Repete a cada entrada, pelo mesmo critério de Revelar.tsx. */
+const VIEWPORT = {
+  once: false,
+  amount: "some",
+  margin: "0px 0px -10% 0px",
+} as const;
+
 const PALAVRA: Variants = {
   oculto: { y: "110%", rotate: 4 },
   visivel: {
@@ -44,7 +51,7 @@ export function TituloRevelado({
         variants={CONTAINER}
         initial="oculto"
         whileInView="visivel"
-        viewport={{ once: true, amount: 0.4 }}
+        viewport={VIEWPORT}
       >
         {/* O espaço fica FORA do `.palavra-clip`. Dentro dele, que é
             `inline-block` com `overflow: hidden`, o espaço final é descartado e

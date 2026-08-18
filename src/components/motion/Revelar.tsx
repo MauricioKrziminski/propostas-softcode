@@ -21,6 +21,23 @@ import type { ReactNode } from "react";
 
 const MOLA = { type: "spring", stiffness: 90, damping: 18, mass: 0.9 } as const;
 
+/**
+ * O reveal REPETE: sai da viewport, volta ao estado inicial e anima de novo
+ * quando volta. Quem sobe a página para reler uma seção vê o movimento outra
+ * vez, em vez de uma página que só se move na primeira passada.
+ *
+ * `amount: "some"` é obrigatório aqui, não estética. Com um limiar por fração
+ * (0.25, como era), um bloco mais alto que a viewport perde a fração no meio da
+ * leitura e SUME na cara de quem está lendo. Com "some" o elemento só volta ao
+ * estado inicial depois de sair inteiro da tela. A margem negativa embaixo
+ * segura o disparo até o bloco estar de fato visível, e não colado na borda.
+ */
+const VIEWPORT = {
+  once: false,
+  amount: "some",
+  margin: "0px 0px -12% 0px",
+} as const;
+
 type Direcao = "baixo" | "esquerda" | "direita" | "escala";
 
 const DESLOCAMENTO: Record<Direcao, { x?: number; y?: number; scale?: number }> = {
@@ -55,7 +72,7 @@ export function Revelar({
       className={className}
       initial={{ opacity: 0, ...DESLOCAMENTO[direcao] }}
       whileInView={{ opacity: 1, x: 0, y: 0, scale: 1 }}
-      viewport={{ once: true, amount: 0.25, margin: "0px 0px -12% 0px" }}
+      viewport={VIEWPORT}
       transition={{ ...MOLA, delay: atraso }}
     >
       {children}
@@ -100,7 +117,7 @@ export function ListaRevelada({
       variants={CONTAINER}
       initial="oculto"
       whileInView="visivel"
-      viewport={{ once: true, amount: 0.15 }}
+      viewport={VIEWPORT}
     >
       {children}
     </Componente>

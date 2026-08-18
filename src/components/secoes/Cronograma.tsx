@@ -130,7 +130,7 @@ function BarraDeFase({
         style={{ width: `${proporcao * 100}%` }}
         initial={menosMovimento ? false : { scaleX: 0 }}
         whileInView={{ scaleX: 1 }}
-        viewport={{ once: true, amount: 0.6 }}
+        viewport={{ once: false, amount: "some", margin: "0px 0px -10% 0px" }}
         transition={
           menosMovimento
             ? { duration: 0 }

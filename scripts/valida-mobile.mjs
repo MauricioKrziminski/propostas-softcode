@@ -262,21 +262,82 @@ const molas = await pg.evaluate(
 checar(molas > 0, `${molas} animações por tempo (motion) ativas`, "nenhuma animação por tempo — os reveals do motion não dispararam");
 
 await rolarAPagina(pg);
-const reveals = await pg.evaluate(() => {
-  // O motion/react escreve `style="opacity: N"` inline — é assim que se acha um
-  // reveal de verdade. Os seletores antigos ([data-reveal], .palavra-sobe) não
-  // existem no DOM há várias fases: a verificação passava inspecionando vazio.
-  // `aria-hidden` é isento: são os painéis inativos da seção travada, que
-  // DEVEM estar em opacity 0 — é assim que um painel dá lugar ao outro.
-  const candidatos = [...document.querySelectorAll("[style*='opacity'], .palavra-clip")]
-    .filter((e) => !e.closest('[aria-hidden="true"]'));
-  const invisiveis = candidatos
-    .filter((e) => parseFloat(getComputedStyle(e).opacity) < 0.05)
-    .map((e) => `${e.tagName.toLowerCase()}.${(e.className || "").toString().split(" ")[0]} em #${e.closest("section")?.id ?? "?"}`);
-  return { total: candidatos.length, invisiveis };
-});
-checar(reveals.total > 0, `${reveals.total} elementos de reveal inspecionados`, "nenhum elemento de reveal no DOM — a verificação estaria passando no vácuo");
+/* Volta a subir a página em quatro paradas. Como o reveal repete, a pergunta
+   certa não é "sobrou algo invisível no documento" e sim "ao REENTRAR numa
+   dobra, tudo que está nela apareceu" — que é o que o leitor vê ao voltar. */
+const reveals = { total: 0, noDocumento: 0, invisiveis: [] };
+for (const fracao of [0.85, 0.65, 0.45, 0.25]) {
+  await pg.evaluate((f) => window.scrollTo(0, document.body.scrollHeight * f), fracao);
+  await pg.waitForTimeout(2000); /* mola + encadeamento da lista mais longa */
+  const parada = await pg.evaluate(() => {
+    // O motion/react escreve `style="opacity: N"` inline — é assim que se acha um
+    // reveal de verdade. Os seletores antigos ([data-reveal], .palavra-sobe) não
+    // existem no DOM há várias fases: a verificação passava inspecionando vazio.
+    // `aria-hidden` é isento: são os painéis inativos da seção travada, que
+    // DEVEM estar em opacity 0 — é assim que um painel dá lugar ao outro.
+    //
+    // O reveal REPETE (`viewport.once: false`): fora da tela ele volta ao estado
+    // inicial DE PROPÓSITO, para animar de novo quando o leitor sobe a página.
+    // Por isso só se cobra visibilidade de quem está na viewport agora — cobrar
+    // do documento inteiro reprovaria a página por fazer o que foi pedido.
+    // O corte em 0.85 respeita a margem negativa de disparo: o que ainda está
+    // colado na borda de baixo legitimamente não animou.
+    // A folga de 64px embaixo não é frescura: ao sair da tela o reveal volta a
+    // `translateY(48px)`, e esse deslocamento faz um item logo acima da dobra
+    // reaparecer com uma tira de ~27px dentro da viewport. Ele está fora, e o
+    // container já resetou — cobrar visibilidade dessa tira é falha falsa.
+    const naTela = (e) => {
+      const r = e.getBoundingClientRect();
+      return r.height > 0 && r.bottom > 64 && r.top < innerHeight * 0.85;
+    };
+    const todos = [...document.querySelectorAll("[style*='opacity'], .palavra-clip")]
+      .filter((e) => !e.closest('[aria-hidden="true"]'));
+    const candidatos = todos.filter(naTela);
+    const invisiveis = candidatos
+      .filter((e) => parseFloat(getComputedStyle(e).opacity) < 0.05)
+      .map((e) => `${e.tagName.toLowerCase()}.${(e.className || "").toString().split(" ")[0]} em #${e.closest("section")?.id ?? "?"}`);
+    return { total: candidatos.length, noDocumento: todos.length, invisiveis };
+  });
+  reveals.total += parada.total;
+  reveals.noDocumento = parada.noDocumento;
+  reveals.invisiveis.push(...parada.invisiveis);
+}
+checar(reveals.noDocumento > 0, `${reveals.noDocumento} elementos de reveal no DOM`, "nenhum elemento de reveal no DOM — a verificação estaria passando no vácuo");
+checar(reveals.total >= 10, `${reveals.total} reveals inspecionados em 4 dobras ao voltar`, `só ${reveals.total} reveals inspecionados — amostra pequena demais para valer como verificação`);
 checar(reveals.invisiveis.length === 0, "nenhum reveal travado invisível após o scroll", `${reveals.invisiveis.length} elemento(s) invisíveis`, reveals.invisiveis.slice(0, 6).join(", "));
+
+/* O reveal tem de REPETIR: some ao sair da tela e anima de novo ao voltar.
+   Sem esta verificação, um `once: true` reintroduzido em qualquer componente
+   passaria despercebido — a página continuaria bonita na primeira passada e
+   morta em todas as outras. #processo fica de fora: lá quem manda é o
+   useScroll da seção travada, e a opacidade é função da posição, não do tempo. */
+const repete = await pg.evaluate(async () => {
+  const espera = (ms) => new Promise((r) => setTimeout(r, ms));
+  const alvo = [...document.querySelectorAll("[style*='opacity']")]
+    .filter((e) => !e.closest('[aria-hidden="true"]') && !e.closest("#processo"))
+    .map((e) => ({ e, topo: e.getBoundingClientRect().top + window.scrollY }))
+    .find((c) => c.topo > innerHeight * 2 && c.e.getBoundingClientRect().height > 0);
+  if (!alvo) return { achou: false };
+  const posicao = alvo.topo - innerHeight * 0.5;
+  const ler = () => parseFloat(getComputedStyle(alvo.e).opacity);
+
+  window.scrollTo(0, posicao);
+  await espera(2200); /* mola + atraso de encadeamento: 1,4s ainda pega 0,8 */
+  const dentro = ler();
+  window.scrollTo(0, 0);
+  await espera(1000);
+  const fora = ler();
+  window.scrollTo(0, posicao);
+  await espera(2200);
+  const devolta = ler();
+  return { achou: true, dentro, fora, devolta, onde: alvo.e.closest("section")?.id ?? "?" };
+});
+checar(repete.achou, "reveal de teste encontrado fora da primeira dobra", "nenhum reveal abaixo de duas dobras — a verificação passaria no vácuo");
+checar(
+  repete.achou && repete.dentro > 0.9 && repete.fora < 0.5 && repete.devolta > 0.9,
+  `reveal repete ao voltar (#${repete.onde}: ${repete.dentro?.toFixed(2)} → ${repete.fora?.toFixed(2)} → ${repete.devolta?.toFixed(2)})`,
+  `reveal não repete (${repete.dentro?.toFixed(2)} → ${repete.fora?.toFixed(2)} → ${repete.devolta?.toFixed(2)}) — voltou algum viewport.once: true?`,
+);
 
 await pg.evaluate(() => window.scrollTo(0, 0));
 await pg.waitForTimeout(500);

@@ -94,6 +94,10 @@ proposta** — o seed atual é a proposta real da Barba Log, não um exemplo.
   Reveal preso ao `view()` para quando o dedo para, e quem rola rápido jura que
   não existe animação nenhuma. Scroll-driven fica só onde o progresso do scroll
   **é** o conteúdo: a corda, o filete do processo e o gesto do hero.
+- **Reveal REPETE: `viewport.once` é sempre `false`,** e o limiar é `amount:
+  "some"` — nunca uma fração. Com fração, bloco mais alto que a viewport perde o
+  limiar no meio da leitura e some na cara de quem está lendo. O validador
+  reprova quem voltar a `once: true`.
 - **`@media print` é o PDF do cliente**, não sobra de CSS. Qualquer elemento
   novo que anime precisa entrar no reset de `src/styles/print.css`.
 - **Dinheiro é inteiro em centavos.** Nunca float.
