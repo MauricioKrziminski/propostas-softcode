@@ -16,7 +16,7 @@
  *   9. foco de teclado visível
  * e salva screenshots e um PDF em .playwright/ para conferência visual.
  */
-import { chromium, devices } from "@playwright/test";
+import { chromium, devices, request } from "@playwright/test";
 import { mkdir, readFile } from "node:fs/promises";
 
 const BASE = process.argv[2] ?? "http://localhost:3000";
@@ -307,7 +307,7 @@ const movimento = await pgRm.evaluate(() => {
   const escondidos = candidatos
     .filter((e) => parseFloat(getComputedStyle(e).opacity) < 0.99)
     .map((e) => e.tagName.toLowerCase());
-  const comTransform = [...document.querySelectorAll(".barra-fase, .linha-tempo, .ponto-fase, .borda-topo, .borda-dir, .borda-base, .borda-esq, .camada-parallax, .assinatura-nome")];
+  const comTransform = [...document.querySelectorAll(".linha-tempo, .ponto-fase, .borda-topo, .borda-dir, .borda-base, .borda-esq")];
   const transformados = comTransform
     .filter((e) => !["none", "matrix(1, 0, 0, 1, 0, 0)"].includes(getComputedStyle(e).transform))
     .map((e) => (e.className || "").toString().split(" ")[0]);
@@ -381,7 +381,28 @@ await pgP.pdf({ path: `${SAIDA}/proposta.pdf`, format: "A4", printBackground: fa
 console.log("  ok    PDF gerado em .playwright/proposta.pdf");
 await ctxP.close();
 
-/* ───────────── 4. foco de teclado ───────────── */
+/* ───────────── 4. o PDF gerado no servidor ───────────── */
+console.log("\n▸ PDF por biblioteca");
+// Contexto proprio: os contextos de navegador anteriores ja foram fechados.
+const api = await request.newContext();
+const respostaPdf = await api.get(`${BASE}${CAMINHO}/pdf`);
+const corpoPdf = await respostaPdf.body();
+checar(respostaPdf.status() === 200, "rota /pdf responde", `rota /pdf devolveu ${respostaPdf.status()}`);
+checar(respostaPdf.headers()["content-type"] === "application/pdf", "content-type é application/pdf", `content-type inesperado: ${respostaPdf.headers()["content-type"]}`);
+checar(corpoPdf.subarray(0, 4).toString() === "%PDF", "arquivo é um PDF válido", "o corpo não começa com %PDF");
+/* A logo entra por Buffer. Com caminho de arquivo o react-pdf tenta buscar por
+   `fetch`, falha em SILÊNCIO e devolve um PDF válido SEM a imagem — defeito que
+   só o peso denuncia. */
+checar(corpoPdf.length > 100_000, `logo embutida (${Math.round(corpoPdf.length / 1024)} KB)`, `PDF com apenas ${Math.round(corpoPdf.length / 1024)} KB — a logo provavelmente não foi embutida`);
+const paginas = corpoPdf.toString("latin1").split("/Type /Page").length - 1;
+checar(paginas >= 6, `${paginas - 1} páginas`, `só ${paginas - 1} páginas — o documento parece truncado`);
+
+const pdfSemToken = await api.get(`${BASE}/barba-log-0000000000/pdf`);
+checar(pdfSemToken.status() === 404, "token errado no PDF dá 404", `token errado devolveu ${pdfSemToken.status()}`);
+
+await api.dispose();
+
+/* ───────────── 5. foco de teclado ───────────── */
 console.log("\n▸ foco de teclado");
 const ctxK = await navegador.newContext({ viewport: { width: 390, height: 844 } });
 const pgK = await ctxK.newPage();

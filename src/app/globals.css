@@ -365,13 +365,6 @@ body {
       animation-range: entry 40% exit 40%;
     }
 
-    .barra-fase {
-      transform-origin: left center;
-      animation: desenhar-x linear both;
-      animation-timeline: view();
-      animation-range: entry 25% cover 60%;
-    }
-
     .ponto-fase {
       animation: brotar linear both;
       animation-timeline: view();
@@ -545,7 +538,6 @@ body {
     transform: none !important;
   }
   .linha-tempo,
-  .barra-fase,
   .borda-topo,
   .borda-base,
   .borda-esq,

@@ -73,12 +73,11 @@ export function Cronograma({ dados, numero }: { dados: Dados; numero: number }) 
                 </span>
               </div>
 
-              <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-[var(--ctx-linha)]">
-                <div
-                  className="barra-fase h-full rounded-full bg-[var(--ctx-acento)]"
-                  style={{ width: `${(fase.semanas / maior) * 100}%` }}
-                />
-              </div>
+              <BarraDeFase
+                proporcao={fase.semanas / maior}
+                atraso={i * 0.08}
+                menosMovimento={!!menosMovimento}
+              />
 
               {fase.descricao && (
                 <p className="mt-4 text-sm leading-relaxed text-[var(--ctx-neblina)]">
@@ -99,5 +98,45 @@ export function Cronograma({ dados, numero }: { dados: Dados; numero: number }) 
         </Revelar>
       )}
     </Secao>
+  );
+}
+
+/**
+ * A barra enche por TEMPO, não por `view()`.
+ *
+ * Com `animation-timeline: view()` ela ficava congelada em `scaleX(0.79)` e
+ * nunca mudava: a barra tem 6px de altura, então as fases `entry` e `cover` do
+ * view timeline são quase instantâneas e o progresso trava num ponto arbitrário
+ * — as barras saíam 21% mais curtas do que a duração que representam. E, como
+ * `animation-timeline` só existe no iOS 26+, metade do público nunca veria
+ * animação nenhuma ali.
+ *
+ * A largura do trilho é que carrega a informação (proporção entre as fases); a
+ * escala só a revela. Por isso `scaleX` de 0 a 1 sobre uma largura já correta.
+ */
+function BarraDeFase({
+  proporcao,
+  atraso,
+  menosMovimento,
+}: {
+  proporcao: number;
+  atraso: number;
+  menosMovimento: boolean;
+}) {
+  return (
+    <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-[var(--ctx-linha)]">
+      <motion.div
+        className="h-full origin-left rounded-full bg-[var(--ctx-acento)]"
+        style={{ width: `${proporcao * 100}%` }}
+        initial={menosMovimento ? false : { scaleX: 0 }}
+        whileInView={{ scaleX: 1 }}
+        viewport={{ once: true, amount: 0.6 }}
+        transition={
+          menosMovimento
+            ? { duration: 0 }
+            : { type: "spring", stiffness: 70, damping: 18, delay: atraso }
+        }
+      />
+    </div>
   );
 }

@@ -135,6 +135,7 @@ export default async function PaginaProposta({ params }: Props) {
             empresa={cliente.empresa}
             projeto={proposta.tituloProjeto}
             numero={numero}
+            caminho={caminhoPublico(proposta)}
           />
         );
     }

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Secao } from "@/components/ui/Secao";
-import { Botao } from "@/components/ui/Botao";
+import { BotaoLink } from "@/components/ui/Botao";
 import { formatarValor, rotulo } from "@/lib/proposta/formatar";
 import { linkEmail } from "@/lib/contato";
 import type { Aceite as Dados, OpcaoInvestimento } from "@/lib/proposta/schema";
@@ -25,12 +25,14 @@ export function Aceite({
   empresa,
   projeto,
   numero,
+  caminho,
 }: {
   dados: Dados;
   opcoes: OpcaoInvestimento[];
   empresa: string;
   projeto: string;
   numero: number;
+  caminho: string;
 }) {
   const [escolhida, setEscolhida] = useState<string | null>(
     opcoes.find((o) => o.destaque)?.id ?? (opcoes.length === 1 ? opcoes[0].id : null),
@@ -122,13 +124,17 @@ export function Aceite({
           </a>
 
           {dados.mostrarPdf && (
-            <Botao
-              variante="contorno"
+            /* Vai para o PDF gerado no servidor, não para o `window.print()`.
+               O documento impresso é uma peça própria — capa, numeração de
+               página e bloco de assinatura —, e não uma captura da tela. */
+            <BotaoLink
+              href={`/${caminho}/pdf`}
+              target="_blank"
+              rel="noopener noreferrer"
               className="so-tela border-noite-linha text-noite-texto hover:border-acento-noite hover:text-acento-noite"
-              onClick={() => window.print()}
             >
               Baixar em PDF
-            </Botao>
+            </BotaoLink>
           )}
         </div>
       </div>

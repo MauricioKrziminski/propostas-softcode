@@ -34,7 +34,6 @@
      por ele que os reveals por tempo nascem revelados no papel. Os seletores
      .etapa-*, .filete-* e .aspas-grande saíram: não existem no DOM. */
   [style*="opacity"],
-  .barra-fase,
   .ponto-fase,
   .linha-tempo,
   .borda-topo,
