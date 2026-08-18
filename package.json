@@ -13,7 +13,9 @@
     "lint": "eslint",
     "valida:mobile": "node scripts/valida-mobile.mjs",
     "semear": "node --env-file=.env.local scripts/semear.mjs",
-    "banco:gerar": "drizzle-kit generate"
+    "banco:gerar": "drizzle-kit generate",
+    "conferir": "node --env-file=.env.local scripts/conferir-conexao.mjs",
+    "valida:admin": "node --env-file=.env.local scripts/valida-admin.mjs"
   },
   "dependencies": {
     "@react-pdf/renderer": "^4.6.1",

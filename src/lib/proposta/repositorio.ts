@@ -93,13 +93,30 @@ function linhaParaProposta(linha: LinhaProposta): Proposta | null {
 export async function buscarPropostaPorCaminho(caminho: string): Promise<Proposta | null> {
   if (!caminho || caminho.length > 120) return null;
 
-  const [linha] = await bd()
-    .select()
-    .from(propostas)
-    .where(eq(propostas.caminho, caminho))
-    .limit(1);
+  const [linha] = await comUmaRetentativa(() =>
+    bd().select().from(propostas).where(eq(propostas.caminho, caminho)).limit(1),
+  );
 
   return linha ? linhaParaProposta(linha) : null;
+}
+
+/**
+ * Uma segunda chance, só na leitura pública.
+ *
+ * A primeira consulta depois que o servidor sobe já falhou aqui: conexão fria
+ * contra o pooler, do outro lado do país, e o erro foi transitório. No painel
+ * isso seria um recarregar; na página do cliente é a proposta não abrindo no
+ * link que ele acabou de receber, sem ninguém ficar sabendo. Uma repetição curta
+ * cobre a falha de conexão sem mascarar erro de verdade, que falha nas duas.
+ */
+async function comUmaRetentativa<T>(consulta: () => Promise<T>): Promise<T> {
+  try {
+    return await consulta();
+  } catch (erro) {
+    console.error("[banco] primeira tentativa falhou, repetindo:", erro);
+    await new Promise((r) => setTimeout(r, 250));
+    return consulta();
+  }
 }
 
 /* ─────────────────────────── o que o admin usa ─────────────────────────── */
