@@ -15,17 +15,10 @@ export const CONTATO = {
   /** E-mail para pedidos de acesso/exclusão de dados (LGPD). */
   emailDados: "softcodedv@gmail.com",
 
-  /**
-   * Formato internacional, só dígitos, do jeito que o `wa.me` espera.
-   *
-   * ⚠️ CONFERIR: o número do Gabriel tem oito dígitos depois do DDD
-   * (55 35 98744200). Celular brasileiro tem nove desde 2016, então pode estar
-   * faltando um dígito. Foi cadastrado como veio; se o WhatsApp não abrir a
-   * conversa, é isto.
-   */
+  /** Formato internacional, só dígitos, do jeito que o `wa.me` espera. */
   whatsapps: [
     { nome: "Maurício", numero: "5551992553295" },
-    { nome: "Gabriel", numero: "553598744200" },
+    { nome: "Gabriel", numero: "5535998744200" },
   ],
 
   instagram: "https://www.instagram.com/softcode.dv/",

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 
 import { LogoSoftCode } from "./LogoSoftCode";
 import { CanaisDeContato } from "./CanaisDeContato";
+import { CONTATO } from "@/lib/contato";
 
 /**
  * A portaria: as duas telas em que alguém chega SEM uma proposta.
@@ -67,8 +68,28 @@ export function Portaria({
           </p>
         </article>
 
-        <p className="tipo-mono mt-6 text-center text-miudo uppercase tracking-[0.24em] text-noite-neblina">
-          propostas.softcodedev.com.br
+        {/* O site da SoftCode fica fora do cartão de propósito: ele não é um
+            canal de contato, é para quem chegou aqui querendo saber quem
+            somos. Dentro do cartão, competiria com o WhatsApp. */}
+        <p className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-center">
+          <a
+            href={CONTATO.site}
+            target="_blank"
+            rel="noopener noreferrer nofollow"
+            referrerPolicy="no-referrer"
+            className="alvo-toque tipo-mono inline-flex items-center text-miudo uppercase tracking-[0.24em] text-noite-texto underline underline-offset-4 hover:text-acento-noite"
+          >
+            Conhecer a SoftCode
+          </a>
+          <span
+            aria-hidden
+            className="tipo-mono text-miudo uppercase tracking-[0.24em] text-noite-neblina"
+          >
+            ·
+          </span>
+          <span className="tipo-mono text-miudo uppercase tracking-[0.24em] text-noite-neblina">
+            propostas.softcodedev.com.br
+          </span>
         </p>
       </div>
     </main>
