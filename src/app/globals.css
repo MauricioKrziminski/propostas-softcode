@@ -129,10 +129,24 @@ body {
   font-feature-settings: "tnum" 1, "lnum" 1;
 }
 
+/* O anel de foco usa o acento do CONTEXTO: em capítulo escuro o azul escuro
+   sumiria. E `outline-color` vai declarado à parte de propósito — na forma
+   abreviada, alguns elementos (summary, a) caíam para `currentColor`, o que
+   deixava o anel navy sobre fundo claro e quase preto sobre o botão azul.
+
+   O `outline-offset` positivo mais a sombra branca criam um anel de dois tons,
+   que sobrevive tanto ao fundo claro quanto ao escuro. */
 :focus-visible {
-  outline: 2px solid var(--color-acento-claro);
+  outline-style: solid;
+  outline-width: 2px;
+  outline-color: var(--ctx-acento, var(--color-acento));
   outline-offset: 3px;
-  border-radius: 2px;
+  border-radius: 3px;
+  /* `transition-colors` do Tailwind v4 inclui `outline-color`. Sem esta linha o
+     anel LEVA ~300ms para ficar visível, e nesse meio-tempo ele é
+     `currentColor` — navy sobre fundo claro, e quase preto sobre o botão azul.
+     Retorno de foco precisa ser imediato. */
+  transition-property: none;
 }
 
 .alvo-toque {

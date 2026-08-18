@@ -3,18 +3,21 @@
 import { useState } from "react";
 import { Secao } from "@/components/ui/Secao";
 import { Botao } from "@/components/ui/Botao";
-import { formatarValor } from "@/lib/proposta/formatar";
+import { formatarValor, rotulo } from "@/lib/proposta/formatar";
 import { linkEmail } from "@/lib/contato";
-import { rotulo } from "@/lib/proposta/formatar";
 import type { Aceite as Dados, OpcaoInvestimento } from "@/lib/proposta/schema";
 
 /**
+ * Capítulo NOITE — a página abre e encerra no mesmo registro, e o CTA final
+ * ganha o tratamento mais forte da peça: vidro, borda metálica girando e
+ * varredura de brilho no hover.
+ *
  * FASE 1: sem banco, o aceite abre o e-mail já preenchido com a opção escolhida.
  * FASE 2: esta MESMA interface passa a chamar a Server Action que grava
  * timestamp, IP, user-agent e `opcao_id` — nada aqui precisa ser redesenhado.
  *
- * O aviso de registro fica visível junto ao botão, no fluxo, e não atrás de um
- * link: ele é o que dá validade ao aceite, não um disclaimer defensivo.
+ * O aviso de registro fica no fluxo, acima do botão, e não atrás de um link: é
+ * ele que dá validade ao aceite, não um disclaimer defensivo.
  */
 export function Aceite({
   dados,
@@ -55,77 +58,79 @@ export function Aceite({
       ritmo="respiro"
     >
       {dados.texto && (
-        <p className="mb-8 max-w-3xl text-lg leading-relaxed text-neblina">
+        <p className="mb-12 max-w-3xl text-destaque leading-relaxed text-noite-neblina">
           {dados.texto}
         </p>
       )}
 
-      {opcoes.length > 1 && (
-        <fieldset className="mb-8">
-          <legend className="mb-4 text-xs uppercase tracking-[0.2em] text-acento">
-            Escolha a opção
-          </legend>
-          <div className="grid gap-3 sm:grid-cols-3">
-            {opcoes.map((o) => (
-              <label
-                key={o.id}
-                className={`alvo-toque flex cursor-pointer items-start gap-3 border p-4 transition-colors duration-200 motion-reduce:transition-none ${
-                  escolhida === o.id
-                    ? "border-acento bg-superficie"
-                    : "border-linha hover:border-neblina"
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="opcao"
-                  value={o.id}
-                  checked={escolhida === o.id}
-                  onChange={() => setEscolhida(o.id)}
-                  className="mt-1 accent-acento"
-                />
-                <span>
-                  <span className="block text-navy">{o.nome}</span>
-                  <span className="numero mt-1 block text-sm text-neblina">
-                    {formatarValor(o.valorCentavos)}
+      <div className="vidro p-7 sm:p-12">
+        {opcoes.length > 1 && (
+          <fieldset className="mb-10">
+            <legend className="tipo-mono mb-5 text-miudo uppercase tracking-[0.28em] text-acento-noite">
+              Escolha a opção
+            </legend>
+            <div className="grid gap-3 sm:grid-cols-3">
+              {opcoes.map((o) => (
+                <label
+                  key={o.id}
+                  className={`alvo-toque flex cursor-pointer items-start gap-3 rounded-xl border p-5 transition-colors duration-200 motion-reduce:transition-none ${
+                    escolhida === o.id
+                      ? "border-acento-noite bg-noite-elevada"
+                      : "border-noite-linha hover:border-noite-neblina"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="opcao"
+                    value={o.id}
+                    checked={escolhida === o.id}
+                    onChange={() => setEscolhida(o.id)}
+                    className="mt-1 accent-[var(--color-acento-noite)]"
+                  />
+                  <span>
+                    <span className="block text-noite-texto">{o.nome}</span>
+                    <span className="tipo-mono mt-1 block text-sm text-noite-neblina">
+                      {formatarValor(o.valorCentavos)}
+                    </span>
                   </span>
-                </span>
-              </label>
-            ))}
-          </div>
-        </fieldset>
-      )}
-
-      {/* Aviso LGPD: reforço da validade do registro, sempre visível. */}
-      <p className="mb-6 max-w-2xl text-sm leading-relaxed text-neblina">
-        <strong className="text-navy">
-          Ao confirmar, registramos data, hora, endereço IP e navegador.
-        </strong>{" "}
-        É esse registro que dá validade jurídica ao seu aceite — ele cumpre o
-        papel da assinatura no PDF, sem precisar imprimir nada.
-      </p>
-
-      <div className="flex flex-wrap gap-4">
-        <a
-          href={linkEmail(`Aceite da proposta — ${empresa}`, corpo)}
-          aria-disabled={!opcao}
-          className={`alvo-toque inline-flex items-center justify-center gap-2 px-6 py-3 text-sm uppercase tracking-[0.12em] transition-colors duration-200 motion-reduce:transition-none ${
-            opcao
-              ? "bg-acento text-osso hover:bg-acento-claro"
-              : "pointer-events-none bg-linha text-neblina"
-          }`}
-        >
-          {opcao ? `Aceitar — ${opcao.nome}` : "Escolha uma opção acima"}
-        </a>
-
-        {dados.mostrarPdf && (
-          <Botao
-            variante="contorno"
-            className="so-tela"
-            onClick={() => window.print()}
-          >
-            Baixar em PDF
-          </Botao>
+                </label>
+              ))}
+            </div>
+          </fieldset>
         )}
+
+        {/* Aviso LGPD: reforço da validade do registro, sempre visível. */}
+        <p className="mb-8 max-w-2xl text-sm leading-relaxed text-noite-neblina">
+          <strong className="text-noite-texto">
+            Ao confirmar, registramos data, hora, endereço IP e navegador.
+          </strong>{" "}
+          É esse registro que dá validade jurídica ao seu aceite — ele cumpre o
+          papel da assinatura no PDF, sem precisar imprimir nada.
+        </p>
+
+        <div className="flex flex-wrap items-center gap-4">
+          <a
+            href={linkEmail(`Aceite da proposta — ${empresa}`, corpo)}
+            aria-disabled={!opcao}
+            className={`alvo-toque varredura relative inline-flex items-center justify-center overflow-hidden rounded-full px-9 py-4 text-sm uppercase tracking-[0.14em] transition-colors duration-200 motion-reduce:transition-none ${
+              opcao
+                ? "borda-metal bg-acento-noite text-noite hover:bg-noite-texto"
+                : "pointer-events-none bg-noite-linha text-noite-neblina"
+            }`}
+          >
+            {opcao ? `Aceitar — ${opcao.nome}` : "Escolha uma opção acima"}
+          </a>
+
+          {dados.mostrarPdf && (
+            <Botao
+              variante="contorno"
+              className="so-tela border-noite-linha text-noite-texto hover:border-acento-noite hover:text-acento-noite"
+              onClick={() => window.print()}
+            >
+              Baixar em PDF
+            </Botao>
+          )}
+        </div>
       </div>
     </Secao>
   );

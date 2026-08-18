@@ -1,12 +1,17 @@
 import { Secao } from "@/components/ui/Secao";
 import { rotulo } from "@/lib/proposta/formatar";
 import { BlocoExpansivel } from "@/components/ui/BlocoExpansivel";
-import { Revelar, ListaRevelada, ItemRevelado } from "@/components/motion/Revelar";
+import { Revelar } from "@/components/motion/Revelar";
 import type { Escopo as Dados } from "@/lib/proposta/schema";
 
 /**
- * Sem animação de entrada nos blocos: é a seção mais densa da proposta, e
- * movimento aqui atrapalha a leitura em vez de servi-la.
+ * O escopo é a seção mais densa da proposta, e a que mais intimida de cara.
+ *
+ * Vira uma PILHA: cada módulo é um cartão que gruda no topo e o próximo sobe por
+ * cima, deixando uma escadinha visível. O cliente vê quantos módulos existem sem
+ * precisar rolar tudo, e abre só o que interessa a ele.
+ *
+ * Sem `space-y` entre os cartões — a pilha depende de eles se encostarem.
  */
 export function Escopo({ dados, numero }: { dados: Dados; numero: number }) {
   return (
@@ -17,33 +22,38 @@ export function Escopo({ dados, numero }: { dados: Dados; numero: number }) {
       ritmo="denso"
     >
       {dados.introducao && (
-        <Revelar como="p" className="mb-10 text-lg leading-relaxed text-neblina">
+        <Revelar
+          como="p"
+          className="mb-12 text-destaque leading-relaxed text-[var(--ctx-texto)]"
+        >
           {dados.introducao}
         </Revelar>
       )}
 
-      {/* Stagger na entrada dos módulos; a abertura em si tem transição real
-          de altura (globals.css, via ::details-content + interpolate-size). */}
-      <ListaRevelada className="border-t border-linha">
+      <div className="flex flex-col gap-3">
         {dados.modulos.map((modulo, i) => (
-          <ItemRevelado key={modulo.titulo}>
           <BlocoExpansivel
+            key={modulo.titulo}
             indice={i + 1}
+            ordem={i}
             titulo={modulo.titulo}
             resumo={modulo.resumo}
           >
             <ul className="space-y-3">
               {modulo.itens.map((item, j) => (
                 <li key={j} className="flex gap-3">
-                  <span aria-hidden className="mt-2.5 h-px w-3 shrink-0 bg-acento" />
+                  <span
+                    aria-hidden
+                    className="mt-2.5 h-px w-3 shrink-0 bg-[var(--ctx-acento)]"
+                  />
                   <span>{item}</span>
                 </li>
               ))}
             </ul>
 
             {modulo.entregaveis && modulo.entregaveis.length > 0 && (
-              <div className="mt-6 border-t border-linha pt-4">
-                <p className="text-xs uppercase tracking-[0.2em] text-acento">
+              <div className="mt-7 rounded-xl border border-[var(--ctx-linha)] bg-[var(--ctx-elevado)] p-5">
+                <p className="tipo-mono text-miudo uppercase tracking-[0.24em] text-[var(--ctx-acento)]">
                   Você recebe
                 </p>
                 <ul className="mt-3 space-y-1.5 text-sm">
@@ -54,9 +64,8 @@ export function Escopo({ dados, numero }: { dados: Dados; numero: number }) {
               </div>
             )}
           </BlocoExpansivel>
-          </ItemRevelado>
         ))}
-      </ListaRevelada>
+      </div>
     </Secao>
   );
 }

@@ -59,7 +59,7 @@ const CLARO = "#ffffff";
 const AZUL_CLARO = "#f0f6ff";
 const NOITE = "#0a1420";
 
-const CAPITULOS_NOITE = new Set<ChaveSecao>(["processo", "investimento"]);
+const CAPITULOS_NOITE = new Set<ChaveSecao>(["processo", "investimento", "aceite"]);
 
 type Props = { params: Promise<{ proposta: string }> };
 

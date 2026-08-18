@@ -6,8 +6,10 @@ import type { Entendimento as Dados } from "@/lib/proposta/schema";
 /**
  * A seção mais importante da página: o problema do cliente, nas palavras dele.
  *
- * Movimento deliberadamente discreto aqui — um reveal curto e nada mais. Se
- * esta seção chamar atenção para a animação em vez do texto, ela falhou.
+ * Capítulo CLARO de propósito — é a seção de leitura mais longa, e texto extenso
+ * se lê melhor em fundo claro. O peso visual vem da citação, tratada como peça
+ * editorial: aspa gigante em Fraunces com WONK, texto em display, filete de
+ * acento. Ela é a prova de que você ouviu, então merece a escala de um título.
  */
 export function Entendimento({ dados, numero }: { dados: Dados; numero: number }) {
   return (
@@ -17,37 +19,36 @@ export function Entendimento({ dados, numero }: { dados: Dados; numero: number }
       titulo={dados.titulo ?? "O que entendemos"}
       ritmo="respiro"
     >
-      <ListaRevelada className="space-y-6">
+      <ListaRevelada className="space-y-7">
         {dados.paragrafos.map((p, i) => (
           <ItemRevelado key={i}>
-            <p className="text-lg leading-relaxed text-neblina">{p}</p>
+            <p className="text-destaque leading-relaxed text-[var(--ctx-texto)]">{p}</p>
           </ItemRevelado>
         ))}
       </ListaRevelada>
 
-      {/* A citação é o coração da seção: entra em destaque, com a aspa em
-          latão em escala grande servindo de âncora visual. */}
       {dados.citacaoCliente && (
-        <Revelar direcao="escala" className="relative mt-16 sm:mt-20">
-          <figure>
-          {/* A aspa fica ACIMA da citação, não sobreposta a ela: em absoluto
-              ela cobria a primeira palavra no celular. */}
-          <span
-            aria-hidden
-            className="tipo-display block select-none text-[4.5rem] leading-[0.55] !text-acento/30 sm:text-[6rem]"
-          >
-            &ldquo;
-          </span>
-          <blockquote className="mt-3 border-l-2 border-acento pl-6 sm:pl-10">
-            <p className="tipo-display text-secao leading-tight text-navy">
-              {dados.citacaoCliente.texto}
-            </p>
-            {dados.citacaoCliente.autor && (
-              <figcaption className="mt-5 text-sm text-neblina">
-                — {dados.citacaoCliente.autor}
-              </figcaption>
-            )}
-          </blockquote>
+        <Revelar direcao="escala" className="mt-20 sm:mt-28">
+          <figure className="relative">
+            {/* A aspa fica ACIMA da citação, nunca sobreposta: em posicionamento
+                absoluto ela cobria a primeira palavra no celular. */}
+            <span
+              aria-hidden
+              className="tipo-display tipo-display-wonk block select-none text-[clamp(5rem,12vw,9rem)] leading-[0.42] !text-[var(--ctx-acento)] opacity-25"
+            >
+              &ldquo;
+            </span>
+
+            <blockquote className="relative mt-2 border-l-2 border-[var(--ctx-acento)] pl-6 sm:pl-10">
+              <p className="tipo-display text-secao leading-[1.15]">
+                {dados.citacaoCliente.texto}
+              </p>
+              {dados.citacaoCliente.autor && (
+                <figcaption className="tipo-mono mt-6 text-miudo uppercase tracking-[0.2em] text-[var(--ctx-neblina)]">
+                  {dados.citacaoCliente.autor}
+                </figcaption>
+              )}
+            </blockquote>
           </figure>
         </Revelar>
       )}

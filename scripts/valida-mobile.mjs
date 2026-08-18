@@ -384,8 +384,23 @@ const foco = await pgK.evaluate(() => {
   // nextjs-portal é o overlay de desenvolvimento, não faz parte da página
   if (!e || e === document.body || e.tagName.toLowerCase() === "nextjs-portal") return null;
   const s = getComputedStyle(e);
-  return { elemento: e.tagName.toLowerCase(), outline: s.outlineWidth, cor: s.outlineColor, estilo: s.outlineStyle };
+  return {
+    elemento: e.tagName.toLowerCase(),
+    outline: s.outlineWidth,
+    cor: s.outlineColor,
+    estilo: s.outlineStyle,
+    // Um anel da mesma cor do texto é `currentColor` — o valor inicial de
+    // `outline-color`. Significa que a cor do foco não chegou (ou está
+    // transicionando), e sobre um botão colorido isso é um anel invisível.
+    corDoTexto: s.color,
+  };
 });
+checar(
+  !!foco && foco.cor !== foco.corDoTexto,
+  foco ? `anel de foco com cor própria (${foco.cor})` : "anel de foco com cor própria",
+  "o anel de foco está em currentColor — invisível sobre fundo colorido",
+  JSON.stringify(foco),
+);
 checar(
   !!foco && foco.estilo !== "none" && parseFloat(foco.outline) > 0,
   foco ? `foco visível em <${foco.elemento}> (${foco.outline} ${foco.cor})` : "foco visível",
