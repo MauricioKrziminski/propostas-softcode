@@ -199,7 +199,7 @@ export function Mesa({
   const Editor = definicao?.Editor;
 
   return (
-    <div className="mx-auto grid w-full max-w-[1600px] grid-cols-1 lg:grid-cols-[17.5rem_minmax(0,1fr)] xl:grid-cols-[17.5rem_minmax(0,1fr)_26rem]">
+    <div className="mx-auto grid w-full max-w-[1600px] grid-cols-1 lg:grid-cols-[17.5rem_minmax(0,1fr)] xl:grid-cols-[17.5rem_minmax(0,1fr)_32rem] 2xl:grid-cols-[17.5rem_minmax(0,1fr)_40rem]">
       {/* trilho */}
       <aside className="border-b border-[var(--mesa-fio)] px-2 py-2 lg:sticky lg:top-[3.5rem] lg:h-[calc(100dvh-3.5rem)] lg:overflow-y-auto lg:border-b-0 lg:border-r lg:px-0 lg:py-3">
         <TrilhoDeSecoes

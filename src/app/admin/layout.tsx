@@ -24,7 +24,7 @@ export default function LayoutAdmin({ children }: { children: React.ReactNode })
     <div className="mesa relative min-h-[100dvh] font-texto antialiased">
       <div
         aria-hidden
-        className="grade-mesa pointer-events-none fixed inset-0 [mask-image:radial-gradient(ellipse_at_top,black,transparent_75%)]"
+        className="grade-mesa pointer-events-none fixed inset-0"
       />
       <div className="relative">{children}</div>
     </div>

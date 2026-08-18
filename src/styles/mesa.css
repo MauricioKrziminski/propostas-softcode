@@ -39,15 +39,16 @@
 }
 
 @layer components {
-  /* Grade exposta: a estrutura aparece em vez de se esconder. Fica no limite do
-     perceptível de propósito, para dar textura sem virar papel quadriculado. */
+  /* O fundo da cabine.
+     Antes era uma grade quadriculada: dava textura, mas competia com o
+     conteúdo e deixava a tela com cara de papel milimetrado. Agora é só um
+     clarão frio no alto, que dá profundidade sem desenhar nada. */
   .grade-mesa {
-    background-image:
-      linear-gradient(to right, var(--mesa-fio) 1px, transparent 1px),
-      linear-gradient(to bottom, var(--mesa-fio) 1px, transparent 1px);
-    background-size: 96px 96px;
-    background-position: center;
-    opacity: 0.35;
+    background-image: radial-gradient(
+      120% 60% at 50% -10%,
+      color-mix(in srgb, var(--mesa-acento) 12%, transparent) 0%,
+      transparent 70%
+    );
   }
 
   /* Etiqueta de metadado. Mono com tracking largo é o que separa "dado do

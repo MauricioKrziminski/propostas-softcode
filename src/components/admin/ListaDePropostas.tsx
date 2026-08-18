@@ -146,7 +146,7 @@ export function ListaDePropostas({
                 </p>
 
                 <div className="mt-4">
-                  <TrilhaDeStatus status={p.status} />
+                  <TrilhaDeStatus status={p.status} id={p.id} />
                 </div>
               </div>
 

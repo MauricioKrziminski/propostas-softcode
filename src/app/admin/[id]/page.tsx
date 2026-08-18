@@ -30,7 +30,7 @@ export default async function PaginaDaMesa({
         acoes={
           <>
             <span className="hidden md:block">
-              <TrilhaDeStatus status={proposta.status} />
+              <TrilhaDeStatus status={proposta.status} id={proposta.id} />
             </span>
             <a
               href={`/${proposta.caminho}`}

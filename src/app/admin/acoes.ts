@@ -123,6 +123,26 @@ export async function mudarStatus(dados: FormData): Promise<void> {
   revalidatePath("/admin");
 }
 
+/**
+ * Troca de status em um clique, chamada pela trilha.
+ *
+ * Existe separada de `mudarStatus` (que recebe FormData e serve aos botões de
+ * arquivar) porque aqui quem chama é um componente de cliente com o id em mãos,
+ * e um `<form>` escondido só para isso seria cerimônia sem ganho.
+ */
+export async function definirStatus(id: string, status: string): Promise<EstadoFormulario> {
+  await exigirAdminOuErro();
+
+  if (!(STATUS_PROPOSTA as readonly string[]).includes(status)) {
+    return { erro: "Status desconhecido." };
+  }
+
+  await alterarStatus(id, status);
+  revalidatePath("/admin");
+  revalidatePath(`/admin/${id}`);
+  return { ok: true };
+}
+
 export async function excluir(dados: FormData): Promise<void> {
   await exigirAdminOuErro();
   await excluirProposta(String(dados.get("id")));
