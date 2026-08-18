@@ -19,6 +19,18 @@ function ler(nome) {
   return v ?? "";
 }
 
+import { existsSync } from "node:fs";
+
+/* `valida:admin` troca o hash da senha por alguns segundos e devolve o original.
+   Se a cópia ficou para trás, a restauração não terminou, e a senha do painel
+   pode ser a de teste. Avisar aqui é mais barato que descobrir na hora de
+   entrar. */
+if (existsSync(".env.local.bak"))
+  problemas.push(
+    "existe .env.local.bak: uma execução de valida:admin não terminou de restaurar. " +
+      "Compare os dois arquivos antes de continuar",
+  );
+
 const url = ler("DATABASE_URL");
 const hash = ler("ADMIN_SENHA_HASH");
 const segredo = ler("SESSAO_SEGREDO");

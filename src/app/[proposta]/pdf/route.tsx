@@ -4,6 +4,7 @@ import { DocumentoProposta } from "@/lib/pdf/DocumentoProposta";
 import { buscarPropostaPorCaminho } from "@/lib/proposta/repositorio";
 import { caminhoPublico } from "@/lib/proposta/schema";
 import { estaExpirada } from "@/lib/proposta/formatar";
+import { sessaoValida } from "@/lib/admin/sessao";
 
 /**
  * `/{slug}-{token}/pdf`, o arquivo que o cliente corporativo anexa no processo
@@ -25,7 +26,12 @@ export async function GET(
   const { proposta: caminho } = await params;
   const proposta = await buscarPropostaPorCaminho(caminho);
 
-  if (!proposta || proposta.status === "rascunho") {
+  if (!proposta) {
+    return new Response("Não encontrado", { status: 404 });
+  }
+
+  /* Mesma regra da página: rascunho só existe para quem tem sessão de admin. */
+  if (proposta.status === "rascunho" && !(await sessaoValida())) {
     return new Response("Não encontrado", { status: 404 });
   }
 

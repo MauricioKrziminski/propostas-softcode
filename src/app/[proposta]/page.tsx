@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import { buscarPropostaPorCaminho } from "@/lib/proposta/repositorio";
 import { CHAVES_SECAO, caminhoPublico, type ChaveSecao } from "@/lib/proposta/schema";
 import { estaExpirada } from "@/lib/proposta/formatar";
+import { sessaoValida } from "@/lib/admin/sessao";
 
 import { Hero } from "@/components/secoes/Hero";
 import { CabecalhoFixo } from "@/components/secoes/CabecalhoFixo";
@@ -81,7 +82,18 @@ export default async function PaginaProposta({ params }: Props) {
   const { proposta: caminho } = await params;
   const proposta = await buscarPropostaPorCaminho(caminho);
 
-  if (!proposta || proposta.status === "rascunho") notFound();
+  if (!proposta) notFound();
+
+  /**
+   * Rascunho abre para quem tem sessão de admin, e some para todo o resto.
+   *
+   * A regra existe para o cliente nunca receber uma proposta pela metade, mas
+   * sem esta exceção o botão "Abrir" do painel devolvia 404 justamente quando
+   * você quer revisar antes de enviar. Quem não tem sessão continua vendo o
+   * mesmo 404 genérico de token errado, então nada vaza por aqui.
+   */
+  const souAdmin = proposta.status === "rascunho" ? await sessaoValida() : false;
+  if (proposta.status === "rascunho" && !souAdmin) notFound();
 
   const expirada = estaExpirada(proposta.validaAte);
   const { conteudo, cliente } = proposta;
@@ -175,6 +187,13 @@ export default async function PaginaProposta({ params }: Props) {
 
   return (
     <AberturaProposta empresa={cliente.empresa} projeto={proposta.tituloProjeto}>
+      {souAdmin && (
+        /* `so-tela` já é escondida no @media print: aviso de trabalho não sai no
+           PDF que o cliente recebe. */
+        <p className="so-tela bg-acento px-4 py-2 text-center text-sm text-osso">
+          Rascunho: só você está vendo. Marque como enviada no painel para o cliente abrir.
+        </p>
+      )}
       <Textura />
       <CabecalhoFixo empresa={cliente.empresa} logoCliente={cliente.logoUrl} />
 

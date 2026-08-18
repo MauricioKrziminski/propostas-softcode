@@ -13,7 +13,7 @@
  * está sendo testado continua sendo o caminho de verdade.
  */
 import { createHmac, randomBytes, scryptSync } from "node:crypto";
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, rmSync, writeFileSync } from "node:fs";
 import { chromium, devices, request } from "@playwright/test";
 import postgres from "postgres";
 
@@ -59,7 +59,14 @@ const cookieSessao = {
    Um segundo servidor numa porta própria seria mais limpo, mas o Next 16 recusa
    dois `next dev` no mesmo diretório. */
 const ARQUIVO_ENV = ".env.local";
+const COPIA_ENV = ".env.local.bak";
 const envOriginal = readFileSync(ARQUIVO_ENV, "utf8");
+
+/* Cópia em DISCO antes de tocar no arquivo. O `finally` restaura no caminho
+   normal, mas processo morto por Ctrl+C não roda finally nenhum, e aí a senha do
+   operador teria sumido sem deixar rastro. Com a cópia, o `npm run conferir`
+   avisa que sobrou uma restauração pendente. */
+writeFileSync(COPIA_ENV, envOriginal, "utf8");
 
 const senhaDeTeste = randomBytes(12).toString("hex");
 const salDeTeste = randomBytes(16).toString("hex");
@@ -81,9 +88,19 @@ try {
      um tempo arbitrário, tenta entrar até conseguir. */
   for (let tentativa = 0; tentativa < 15 && !entrou; tentativa++) {
     await paginaSenha.goto(`${BASE}/admin/entrar`, { waitUntil: "networkidle" });
+
+    /* Com sessão aberta, /admin/entrar redireciona para /admin e não existe
+       campo de senha nenhum para preencher. Isso é o login tendo funcionado na
+       tentativa anterior, não falha: sem esta saída o laço ficava procurando um
+       campo que a página deixou de ter. */
+    if (new URL(paginaSenha.url()).pathname === "/admin") {
+      entrou = true;
+      break;
+    }
+
     await paginaSenha.fill("#senha", senhaDeTeste);
     await paginaSenha.click('button[type="submit"]');
-    await paginaSenha.waitForTimeout(1200);
+    await paginaSenha.waitForTimeout(2000);
     entrou = new URL(paginaSenha.url()).pathname === "/admin";
   }
   checar(
@@ -109,6 +126,7 @@ try {
   try {
     writeFileSync(ARQUIVO_ENV, envOriginal, "utf8");
     const conferido = readFileSync(ARQUIVO_ENV, "utf8") === envOriginal;
+    if (conferido) rmSync(COPIA_ENV, { force: true });
     console.log(
       conferido
         ? "  ok    senha do operador devolvida ao .env.local"
@@ -185,6 +203,38 @@ for (const rotulo of ["Suporte após a entrega", "Como o pagamento funciona", "P
     `"${rotulo}" não veio preenchida`,
   );
 }
+
+/* ───────────── 3b. rascunho ─────────────
+   Rascunho precisa abrir para quem tem sessão e sumir para o resto. Sem a
+   primeira metade, o botão "Abrir" do painel devolve 404 na proposta que você
+   acabou de criar; sem a segunda, proposta pela metade vaza para o cliente. */
+console.log("▸ rascunho");
+const caminhoRascunho = await pg.evaluate(() => {
+  const link = [...document.querySelectorAll("a")].find((a) => a.textContent === "Ver a proposta");
+  return link?.getAttribute("href") ?? "";
+});
+
+const comSessao = await pg.goto(`${BASE}${caminhoRascunho}`);
+checar(
+  comSessao?.status() === 200,
+  "rascunho abre para quem tem sessão de admin",
+  `rascunho devolveu ${comSessao?.status()} para o admin`,
+);
+checar(
+  (await pg.content()).includes("só você está vendo"),
+  "aviso de rascunho aparece na prévia",
+  "a prévia do rascunho não avisa que é rascunho",
+);
+
+const anonimo = await request.newContext();
+const semSessao = await anonimo.get(`${BASE}${caminhoRascunho}`);
+checar(
+  semSessao.status() === 404,
+  "rascunho continua 404 para quem não tem sessão",
+  `rascunho devolveu ${semSessao.status()} sem sessão: proposta pela metade estaria pública`,
+);
+await anonimo.dispose();
+await pg.goBack();
 
 /* ───────────── 4. editar e publicar ───────────── */
 console.log("\n▸ editar");
