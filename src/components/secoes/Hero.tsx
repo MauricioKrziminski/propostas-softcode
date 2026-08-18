@@ -1,20 +1,9 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { motion, useReducedMotion, useTransform } from "motion/react";
 import { formatarDataLonga, textoValidade } from "@/lib/proposta/formatar";
 import { LogoSoftCode } from "@/components/ui/LogoSoftCode";
 import { usePercurso } from "@/components/motion/percurso";
-import { useMidia, DESKTOP_FINO } from "@/components/motion/midia";
-
-/**
- * O campo WebGL entra por `next/dynamic` com `ssr: false`: ele é enfeite de
- * desktop e não pode custar um byte no bundle inicial de quem abre no celular.
- */
-const CampoWebGL = dynamic(
-  () => import("@/components/motion/CampoWebGL").then((m) => m.CampoWebGL),
-  { ssr: false },
-);
 
 /**
  * HERO — capítulo noite, e a primeira dobra da proposta.
@@ -48,13 +37,6 @@ export function Hero({
   const menosMovimento = useReducedMotion();
   const { alvo, progresso } = usePercurso(["start start", "end start"]);
 
-  /**
-   * O chunk do WebGL só é BAIXADO se as guardas passarem. Renderizar o
-   * componente e deixar o efeito desistir lá dentro ainda custaria o download
-   * no 4G de quem abriu pelo WhatsApp — e a promessa é "mobile enxuto".
-   */
-  const comCampo = useMidia(DESKTOP_FINO);
-
   const escalaNome = useTransform(progresso, [0, 1], [1, 0.55]);
   const opacidadeNome = useTransform(progresso, [0, 0.75], [1, 0]);
   const subidaNome = useTransform(progresso, [0, 1], ["0%", "-14%"]);
@@ -69,29 +51,29 @@ export function Hero({
       data-capitulo="noite"
       className="relative isolate flex min-h-[100dvh] flex-col justify-between overflow-hidden bg-noite px-6 pb-14 pt-6 sm:px-10"
     >
-      {/* Campo em WebGL — desktop apenas. As camadas de gradiente abaixo
-          continuam existindo e SÃO o fallback: no celular e com reduced-motion
-          a primeira dobra é exatamente elas. */}
-      {comCampo && !menosMovimento && <CampoWebGL />}
+      {/* O campo em WebGL foi RETIRADO daqui — ver CampoWebGL.tsx. Ele lavava
+          o hero de branco no Brave/Chromium do cliente, e um hero ilegível
+          custa muito mais do que o efeito vale. As camadas abaixo sempre foram
+          o fallback dele; agora são a primeira dobra inteira. */}
 
       {/* três camadas, três faixas — é a faixa que dá profundidade */}
       <motion.div
         aria-hidden
-        className="pointer-events-none absolute -right-1/3 -top-1/4 -z-10 h-[80dvh] w-[130vw] rounded-full bg-[radial-gradient(circle,var(--color-acento-noite)_0%,transparent_62%)] opacity-25 blur-3xl sm:w-[75vw]"
+        className="pointer-events-none absolute -right-1/3 -top-1/4 z-0 h-[80dvh] w-[130vw] rounded-full bg-[radial-gradient(circle,var(--color-acento-noite)_0%,transparent_62%)] opacity-25 blur-3xl sm:w-[75vw]"
         style={menosMovimento ? undefined : { y: camadaFundo }}
       />
       <motion.div
         aria-hidden
-        className="pointer-events-none absolute -left-1/4 top-1/3 -z-10 h-[60dvh] w-[110vw] rounded-full bg-[radial-gradient(circle,#6E2ED0_0%,transparent_65%)] opacity-20 blur-3xl sm:w-[55vw]"
+        className="pointer-events-none absolute -left-1/4 top-1/3 z-0 h-[60dvh] w-[110vw] rounded-full bg-[radial-gradient(circle,#6E2ED0_0%,transparent_65%)] opacity-20 blur-3xl sm:w-[55vw]"
         style={menosMovimento ? undefined : { y: camadaMeio }}
       />
       <motion.div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-px bg-gradient-to-r from-transparent via-acento-noite to-transparent opacity-60"
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-px bg-gradient-to-r from-transparent via-acento-noite to-transparent opacity-60"
         style={menosMovimento ? undefined : { y: camadaFrente }}
       />
 
-      <div className="flex items-center justify-between gap-4">
+      <div className="relative z-10 flex items-center justify-between gap-4">
         <LogoSoftCode className="h-20 w-auto sm:h-24" prioridade escuro />
         <span className="tipo-mono text-miudo uppercase tracking-[0.28em] text-noite-neblina">
           Proposta comercial
@@ -99,7 +81,7 @@ export function Hero({
       </div>
 
       <motion.div
-        className="py-10"
+        className="relative z-10 py-10"
         style={
           menosMovimento
             ? undefined
@@ -120,7 +102,7 @@ export function Hero({
         </h1>
       </motion.div>
 
-      <div className="grid gap-8 border-t border-noite-linha pt-8 sm:grid-cols-2">
+      <div className="relative z-10 grid gap-8 border-t border-noite-linha pt-8 sm:grid-cols-2">
         <div>
           <p className="tipo-mono text-miudo uppercase tracking-[0.28em] text-noite-neblina">
             Projeto

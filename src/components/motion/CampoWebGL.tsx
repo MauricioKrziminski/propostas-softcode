@@ -3,6 +3,8 @@
 import { useEffect, useRef } from "react";
 
 /**
+ * ⚠️ NÃO ESTÁ EM USO. Ver o bloco "POR QUE SAIU" no fim deste comentário.
+ *
  * Campo animado em WebGL atrás do nome do cliente — só no desktop.
  *
  * POR QUE NÃO three.js: isto é um fragment shader num quad de tela cheia, não
@@ -23,6 +25,29 @@ import { useEffect, useRef } from "react";
  *
  * BATERIA: pausa quando a aba sai de foco e quando o hero sai da viewport. Um
  * rAF rodando atrás de dez seções de scroll é bateria queimada à toa.
+ *
+ * ── POR QUE SAIU ──
+ * No Brave/Chromium do cliente o canvas lavava o hero inteiro de branco: o
+ * fundo `#0a1420` continuava correto no computed style, o DOM não tinha nenhum
+ * filtro ou blend, e mesmo assim a tela saía clara e o texto claro ficava
+ * ilegível. Em Chromium headless o mesmo código renderizava certo, o que
+ * atrasou o diagnóstico.
+ *
+ * Provado por eliminação: com `opacity: 0` no canvas — camada ainda composta na
+ * GPU — o hero volta ao normal. Ou seja, é o CONTEÚDO desenhado que está claro
+ * demais, não a presença da camada.
+ *
+ * Três correções tentadas, nenhuma resolveu:
+ *   1. `gl.clear()` a cada quadro (faltava mesmo, e é obrigatório — mas não era
+ *      a causa);
+ *   2. alfa pré-multiplicado no shader, já que o canvas nasce com
+ *      premultipliedAlpha ligado;
+ *   3. trocar o z-index negativo por empilhamento positivo.
+ *
+ * Suspeita ainda não confirmada: `blendFunc` incompatível com saída
+ * pré-multiplicada — para cor pré-multiplicada o correto é `ONE,
+ * ONE_MINUS_SRC_ALPHA`, e não `SRC_ALPHA, ONE_MINUS_SRC_ALPHA`. Fica anotado
+ * para quem retomar.
  */
 export function CampoWebGL() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -94,7 +119,15 @@ export function CampoWebGL() {
         luz *= mix(0.55, 1.0, uv.x);
 
         float grao = (hash(gl_FragCoord.xy) - 0.5) * 0.03;
-        gl_FragColor = vec4(cor + grao, luz * 0.42);
+
+        // ALFA PRE-MULTIPLICADO. O canvas WebGL nasce com premultipliedAlpha
+        // ligado, entao o compositor espera o RGB ja multiplicado pelo alfa.
+        // Emitir cor crua com alfa 0.42 fazia o navegador compor como se fosse
+        // cor cheia: um veu esbranquicado por cima do hero escuro, que apagava
+        // o nome do cliente. (Sem crases aqui dentro: elas encerrariam o
+        // template literal do shader.)
+        float a = luz * 0.38;
+        gl_FragColor = vec4((cor + grao) * a, a);
       }
     `;
 
@@ -138,6 +171,7 @@ export function CampoWebGL() {
 
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.clearColor(0, 0, 0, 0);
 
     // DPR limitado: em tela retina o custo quadruplica e ninguém enxerga a
     // diferença num campo desfocado.
@@ -163,6 +197,12 @@ export function CampoWebGL() {
 
     const desenhar = (agora: number) => {
       acumulado = (agora - inicio) / 1000;
+      // LIMPAR A CADA QUADRO é obrigatório: com blending ligado e sem limpeza,
+      // cada quadro compõe sobre o anterior e o canvas satura até virar um véu
+      // quase opaco — que cobre o fundo escuro do hero e deixa o texto claro
+      // ilegível. O navegador só limpa sozinho quando lhe convém; não dá para
+      // depender disso.
+      gl.clear(gl.COLOR_BUFFER_BIT);
       gl.uniform1f(uTempo, acumulado);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
       quadro = requestAnimationFrame(desenhar);
@@ -212,7 +252,7 @@ export function CampoWebGL() {
     <canvas
       ref={canvasRef}
       aria-hidden
-      className="so-tela pointer-events-none absolute inset-0 -z-10 h-full w-full"
+      className="so-tela pointer-events-none absolute inset-0 z-0 h-full w-full"
     />
   );
 }
