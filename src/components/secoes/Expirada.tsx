@@ -1,6 +1,5 @@
-import { BotaoLink } from "@/components/ui/Botao";
 import { formatarDataLonga } from "@/lib/proposta/formatar";
-import { linkWhatsApp, linkEmail } from "@/lib/contato";
+import { CanaisDeContato } from "@/components/ui/CanaisDeContato";
 
 /**
  * Proposta vencida NÃO dá 404.
@@ -43,22 +42,13 @@ export function Expirada({
         em geral no mesmo dia.
       </p>
 
-      <div className="mt-10 flex flex-wrap gap-4">
-        <BotaoLink
-          variante="solido"
-          href={linkWhatsApp(mensagem)}
-          target="_blank"
-          rel="noopener noreferrer"
-          referrerPolicy="no-referrer"
-        >
-          Retomar pelo WhatsApp
-        </BotaoLink>
-        <BotaoLink
-          href={linkEmail(`Retomar proposta: ${empresa}`, mensagem)}
-        >
-          Retomar por e-mail
-        </BotaoLink>
-      </div>
+      {/* Quatro caminhos, não um. `mailto:` sozinho é um beco sem saída no
+          computador de quem não tem cliente de e-mail instalado. */}
+      <CanaisDeContato
+        mensagem={mensagem}
+        assunto={`Retomar proposta: ${empresa}`}
+        className="mt-10 justify-start"
+      />
     </main>
   );
 }

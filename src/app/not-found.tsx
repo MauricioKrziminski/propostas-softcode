@@ -1,6 +1,4 @@
-import { BotaoLink } from "@/components/ui/Botao";
-import { LinkDeEmail, Portaria } from "@/components/ui/Portaria";
-import { CONTATO } from "@/lib/contato";
+import { Portaria } from "@/components/ui/Portaria";
 
 /**
  * 404 genérico de propósito: a mensagem é idêntica para link inexistente, token
@@ -25,18 +23,10 @@ export default function NaoEncontrada() {
       nota={
         <>
           Se estiver correto e ainda assim não abrir, responda a conversa em que você
-          recebeu o link, ou escreva para <LinkDeEmail />.
+          recebeu o link, ou peça outro por um dos canais acima.
         </>
       }
-      acoes={
-        <BotaoLink
-          variante="solido"
-          href={`mailto:${CONTATO.email}`}
-          className="whitespace-nowrap"
-        >
-          Pedir o link de novo
-        </BotaoLink>
-      }
+      mensagemDeContato="Olá! O link da proposta que recebi não está abrindo. Podem me mandar de novo?"
     />
   );
 }

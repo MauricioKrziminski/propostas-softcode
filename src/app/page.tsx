@@ -1,11 +1,18 @@
-import { BotaoLink } from "@/components/ui/Botao";
-import { LinkDeEmail, Portaria } from "@/components/ui/Portaria";
-import { CONTATO } from "@/lib/contato";
+import type { Viewport } from "next";
+
+import { Portaria } from "@/components/ui/Portaria";
 
 /**
  * Raiz institucional mínima. ZERO links para propostas: não existe listagem
  * neste site, e esta página não pode virar a porta dos fundos de uma.
  */
+export const viewport: Viewport = {
+  /* A portaria é escura, então a barra do navegador acompanha. Sem isto, o
+     celular desenha uma faixa branca colada num fundo navy. */
+  themeColor: "#0a1420",
+  colorScheme: "dark",
+};
+
 export default function Home() {
   return (
     <Portaria
@@ -20,29 +27,10 @@ export default function Home() {
       nota={
         <>
           Recebeu um link que não abre? Responda a mesma conversa em que ele chegou, ou
-          escreva para <LinkDeEmail />.
+          fale com a gente por qualquer um dos canais acima.
         </>
       }
-      acoes={
-        <>
-          <BotaoLink
-            variante="solido"
-            href={`mailto:${CONTATO.email}`}
-            className="whitespace-nowrap"
-          >
-            Falar com a gente
-          </BotaoLink>
-          <BotaoLink
-            href={CONTATO.site}
-            target="_blank"
-            rel="noopener noreferrer nofollow"
-            referrerPolicy="no-referrer"
-            className="whitespace-nowrap"
-          >
-            Conhecer a SoftCode
-          </BotaoLink>
-        </>
-      }
+      mensagemDeContato="Olá! Cheguei pelo site de propostas da SoftCode e queria falar com vocês."
     />
   );
 }
