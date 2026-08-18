@@ -108,6 +108,13 @@ proposta**, o seed atual é a proposta real da Barba Log, não um exemplo.
   reprova quem voltar a `once: true`.
 - **`@media print` é o PDF do cliente**, não sobra de CSS. Qualquer elemento
   novo que anime precisa entrar no reset de `src/styles/print.css`.
+- **O painel tem sistema visual PRÓPRIO**, em `src/styles/mesa.css`, escopado em
+  `.mesa`. Ele não usa os tokens da proposta e a proposta não usa os dele: um é
+  cabine escura de ferramenta, o outro é documento claro. Misturar os dois foi o
+  que deixou o painel com cara de rascunho da proposta.
+- **A prévia do painel é a proposta DE VERDADE** num `<iframe>` de mesma origem
+  (`?previa=1` pula o convite). Por isso `X-Frame-Options` é `SAMEORIGIN` e não
+  `DENY`, com `frame-ancestors 'self'` dizendo o mesmo pela via moderna.
 - **Dinheiro é inteiro em centavos.** Nunca float. E dinheiro derivado é
   CALCULADO, nunca guardado: o valor de cada parcela sai do total da opção
   recomendada (`valoresDasParcelas`), senão um reajuste deixa a tabela de

@@ -8,15 +8,15 @@ import { entrar, type EstadoFormulario } from "@/app/admin/acoes";
  * O campo de senha e o erro.
  *
  * `useActionState` existe aqui por um motivo só: mostrar "senha incorreta" sem
- * perder a página. O envio funciona com JavaScript desligado, porque continua
- * sendo um `<form action=...>` de verdade.
+ * perder a página. O envio continua sendo um `<form action=...>` de verdade, e
+ * funciona com JavaScript desligado.
  */
 export function FormularioDeEntrada() {
   const [estado, acao, enviando] = useActionState<EstadoFormulario, FormData>(entrar, {});
 
   return (
-    <form action={acao} className="mt-8 flex flex-col gap-3">
-      <label htmlFor="senha" className="text-sm text-texto">
+    <form action={acao} className="mt-10 flex flex-col gap-3">
+      <label htmlFor="senha" className="etiqueta-mesa">
         Senha
       </label>
       <input
@@ -26,11 +26,11 @@ export function FormularioDeEntrada() {
         autoComplete="current-password"
         autoFocus
         required
-        className="min-h-12 rounded-lg border border-linha bg-fundo px-4 text-base text-texto"
+        className="campo-mesa min-h-12 font-mono tracking-[0.2em]"
       />
 
       {estado.erro && (
-        <p role="alert" className="text-sm text-acento">
+        <p role="alert" className="text-sm text-[var(--mesa-aviso)]">
           {estado.erro}
         </p>
       )}
@@ -38,9 +38,9 @@ export function FormularioDeEntrada() {
       <button
         type="submit"
         disabled={enviando}
-        className="mt-2 min-h-12 rounded-lg bg-acento px-6 font-medium text-osso disabled:opacity-60"
+        className="botao-mesa botao-mesa-forte mt-3 min-h-12 disabled:opacity-60"
       >
-        {enviando ? "Entrando..." : "Entrar"}
+        {enviando ? "Conferindo..." : "Entrar"}
       </button>
     </form>
   );

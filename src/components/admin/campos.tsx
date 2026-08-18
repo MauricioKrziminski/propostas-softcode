@@ -15,16 +15,16 @@ import type { ReactNode } from "react";
  * dos `.describe()`, copiados para cá como texto de apoio.
  */
 
-const CAMPO =
-  "min-h-12 w-full rounded-lg border border-linha bg-fundo px-3 py-2 text-base text-texto";
-const BOTAO_MIUDO =
-  "flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-linha px-3 text-sm text-neblina hover:border-acento hover:text-acento";
+const CAMPO = "campo-mesa";
+const BOTAO_MIUDO = "botao-mesa min-w-11 px-2";
 
 function Rotulo({ children, dica }: { children: ReactNode; dica?: string }) {
   return (
-    <span className="flex flex-col gap-1">
-      <span className="text-sm font-medium text-texto">{children}</span>
-      {dica && <span className="text-xs leading-relaxed text-neblina">{dica}</span>}
+    <span className="flex flex-col gap-1.5">
+      <span className="etiqueta-mesa">{children}</span>
+      {dica && (
+        <span className="text-xs leading-relaxed text-[var(--mesa-tinta-apagada)]">{dica}</span>
+      )}
     </span>
   );
 }
@@ -75,7 +75,7 @@ export function CampoArea({
         value={valor}
         rows={linhas}
         onChange={(e) => aoMudar(e.target.value)}
-        className={`${CAMPO} leading-relaxed`}
+        className={`${CAMPO} min-h-24 leading-relaxed`}
       />
     </label>
   );
@@ -111,7 +111,7 @@ export function CampoNumero({
           onChange={(e) => aoMudar(Number(e.target.value))}
           className={`${CAMPO} font-mono`}
         />
-        {sufixo && <span className="text-sm text-neblina">{sufixo}</span>}
+        {sufixo && <span className="etiqueta-mesa">{sufixo}</span>}
       </span>
     </label>
   );
@@ -139,7 +139,7 @@ export function CampoDinheiro({
         {rotulo}
       </Rotulo>
       <span className="flex items-center gap-2">
-        <span className="text-sm text-neblina">R$</span>
+        <span className="etiqueta-mesa">R$</span>
         <input
           inputMode="decimal"
           value={(centavos / 100).toFixed(2).replace(".", ",")}
@@ -195,7 +195,7 @@ export function CampoBooleano({
         type="checkbox"
         checked={valor}
         onChange={(e) => aoMudar(e.target.checked)}
-        className="mt-1 h-5 w-5 accent-[var(--color-acento)]"
+        className="mt-0.5 h-5 w-5 accent-[var(--mesa-acento)]"
       />
       <Rotulo dica={dica}>{rotulo}</Rotulo>
     </label>
@@ -266,7 +266,7 @@ export function ListaDeTextos({
               value={v}
               rows={3}
               onChange={(e) => trocar(i, e.target.value)}
-              className={`${CAMPO} leading-relaxed`}
+              className={`${CAMPO} min-h-24 leading-relaxed`}
             />
           ) : (
             <input value={v} onChange={(e) => trocar(i, e.target.value)} className={CAMPO} />
@@ -293,7 +293,7 @@ export function ListaDeTextos({
       <button
         type="button"
         onClick={() => aoMudar([...valores, ""])}
-        className="flex min-h-11 w-fit items-center rounded-lg border border-dashed border-linha px-4 text-sm text-neblina hover:border-acento hover:text-acento"
+        className="botao-mesa w-fit border-dashed"
       >
         {rotuloAdicionar}
       </button>
@@ -336,9 +336,9 @@ export function Repetidor<T>({
       <Rotulo dica={dica}>{rotulo}</Rotulo>
 
       {itens.map((item, i) => (
-        <div key={i} className="rounded-xl border border-linha bg-elevado p-3 sm:p-4">
+        <div key={i} className="rounded-xl border border-[var(--mesa-fio)] bg-[var(--mesa-s2)] p-3 sm:p-4">
           <div className="mb-3 flex items-center justify-between gap-2">
-            <span className="font-mono text-xs text-neblina">
+            <span className="etiqueta-mesa">
               {String(i + 1).padStart(2, "0")}
             </span>
             <div className="flex gap-1">
@@ -368,7 +368,7 @@ export function Repetidor<T>({
       <button
         type="button"
         onClick={() => aoMudar([...itens, novoItem()])}
-        className="flex min-h-11 w-fit items-center rounded-lg border border-dashed border-linha px-4 text-sm text-neblina hover:border-acento hover:text-acento"
+        className="botao-mesa w-fit border-dashed"
       >
         {rotuloAdicionar}
       </button>

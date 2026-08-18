@@ -16,7 +16,19 @@ const nextConfig: NextConfig = {
           },
           { key: "Referrer-Policy", value: "no-referrer" },
           { key: "X-Content-Type-Options", value: "nosniff" },
-          { key: "X-Frame-Options", value: "DENY" },
+          /**
+           * `SAMEORIGIN`, não `DENY`, e a diferença tem uma razão concreta: a
+           * prévia do painel mostra a proposta real dentro de um `<iframe>`, e
+           * `DENY` recusa até o próprio site. A proteção que importa continua
+           * de pé, porque o que ela evita é OUTRO domínio emoldurar a página
+           * para enganar quem clica.
+           *
+           * `frame-ancestors 'self'` diz a mesma coisa pela via moderna: quando
+           * os dois existem, o navegador obedece ao CSP e ignora o cabeçalho
+           * antigo, que segue aqui só para navegador velho.
+           */
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "Content-Security-Policy", value: "frame-ancestors 'self'" },
         ],
       },
     ];

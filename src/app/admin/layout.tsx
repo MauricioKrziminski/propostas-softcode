@@ -1,21 +1,32 @@
 import type { Metadata } from "next";
 
+import "@/styles/mesa.css";
+
 /**
- * Casca do painel.
+ * A casca do painel.
  *
- * O admin é ferramenta interna, e o desenho segue essa função: claro, sóbrio,
- * sem vidro, sem parallax, sem reveal. Toda a ousadia visual do projeto pertence
+ * O admin é ferramenta, não peça de venda, e o desenho segue essa função: cabine
+ * escura, densa, sem vidro e sem parallax. A ousadia visual do projeto pertence
  * à proposta que o cliente lê; aqui o que importa é achar o campo, digitar e
- * salvar, de preferência no celular entre uma reunião e outra. Por isso alvos de
- * 44px e uma coluna só.
+ * salvar, muitas vezes no celular entre uma reunião e outra.
+ *
+ * A escuridão também tem razão prática: a prévia da proposta aparece dentro
+ * desta tela, e um documento claro sobre uma cabine escura se lê como documento,
+ * não como mais um painel.
  */
 export const metadata: Metadata = {
-  title: "Painel de propostas",
+  title: "Mesa de propostas",
   robots: { index: false, follow: false, nocache: true },
 };
 
 export default function LayoutAdmin({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-[100dvh] bg-elevado font-texto text-texto">{children}</div>
+    <div className="mesa relative min-h-[100dvh] font-texto antialiased">
+      <div
+        aria-hidden
+        className="grade-mesa pointer-events-none fixed inset-0 [mask-image:radial-gradient(ellipse_at_top,black,transparent_75%)]"
+      />
+      <div className="relative">{children}</div>
+    </div>
   );
 }

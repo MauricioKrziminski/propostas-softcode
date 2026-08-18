@@ -1,0 +1,172 @@
+/* ═══════════════════════ a mesa de trabalho ═══════════════════════
+
+   O sistema visual do painel, e só dele. Nenhum token daqui encosta nos da
+   proposta: são dois mundos de propósito. A proposta é clara, editorial e feita
+   para ser lida uma vez; o painel é escuro, denso e feito para ser usado toda
+   semana. O contraste entre os dois também tem função prática, porque a prévia
+   da proposta aparece dentro do painel e precisa se destacar como documento.
+
+   A escuridão aqui é SUBSTRATO, não tema: profundidade vem de uma escada de
+   quatro superfícies e de fios de 1px, nunca de sombra. É o que mantém a
+   interface plana e rápida de ler.
+
+   A assinatura é a Fraunces, serifada editorial, nos numerais e títulos dentro
+   de uma cabine de ferramenta. É o que amarra o painel à proposta sem
+   transformar um no outro.
+   ═════════════════════════════════════════════════════════════════ */
+
+.mesa {
+  --mesa-fundo: #080d14;
+  --mesa-s1: #0e141c;
+  --mesa-s2: #131b25;
+  --mesa-s3: #18222e;
+
+  --mesa-fio: #1e2a38;
+  --mesa-fio-forte: #2b3a4d;
+
+  --mesa-tinta: #eef3f9;
+  --mesa-tinta-suave: #9fb0c4;
+  --mesa-tinta-apagada: #63748a;
+
+  --mesa-acento: #5b8dff;
+  --mesa-acento-fundo: #16233a;
+  --mesa-aviso: #f0b429;
+  --mesa-ok: #3fbf7f;
+
+  color-scheme: dark;
+  background-color: var(--mesa-fundo);
+  color: var(--mesa-tinta);
+}
+
+@layer components {
+  /* Grade exposta: a estrutura aparece em vez de se esconder. Fica no limite do
+     perceptível de propósito, para dar textura sem virar papel quadriculado. */
+  .grade-mesa {
+    background-image:
+      linear-gradient(to right, var(--mesa-fio) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--mesa-fio) 1px, transparent 1px);
+    background-size: 96px 96px;
+    background-position: center;
+    opacity: 0.35;
+  }
+
+  /* Etiqueta de metadado. Mono com tracking largo é o que separa "dado do
+     sistema" de "texto que alguém escreveu". */
+  .etiqueta-mesa {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--mesa-tinta-apagada);
+  }
+
+  /* Numeral da seção. `opsz` alto pede a versão de display da Fraunces, e o
+     `WONK` inclina os terminais: é o detalhe que impede o número de parecer
+     código de planilha. */
+  .numeral-mesa {
+    font-family: var(--font-display);
+    font-variation-settings: "opsz" 120, "SOFT" 12, "WONK" 1;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+    line-height: 0.85;
+  }
+
+  .titulo-mesa {
+    font-family: var(--font-display);
+    font-variation-settings: "opsz" 72, "SOFT" 8, "WONK" 0;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+  }
+
+  .campo-mesa {
+    width: 100%;
+    min-height: 2.75rem;
+    padding: 0.625rem 0.875rem;
+    border-radius: 8px;
+    border: 1px solid var(--mesa-fio);
+    background-color: var(--mesa-s2);
+    color: var(--mesa-tinta);
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    transition: border-color 140ms ease, background-color 140ms ease;
+  }
+  .campo-mesa::placeholder {
+    color: var(--mesa-tinta-apagada);
+  }
+  .campo-mesa:hover {
+    border-color: var(--mesa-fio-forte);
+  }
+  .campo-mesa:focus-visible {
+    border-color: var(--mesa-acento);
+    background-color: var(--mesa-s3);
+  }
+
+  .botao-mesa {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding: 0 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--mesa-fio);
+    background-color: var(--mesa-s2);
+    color: var(--mesa-tinta-suave);
+    font-size: 0.875rem;
+    /* Só transform e opacity animam, como no resto do projeto. */
+    transition: transform 120ms ease, border-color 140ms ease, color 140ms ease;
+  }
+  .botao-mesa:hover {
+    border-color: var(--mesa-fio-forte);
+    color: var(--mesa-tinta);
+  }
+  .botao-mesa:active {
+    transform: scale(0.985);
+  }
+
+  .botao-mesa-forte {
+    border-color: transparent;
+    background-color: var(--mesa-acento);
+    color: #06101f;
+    font-weight: 500;
+  }
+  .botao-mesa-forte:hover {
+    border-color: transparent;
+    color: #06101f;
+    opacity: 0.92;
+  }
+
+  .painel-mesa {
+    border: 1px solid var(--mesa-fio);
+    border-radius: 14px;
+    background-color: var(--mesa-s1);
+  }
+
+  /* Tecla de atalho desenhada como tecla mesmo. */
+  .tecla-mesa {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    padding: 0.125rem 0.375rem;
+    border: 1px solid var(--mesa-fio-forte);
+    border-radius: 5px;
+    background-color: var(--mesa-s2);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--mesa-tinta-apagada);
+  }
+}
+
+/* O painel inteiro respeita a mesma regra do resto do projeto: quem pediu menos
+   movimento não recebe movimento nenhum, e tudo continua operável. */
+@media (prefers-reduced-motion: reduce) {
+  .mesa *,
+  .mesa *::before,
+  .mesa *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

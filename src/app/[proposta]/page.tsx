@@ -64,9 +64,12 @@ const CAPITULOS_NOITE = new Set<ChaveSecao>([
   "aceite",
 ]);
 
-type Props = { params: Promise<{ proposta: string }> };
+type Props = {
+  params: Promise<{ proposta: string }>;
+  searchParams: Promise<{ previa?: string }>;
+};
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params }: Pick<Props, "params">): Promise<Metadata> {
   const { proposta: caminho } = await params;
   const proposta = await buscarPropostaPorCaminho(caminho);
   if (!proposta) return { title: "Proposta" };
@@ -78,8 +81,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function PaginaProposta({ params }: Props) {
+export default async function PaginaProposta({ params, searchParams }: Props) {
   const { proposta: caminho } = await params;
+  const { previa } = await searchParams;
   const proposta = await buscarPropostaPorCaminho(caminho);
 
   if (!proposta) notFound();
@@ -186,7 +190,14 @@ export default async function PaginaProposta({ params }: Props) {
     CAPITULOS_NOITE.has(chave) ? NOITE : i % 2 === 0 ? AZUL_CLARO : CLARO;
 
   return (
-    <AberturaProposta empresa={cliente.empresa} projeto={proposta.tituloProjeto}>
+    <AberturaProposta
+      empresa={cliente.empresa}
+      projeto={proposta.tituloProjeto}
+      /* `?previa=1` pula o cartão-convite. É o que o espelho do painel usa: sem
+         isso a prévia mostraria o envelope fechado e nunca a proposta. O
+         parâmetro não afeta autorização nenhuma, só a abertura. */
+      semConvite={previa === "1"}
+    >
       {souAdmin && (
         /* `so-tela` já é escondida no @media print: aviso de trabalho não sai no
            PDF que o cliente recebe. */

@@ -3,14 +3,14 @@
  *
  *   npm run valida:admin        (com o dev server no ar)
  *
- * Percorre o caminho real: entrar, criar proposta, conferir que o alicerce veio
- * preenchido, marcar como enviada, abrir o link público e gerar o PDF. No fim,
- * apaga a proposta de teste.
+ * Percorre o caminho real de quem monta uma proposta: entrar, criar, conferir
+ * que o alicerce veio preenchido, navegar pela mesa, reordenar seção, abrir a
+ * paleta de comando, publicar, abrir o link público e gerar o PDF. No fim, apaga
+ * a proposta de teste.
  *
- * A sessão é ASSINADA aqui com o `SESSAO_SEGREDO`, em vez de digitar a senha:
- * a senha do painel é do operador e não precisa (nem deve) estar num script. O
- * cookie é montado exatamente como `src/lib/admin/sessao.ts` monta, então o que
- * está sendo testado continua sendo o caminho de verdade.
+ * Duas larguras, de propósito: a lista e a criação são conferidas em 390px, que
+ * é onde metade do uso acontece; a mesa é conferida em 1440px, porque a prévia
+ * ao vivo só existe a partir de 1280px.
  */
 import { createHmac, randomBytes, scryptSync } from "node:crypto";
 import { readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -91,8 +91,7 @@ try {
 
     /* Com sessão aberta, /admin/entrar redireciona para /admin e não existe
        campo de senha nenhum para preencher. Isso é o login tendo funcionado na
-       tentativa anterior, não falha: sem esta saída o laço ficava procurando um
-       campo que a página deixou de ter. */
+       tentativa anterior, não falha. */
     if (new URL(paginaSenha.url()).pathname === "/admin") {
       entrou = true;
       break;
@@ -141,79 +140,171 @@ try {
 
 const EMPRESA = "Cliente de Teste E2E";
 const navegador = await chromium.launch();
-const ctx = await navegador.newContext({ ...iPhone });
-await ctx.addCookies([cookieSessao]);
-const pg = await ctx.newPage();
-const erros = [];
-pg.on("pageerror", (e) => erros.push(String(e)));
+const errosDeConsole = [];
 
-/* ───────────── 1. lista ───────────── */
-console.log(`\n▸ painel em 390px: ${BASE}/admin`);
-await pg.goto(`${BASE}/admin`, { waitUntil: "networkidle" });
+/* ───────────── 1. lista e criação, em 390px ───────────── */
+console.log("\n▸ lista em 390px");
+const ctxCelular = await navegador.newContext({ ...iPhone });
+await ctxCelular.addCookies([cookieSessao]);
+const cel = await ctxCelular.newPage();
+cel.on("pageerror", (e) => errosDeConsole.push(String(e)));
+
+await cel.goto(`${BASE}/admin`, { waitUntil: "networkidle" });
 checar(
-  pg.url().endsWith("/admin"),
+  cel.url().endsWith("/admin"),
   "sessão assinada entra no painel",
-  `caiu em ${pg.url()}: o cookie assinado deveria ser aceito`,
+  `caiu em ${cel.url()}: o cookie assinado deveria ser aceito`,
 );
 checar(
-  (await pg.content()).includes("Barba Log"),
+  (await cel.content()).includes("Barba Log"),
   "a proposta semeada aparece na lista",
   "a lista não trouxe a proposta da Barba Log",
 );
-
-const larguraLista = await pg.evaluate(
-  () => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1,
+checar(
+  await cel.evaluate(
+    () => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1,
+  ),
+  "lista sem overflow horizontal",
+  "a lista estoura a largura da tela",
 );
-checar(larguraLista, "lista sem overflow horizontal em 390px", "a lista estoura a largura da tela");
 
-/* ───────────── 2. criar ───────────── */
+const alvosPequenos = await cel.evaluate(() =>
+  [...document.querySelectorAll("a, button, input, select")]
+    .filter((e) => {
+      const b = e.getBoundingClientRect();
+      return b.height > 0 && b.height < 44;
+    })
+    .map((e) => `${e.tagName.toLowerCase()} "${(e.textContent ?? "").trim().slice(0, 20)}"`),
+);
+checar(
+  alvosPequenos.length === 0,
+  "todos os alvos de toque do painel têm 44px",
+  `${alvosPequenos.length} alvo(s) abaixo de 44px`,
+  alvosPequenos.slice(0, 4).join(", "),
+);
+
 console.log("\n▸ criar proposta");
-await pg.goto(`${BASE}/admin/nova`, { waitUntil: "networkidle" });
-await pg.fill("#empresa", EMPRESA);
-await pg.fill("#contato", "Fulano de Teste");
-await pg.fill("#tituloProjeto", "Site institucional");
-await pg.click('main button[type="submit"]');
-await pg.waitForURL(/\/admin\/[0-9a-f-]{36}$/, { timeout: 15000 });
+await cel.goto(`${BASE}/admin/nova`, { waitUntil: "networkidle" });
+await cel.fill("#empresa", EMPRESA);
+await cel.fill("#contato", "Fulano de Teste");
+await cel.fill("#tituloProjeto", "Site institucional");
+await cel.click('main button[type="submit"]');
+await cel.waitForURL(/\/admin\/[0-9a-f-]{36}$/, { timeout: 20000 });
+const idNovo = cel.url().split("/").pop();
+checar(Boolean(idNovo), "proposta criada e mesa aberta", "não chegou na mesa depois de criar");
+await ctxCelular.close();
 
-const idNovo = pg.url().split("/").pop();
-checar(Boolean(idNovo), "proposta criada e editor aberto", "não chegou no editor depois de criar");
+/* ───────────── 2. a mesa, em 1440px ───────────── */
+console.log("\n▸ mesa em 1440px");
+const ctx = await navegador.newContext({ viewport: { width: 1440, height: 950 } });
+await ctx.addCookies([cookieSessao]);
+const pg = await ctx.newPage();
+pg.on("pageerror", (e) => errosDeConsole.push(String(e)));
+await pg.goto(`${BASE}/admin/${idNovo}`, { waitUntil: "networkidle" });
+await pg.waitForTimeout(1500);
 
-/* ───────────── 3. o alicerce ───────────── */
-console.log("\n▸ alicerce pré-preenchido");
-const resumos = await pg.evaluate(() =>
-  [...document.querySelectorAll("details > summary")].map((s) => s.innerText.replace(/\s+/g, " ")),
+const trilho = await pg.evaluate(() =>
+  [...document.querySelectorAll('nav[aria-label="Seções da proposta"] > div')].map((d) => ({
+    rotulo: d.innerText.replace(/\s+/g, " ").trim(),
+    estado: d.querySelector("span[title]")?.getAttribute("title") ?? "",
+  })),
 );
-const preenchidas = resumos.filter((r) => r.includes("preenchida"));
-const faltando = resumos.filter((r) => r.includes("falta preencher"));
-
 checar(
-  preenchidas.length >= 8,
-  `${preenchidas.length} seções já vêm preenchidas`,
-  `só ${preenchidas.length} seções preenchidas: o modelo não foi aplicado`,
+  trilho.length === 16,
+  `trilho com ${trilho.length} entradas (capa + 15 seções)`,
+  `trilho veio com ${trilho.length} entradas, esperava 16`,
 );
 checar(
-  faltando.length === 4,
-  `${faltando.length} seções marcadas como do cliente (entendimento, solução, escopo, cronograma)`,
-  `${faltando.length} seções pendentes, esperava 4`,
+  trilho.filter((t) => t.estado === "falta preencher").length === 4,
+  "as 4 seções do cliente aparecem como pendentes",
+  `${trilho.filter((t) => t.estado === "falta preencher").length} pendentes, esperava 4`,
 );
-for (const rotulo of ["Suporte após a entrega", "Como o pagamento funciona", "Programa de indicação"]) {
-  checar(
-    resumos.some((r) => r.includes(rotulo) && r.includes("preenchida")),
-    `"${rotulo}" veio do modelo`,
-    `"${rotulo}" não veio preenchida`,
+checar(
+  trilho.filter((t) => t.estado === "preenchida").length >= 10,
+  `${trilho.filter((t) => t.estado === "preenchida").length} seções já vêm do modelo`,
+  "o modelo não preencheu as seções esperadas",
+);
+
+const prontidao = await pg.evaluate(() => {
+  const bloco = [...document.querySelectorAll("button")].find((b) =>
+    b.innerText.toLowerCase().includes("prontidão"),
   );
-}
+  return bloco?.innerText.replace(/\s+/g, " ") ?? "";
+});
+checar(
+  prontidao.includes("pendência"),
+  `prontidão aponta o que falta (${prontidao.trim().slice(0, 44)})`,
+  "o medidor de prontidão não apareceu",
+);
 
-/* ───────────── 3b. rascunho ─────────────
-   Rascunho precisa abrir para quem tem sessão e sumir para o resto. Sem a
-   primeira metade, o botão "Abrir" do painel devolve 404 na proposta que você
-   acabou de criar; sem a segunda, proposta pela metade vaza para o cliente. */
-console.log("▸ rascunho");
+/* A prévia precisa ser a proposta de verdade, não um quadro em branco. */
+const previa = await pg.evaluate(() => {
+  const q = document.querySelector("iframe");
+  return {
+    existe: Boolean(q),
+    altura: q?.contentDocument?.body?.scrollHeight ?? 0,
+  };
+});
+checar(previa.existe, "prévia ao vivo presente em 1440px", "não há prévia na mesa");
+checar(
+  previa.altura > 1000,
+  `prévia renderizou a proposta (${previa.altura}px de altura)`,
+  "a prévia veio vazia: algum cabeçalho está bloqueando o iframe?",
+);
+
+/* paleta de comando */
+await pg.click("h1");
+await pg.keyboard.press("Control+k");
+await pg.waitForTimeout(400);
+await pg.keyboard.type("pgm");
+await pg.waitForTimeout(300);
+const achados = await pg.evaluate(() =>
+  [...document.querySelectorAll('[role="dialog"] li button')].map((b) =>
+    b.innerText.replace(/\s+/g, " "),
+  ),
+);
+checar(
+  achados.some((a) => a.toLowerCase().includes("indicação")),
+  "⌘K acha por subsequência (pgm → Programa de indicação)",
+  "⌘K não encontrou a seção pelo atalho de letras",
+  achados.slice(0, 3).join(" | "),
+);
+await pg.keyboard.press("Escape");
+await pg.waitForTimeout(300);
+checar(
+  await pg.evaluate(() => !document.querySelector('[role="dialog"]')),
+  "esc fecha a paleta",
+  "a paleta continuou aberta depois do esc",
+);
+
+/* Reordenar: desce a primeira seção e confere que a ordem sobreviveu ao F5. */
+const primeiraAntes = trilho[1]?.rotulo ?? "";
+await pg.evaluate(() => {
+  const linhas = [...document.querySelectorAll('nav[aria-label="Seções da proposta"] > div')];
+  linhas[1]?.querySelector('button[aria-label^="Descer"]')?.click();
+});
+await pg.waitForTimeout(2000);
+await pg.reload({ waitUntil: "networkidle" });
+await pg.waitForTimeout(1200);
+const primeiraDepois = await pg.evaluate(
+  () =>
+    document
+      .querySelectorAll('nav[aria-label="Seções da proposta"] > div')[1]
+      ?.innerText.replace(/\s+/g, " ")
+      .trim() ?? "",
+);
+checar(
+  primeiraDepois !== primeiraAntes && primeiraDepois.length > 0,
+  "ordem das seções sobrevive ao recarregar",
+  "a ordem voltou ao que era: o conteudo.ordem não gravou",
+);
+
+/* ───────────── 3. rascunho ───────────── */
+console.log("\n▸ rascunho");
 const caminhoRascunho = await pg.evaluate(() => {
-  const link = [...document.querySelectorAll("a")].find((a) => a.textContent === "Ver a proposta");
+  const link = [...document.querySelectorAll("a")].find((a) => a.textContent === "Ver proposta");
   return link?.getAttribute("href") ?? "";
 });
-
 const comSessao = await pg.goto(`${BASE}${caminhoRascunho}`);
 checar(
   comSessao?.status() === 200,
@@ -234,29 +325,31 @@ checar(
   `rascunho devolveu ${semSessao.status()} sem sessão: proposta pela metade estaria pública`,
 );
 await anonimo.dispose();
-await pg.goBack();
 
-/* ───────────── 4. editar e publicar ───────────── */
-console.log("\n▸ editar");
+/* ───────────── 4. publicar pela capa ───────────── */
+console.log("\n▸ publicar");
+await pg.goto(`${BASE}/admin/${idNovo}`, { waitUntil: "networkidle" });
+await pg.waitForTimeout(800);
+await pg.evaluate(() => {
+  const capa = [...document.querySelectorAll('nav[aria-label="Seções da proposta"] button')].find(
+    (b) => b.innerText.includes("Cliente e datas"),
+  );
+  capa?.click();
+});
+await pg.waitForTimeout(800);
 await pg.selectOption("select", "enviada");
-await pg.click('button:has-text("Salvar")');
-await pg.waitForTimeout(1500);
+await pg.click('button:has-text("Salvar capa")');
+await pg.waitForTimeout(2000);
 checar(
-  (await pg.content()).includes("Salvo"),
-  "status salvo pelo editor de cabeçalho",
-  "o salvamento do cabeçalho não confirmou",
+  (await pg.content()).includes("salvo"),
+  "capa salva pelo editor",
+  "o salvamento da capa não confirmou",
 );
 
 /* ───────────── 5. a proposta pública ───────────── */
 console.log("\n▸ proposta pública");
-const caminho = await pg.evaluate(() => {
-  const link = [...document.querySelectorAll("a")].find((a) => a.textContent === "Ver a proposta");
-  return link?.getAttribute("href") ?? "";
-});
-checar(caminho.length > 12, `link público gerado (${caminho})`, "não achei o link público no editor");
-
 const api = await request.newContext();
-const publica = await api.get(`${BASE}${caminho}`);
+const publica = await api.get(`${BASE}${caminhoRascunho}`);
 const htmlPublica = await publica.text();
 checar(publica.status() === 200, "proposta pública responde 200", `respondeu ${publica.status()}`);
 checar(htmlPublica.includes(EMPRESA), "a empresa aparece na página", "o nome da empresa não veio");
@@ -268,23 +361,29 @@ for (const secao of ["Suporte", "pagamento", "indicação"]) {
   );
 }
 
-const pdf = await api.get(`${BASE}${caminho}/pdf`);
+const pdf = await api.get(`${BASE}${caminhoRascunho}/pdf`);
 const corpo = await pdf.body();
 checar(pdf.status() === 200, "PDF da proposta nova responde", `PDF respondeu ${pdf.status()}`);
 checar(corpo.subarray(0, 4).toString() === "%PDF", "PDF válido", "o corpo não começa com %PDF");
 const paginas = corpo.toString("latin1").split("/Type /Page").length - 1;
 checar(paginas >= 3, `${paginas - 1} páginas`, `só ${paginas - 1} páginas`);
 
-/* Token errado na proposta nova continua sendo 404 genérico. */
-const errado = await api.get(`${BASE}${caminho.slice(0, -10)}0000000000`);
+const errado = await api.get(`${BASE}${caminhoRascunho.slice(0, -10)}0000000000`);
 checar(errado.status() === 404, "token errado dá 404", `token errado devolveu ${errado.status()}`);
 await api.dispose();
 
-checar(erros.length === 0, "console sem erros", `${erros.length} erro(s)`, erros.slice(0, 2).join("\n"));
+checar(
+  errosDeConsole.length === 0,
+  "console sem erros",
+  `${errosDeConsole.length} erro(s)`,
+  errosDeConsole.slice(0, 2).join("\n"),
+);
 
-await pg.screenshot({ path: ".playwright/admin-editor.png", fullPage: false });
+await pg.goto(`${BASE}/admin/${idNovo}`, { waitUntil: "networkidle" });
+await pg.waitForTimeout(1500);
+await pg.screenshot({ path: ".playwright/admin-mesa.png" });
 await pg.goto(`${BASE}/admin`, { waitUntil: "networkidle" });
-await pg.screenshot({ path: ".playwright/admin-lista.png", fullPage: false });
+await pg.screenshot({ path: ".playwright/admin-lista.png" });
 await ctx.close();
 await navegador.close();
 

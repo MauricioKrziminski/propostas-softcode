@@ -7,42 +7,47 @@ import { CampoData, CampoSelecao, CampoTexto } from "./campos";
 import { STATUS_PROPOSTA } from "@/lib/proposta/schema";
 
 /**
- * Cliente, título, datas e status.
+ * Cliente, título, datas e status: a capa da proposta.
  *
- * Slug e token NÃO são editáveis: os dois formam o endereço que já foi enviado
- * para o cliente, e trocar qualquer um dos dois quebra o link que está no
- * WhatsApp dele. Precisando de endereço novo, o caminho é duplicar.
+ * Slug e token NÃO aparecem aqui, e é de propósito: os dois formam o endereço
+ * que já foi para o WhatsApp do cliente, e trocar qualquer um dos dois quebra o
+ * link que ele tem. Precisando de endereço novo, o caminho é duplicar.
  */
+export type DadosDoCabecalho = {
+  empresa: string;
+  contato: string;
+  email: string;
+  logoUrl: string;
+  tituloProjeto: string;
+  status: string;
+  emitidaEm: string;
+  validaAte: string;
+};
+
 export function EditorDeCabecalho({
   id,
   inicial,
+  aoSalvar,
+  aoMudar,
 }: {
   id: string;
-  inicial: {
-    empresa: string;
-    contato: string;
-    email: string;
-    logoUrl: string;
-    tituloProjeto: string;
-    status: string;
-    emitidaEm: string;
-    validaAte: string;
-  };
+  inicial: DadosDoCabecalho;
+  aoSalvar?: () => void;
+  aoMudar?: (suja: boolean) => void;
 }) {
   const [dados, setDados] = useState(inicial);
   const [estado, setEstado] = useState<{ salvo?: boolean; erros?: string[] }>({});
   const [salvando, iniciarTransicao] = useTransition();
 
-  const trocar = (campo: keyof typeof dados) => (v: string) => {
+  const trocar = (campo: keyof DadosDoCabecalho) => (v: string) => {
     setDados((atual) => ({ ...atual, [campo]: v }));
     setEstado({});
+    aoMudar?.(true);
   };
 
   return (
-    <section className="rounded-xl border border-linha bg-fundo p-4 sm:p-5">
-      <h2 className="font-display text-lg font-bold text-navy">Cliente e datas</h2>
-
-      <div className="mt-4 grid gap-4 sm:grid-cols-2">
+    <div className="flex flex-col gap-7">
+      <div className="grid gap-6 sm:grid-cols-2">
         <CampoTexto rotulo="Empresa" valor={dados.empresa} aoMudar={trocar("empresa")} />
         <CampoTexto
           rotulo="Pessoa de contato"
@@ -52,7 +57,7 @@ export function EditorDeCabecalho({
         <CampoTexto rotulo="E-mail" valor={dados.email} aoMudar={trocar("email")} />
         <CampoTexto
           rotulo="Logo do cliente (URL)"
-          dica="Aparece no topo da proposta. Deixe vazio se não houver."
+          dica="Aparece no topo da proposta. Vazio esconde o espaço, não deixa buraco."
           valor={dados.logoUrl}
           aoMudar={trocar("logoUrl")}
         />
@@ -63,7 +68,7 @@ export function EditorDeCabecalho({
         />
         <CampoSelecao
           rotulo="Status"
-          dica="Rascunho não gera PDF. Marque como enviada quando mandar o link."
+          dica="Rascunho abre só para você e não gera PDF. Enviada é o que o cliente consegue abrir."
           valor={dados.status}
           opcoes={STATUS_PROPOSTA}
           aoMudar={trocar("status")}
@@ -82,16 +87,16 @@ export function EditorDeCabecalho({
       </div>
 
       {estado.erros && (
-        <ul role="alert" className="mt-4 flex flex-col gap-1">
+        <ul role="alert" className="flex flex-col gap-1">
           {estado.erros.map((erro, i) => (
-            <li key={i} className="text-sm text-acento">
+            <li key={i} className="text-sm text-[var(--mesa-aviso)]">
               {erro}
             </li>
           ))}
         </ul>
       )}
 
-      <div className="mt-5 flex items-center gap-3">
+      <div className="sticky bottom-0 flex items-center gap-3 border-t border-[var(--mesa-fio)] bg-[var(--mesa-fundo)] py-4">
         <button
           type="button"
           disabled={salvando}
@@ -107,15 +112,23 @@ export function EditorDeCabecalho({
                 emitidaEm: dados.emitidaEm,
                 validaAte: dados.validaAte,
               });
-              setEstado(resposta.erros ? { erros: resposta.erros } : { salvo: true });
+              if (resposta.erros) {
+                setEstado({ erros: resposta.erros });
+                return;
+              }
+              setEstado({ salvo: true });
+              aoMudar?.(false);
+              aoSalvar?.();
             })
           }
-          className="min-h-11 rounded-lg bg-acento px-5 text-sm font-medium text-osso disabled:opacity-60"
+          className="botao-mesa botao-mesa-forte disabled:opacity-60"
         >
-          {salvando ? "Salvando..." : "Salvar"}
+          {salvando ? "Salvando..." : "Salvar capa"}
         </button>
-        {estado.salvo && <span className="text-sm text-neblina">Salvo</span>}
+        {estado.salvo && (
+          <span className="etiqueta-mesa text-[var(--mesa-ok)]">salvo</span>
+        )}
       </div>
-    </section>
+    </div>
   );
 }

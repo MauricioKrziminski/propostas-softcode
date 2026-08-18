@@ -22,8 +22,14 @@ export function BotaoCopiar({ texto }: { texto: string }) {
              contexto não seguro). O link continua visível em "Abrir". */
         }
       }}
-      className="flex min-h-11 items-center rounded-lg border border-linha px-4 text-sm hover:border-acento hover:text-acento"
+      className="botao-mesa"
     >
+      <span
+        aria-hidden
+        className={`h-1.5 w-1.5 rounded-full ${
+          copiou ? "bg-[var(--mesa-ok)]" : "bg-[var(--mesa-fio-forte)]"
+        }`}
+      />
       {copiou ? "Copiado" : "Copiar link"}
     </button>
   );

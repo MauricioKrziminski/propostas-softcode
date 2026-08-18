@@ -259,6 +259,45 @@ export async function salvarSecao(
   return { ok: true };
 }
 
+/**
+ * Grava a ordem em que o cliente lê as seções.
+ *
+ * A ordem sempre existiu no schema (`conteudo.ordem`) e a página sempre
+ * respeitou; o que faltava era como mexer nela sem editar JSON. Guarda só as
+ * chaves conhecidas, e sem repetir: ordem inválida faria a página pular ou
+ * duplicar seção.
+ */
+export async function salvarOrdem(
+  id: string,
+  ordem: ChaveSecao[],
+): Promise<{ ok: true } | { ok: false; erros: string[] }> {
+  const limpa = [...new Set(ordem)].filter((c) => CHAVES_SECAO.includes(c));
+  if (limpa.length !== CHAVES_SECAO.length) {
+    return { ok: false, erros: ["A ordem precisa conter todas as seções, sem repetir"] };
+  }
+
+  const [linha] = await bd()
+    .select({ conteudo: propostas.conteudo })
+    .from(propostas)
+    .where(eq(propostas.id, id))
+    .limit(1);
+  if (!linha) return { ok: false, erros: ["Proposta não encontrada"] };
+
+  const inteiro = conteudoSchema.safeParse({ ...linha.conteudo, ordem: limpa });
+  if (!inteiro.success) {
+    return {
+      ok: false,
+      erros: inteiro.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`),
+    };
+  }
+
+  await bd()
+    .update(propostas)
+    .set({ conteudo: inteiro.data, atualizadaEm: new Date() })
+    .where(eq(propostas.id, id));
+  return { ok: true };
+}
+
 export async function salvarCabecalho(
   id: string,
   dados: {

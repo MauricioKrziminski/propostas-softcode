@@ -15,12 +15,15 @@ export function AberturaProposta({
   empresa,
   projeto,
   children,
+  semConvite = false,
 }: {
   empresa: string;
   projeto: string;
   children: ReactNode;
+  /** A prévia do painel entra por aqui: ela precisa da proposta, não do envelope. */
+  semConvite?: boolean;
 }) {
-  const [aberto, setAberto] = useState(false);
+  const [aberto, setAberto] = useState(semConvite);
   const propostaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

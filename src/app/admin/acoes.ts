@@ -12,6 +12,7 @@ import {
   duplicarProposta,
   excluirProposta,
   salvarCabecalho,
+  salvarOrdem,
   salvarSecao,
 } from "@/lib/proposta/repositorio";
 import { modeloDeConteudo } from "@/lib/proposta/modelo";
@@ -139,6 +140,19 @@ export async function salvarSecaoDaProposta(
   await exigirAdminOuErro();
 
   const resultado = await salvarSecao(id, chave, valor);
+  if (!resultado.ok) return { erros: resultado.erros };
+
+  revalidatePath(`/admin/${id}`);
+  return { ok: true };
+}
+
+export async function salvarOrdemDasSecoes(
+  id: string,
+  ordem: ChaveSecao[],
+): Promise<EstadoFormulario> {
+  await exigirAdminOuErro();
+
+  const resultado = await salvarOrdem(id, ordem);
   if (!resultado.ok) return { erros: resultado.erros };
 
   revalidatePath(`/admin/${id}`);
