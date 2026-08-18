@@ -53,14 +53,14 @@
           "titulo": "Páginas do site",
           "resumo": "As oito páginas que compõem o site institucional.",
           "itens": [
-            "Home — apresentação clara da Barba Log, serviços em destaque e botões de contato",
-            "Sobre — história, diferenciais e quem está por trás do negócio",
-            "Serviços — detalhamento de cada área de atuação da consultoria",
-            "Cases — projetos realizados, com contexto e resultados alcançados",
-            "Blog — artigos e conteúdo técnico, que também ajudam o site a aparecer no Google",
-            "Materiais gratuitos — página de download em troca do contato do visitante",
-            "Diagnóstico logístico — página dedicada, com formulário próprio e mais detalhado",
-            "Contato — formulário, dados da empresa e link direto para o WhatsApp"
+            "Home: apresentação clara da Barba Log, serviços em destaque e botões de contato",
+            "Sobre: história, diferenciais e quem está por trás do negócio",
+            "Serviços: detalhamento de cada área de atuação da consultoria",
+            "Cases: projetos realizados, com contexto e resultados alcançados",
+            "Blog: artigos e conteúdo técnico, que também ajudam o site a aparecer no Google",
+            "Materiais gratuitos: página de download em troca do contato do visitante",
+            "Diagnóstico logístico: página dedicada, com formulário próprio e mais detalhado",
+            "Contato: formulário, dados da empresa e link direto para o WhatsApp"
           ],
           "entregaveis": ["As oito páginas no ar", "Estrutura pronta para novos textos"]
         },
@@ -68,22 +68,22 @@
           "titulo": "Serviços em destaque na home",
           "resumo": "Os seis serviços da Barba Log, em cards na página inicial.",
           "itens": [
-            "Diagnóstico logístico — produtividade, layout, fluxo, capacidade e custos",
-            "Projetos de centro de distribuição — greenfield, expansão, redesenho, slotting e capacidade",
-            "WMS e tecnologia — seleção, implantação, parametrização e aderência",
-            "Supply chain e planejamento — estoques, S&OP, abastecimento e PCP",
-            "Transportes — malha, roteirização, BID e frota própria vs terceirizada",
-            "Treinamentos corporativos — gestão de estoques, indicadores, inventário e operações"
+            "Diagnóstico logístico: produtividade, layout, fluxo, capacidade e custos",
+            "Projetos de centro de distribuição: greenfield, expansão, redesenho, slotting e capacidade",
+            "WMS e tecnologia: seleção, implantação, parametrização e aderência",
+            "Supply chain e planejamento: estoques, S&OP, abastecimento e PCP",
+            "Transportes: malha, roteirização, BID e frota própria vs terceirizada",
+            "Treinamentos corporativos: gestão de estoques, indicadores, inventário e operações"
           ]
         },
         {
           "titulo": "Como o site vai capturar contatos",
           "resumo": "Quatro caminhos para o visitante virar conversa.",
           "itens": [
-            "Formulário na home — o visitante preenche e a equipe da Barba Log recebe um aviso por e-mail",
-            "Página de diagnóstico — quem quer uma análise preenche um formulário com mais detalhes",
-            "Materiais gratuitos — para baixar, o visitante deixa nome e e-mail",
-            "Botão de WhatsApp fixo — aparece em todas as páginas, sempre visível"
+            "Formulário na home: o visitante preenche e a equipe da Barba Log recebe um aviso por e-mail",
+            "Página de diagnóstico: quem quer uma análise preenche um formulário com mais detalhes",
+            "Materiais gratuitos: para baixar, o visitante deixa nome e e-mail",
+            "Botão de WhatsApp fixo: aparece em todas as páginas, sempre visível"
           ],
           "entregaveis": ["Formulários enviando por e-mail", "Mecânica de download do material pronta"]
         },
