@@ -111,8 +111,15 @@ const e = StyleSheet.create({
 
   paragrafo: { marginBottom: 8, color: COR.texto },
   neblina: { color: COR.neblina },
+
+  /* O marcador de lista é um FILETE DESENHADO, não um caractere.
+     Com "—" dentro de um Text de 10pt de largura o traço encostava na palavra
+     seguinte — e pior: disputava leitura com os travessões que existem DENTRO
+     do próprio item ("Home — apresentação clara da Barba Log"). Desenhado, ele
+     é curto, fino, azul e tem folga garantida por caixa própria. */
   itemLinha: { flexDirection: "row", marginBottom: 5 },
-  marcador: { width: 10, color: COR.acento },
+  marcadorCaixa: { width: 16, paddingTop: 7 },
+  marcador: { height: 1.5, width: 7, backgroundColor: COR.acento },
 
   citacao: {
     backgroundColor: COR.azulClaro,
@@ -131,7 +138,18 @@ const e = StyleSheet.create({
     marginBottom: 8,
   },
   cartaoDestaque: { borderColor: COR.acento, backgroundColor: COR.azulClaro },
-  valor: { fontFamily: FONTE.display, fontWeight: 700, fontSize: 20, color: COR.navy, marginTop: 6 },
+  /* `lineHeight` explícito: a Fraunces Bold em 20pt desenha fora da caixa que o
+     react-pdf calcula, e a linha seguinte (a forma de pagamento) subia por cima
+     do valor. Margem embaixo separa o preço do que vem depois. */
+  valor: {
+    fontFamily: FONTE.display,
+    fontWeight: 700,
+    fontSize: 20,
+    lineHeight: 1.45,
+    color: COR.navy,
+    marginTop: 10,
+    marginBottom: 4,
+  },
   valorDestaque: { color: COR.acento },
 
   linhaTabela: {
@@ -166,6 +184,28 @@ function Cabecalho({ etiqueta, titulo }: { etiqueta: string; titulo: string }) {
       <Text style={e.etiqueta}>{etiqueta}</Text>
       <Text style={e.secaoTitulo}>{titulo}</Text>
       <View style={e.fileteSecao} />
+    </View>
+  );
+}
+
+/**
+ * Item de lista. O marcador é desenhado (ver `marcador` no StyleSheet) e mora
+ * numa coluna própria, então nunca encosta no texto. `divisoria` troca o
+ * espaçamento por uma linha entre itens — é o formato de "Fora do escopo".
+ */
+function Item({
+  children,
+  divisoria,
+}: {
+  children: React.ReactNode;
+  divisoria?: boolean;
+}) {
+  return (
+    <View style={divisoria ? e.linhaTabela : e.itemLinha}>
+      <View style={e.marcadorCaixa}>
+        <View style={e.marcador} />
+      </View>
+      <Text style={{ flex: 1 }}>{children}</Text>
     </View>
   );
 }
@@ -296,10 +336,7 @@ export function DocumentoProposta({ proposta }: { proposta: Proposta }) {
                   {modulo.resumo}
                 </Text>
                 {modulo.itens.map((item, j) => (
-                  <View key={j} style={e.itemLinha}>
-                    <Text style={e.marcador}>—</Text>
-                    <Text style={{ flex: 1 }}>{item}</Text>
-                  </View>
+                  <Item key={j}>{item}</Item>
                 ))}
                 {modulo.entregaveis && modulo.entregaveis.length > 0 && (
                   <View style={{ marginTop: 6, backgroundColor: COR.azulClaro, padding: 8 }}>
@@ -433,10 +470,7 @@ export function DocumentoProposta({ proposta }: { proposta: Proposta }) {
                 )}
                 <View style={{ marginTop: 6 }}>
                   {opcao.itens.map((item, j) => (
-                    <View key={j} style={e.itemLinha}>
-                      <Text style={e.marcador}>—</Text>
-                      <Text style={{ flex: 1 }}>{item}</Text>
-                    </View>
+                    <Item key={j}>{item}</Item>
                   ))}
                 </View>
               </View>
@@ -456,10 +490,9 @@ export function DocumentoProposta({ proposta }: { proposta: Proposta }) {
               titulo={conteudo.foraDoEscopo.titulo ?? "Fora do escopo"}
             />
             {conteudo.foraDoEscopo.itens.map((item, i) => (
-              <View key={i} style={e.linhaTabela}>
-                <Text style={e.marcador}>—</Text>
-                <Text style={{ flex: 1 }}>{item}</Text>
-              </View>
+              <Item key={i} divisoria>
+                {item}
+              </Item>
             ))}
             {conteudo.foraDoEscopo.nota && (
               <Text style={[e.neblina, { marginTop: 8 }]}>{conteudo.foraDoEscopo.nota}</Text>
