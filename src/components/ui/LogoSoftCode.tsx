@@ -1,28 +1,35 @@
 import Image from "next/image";
 
 /**
- * Logo da SoftCode em cor original.
+ * Logo da SoftCode em cor original — o gradiente #1B63EC → #6E2ED0 conversa com
+ * o azul de acento em vez de brigar, então não há motivo para descolorir a marca.
  *
- * Antes ele entrava monocromático via `mask-image`, o que fazia sentido sobre o
- * fundo escuro. Com o fundo branco da paleta do PDF, o gradiente original
- * (#1B63EC → #6E2ED0) conversa com o azul de acento em vez de brigar — então
- * não há motivo para descolorir a marca.
+ * O arquivo é uma lockup QUADRADA (viewBox 1024×1024, símbolo em cima e nome
+ * embaixo): `w-auto` segue essa proporção 1:1, então altura pequena rende marca
+ * minúscula. Por isso as alturas aqui são generosas.
  *
- * `next/image` com o SVG: sem reprocessamento, e o tamanho vem do `className`.
+ * Em capítulo escuro entra a variante de fundo escuro, onde o "Soft" é claro —
+ * a versão padrão tem o nome em navy e sumiria.
  */
 export function LogoSoftCode({
-  className = "h-9 w-auto",
+  className = "h-12 w-auto",
   prioridade = false,
+  escuro = false,
 }: {
   className?: string;
   prioridade?: boolean;
+  escuro?: boolean;
 }) {
   return (
     <Image
-      src="/Logos/500x500/SVG/SoftCode-Nome-Vetor.svg"
+      src={
+        escuro
+          ? "/Logos/500x500/SVG/SoftCode-Nome-Vetor-FundoEscuro.svg"
+          : "/Logos/500x500/SVG/SoftCode-Nome-Vetor.svg"
+      }
       alt="SoftCode"
       width={220}
-      height={56}
+      height={220}
       priority={prioridade}
       className={className}
     />

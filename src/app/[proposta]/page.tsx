@@ -7,7 +7,8 @@ import { buscarPropostaPorCaminho } from "@/lib/proposta/seed";
 import { caminhoPublico, type ChaveSecao } from "@/lib/proposta/schema";
 import { estaExpirada } from "@/lib/proposta/formatar";
 
-import { Hero, CabecalhoFixo } from "@/components/secoes/Hero";
+import { Hero } from "@/components/secoes/Hero";
+import { CabecalhoFixo } from "@/components/secoes/CabecalhoFixo";
 import { Entendimento } from "@/components/secoes/Entendimento";
 import { Solucao } from "@/components/secoes/Solucao";
 import { Escopo } from "@/components/secoes/Escopo";
@@ -44,10 +45,21 @@ const ORDEM_CANONICA: ChaveSecao[] = [
   "aceite",
 ];
 
-/** Tons alternados da paleta do PDF: branco e o azul claro de fundo.
-    A divisão é SECA — sem gradiente, sem blur, sem curva. A diferença entre os
-    dois tons é pequena o bastante para separar sem chamar atenção. */
-const TONS = ["#ffffff", "#f0f6ff"] as const;
+/**
+ * Três tons, não dois. A divisão continua SECA — sem gradiente, sem blur, sem
+ * curva —, mas agora existe um terceiro registro: o capítulo NOITE.
+ *
+ * Ele resolve duas coisas de uma vez: vidro só existe se houver algo atrás
+ * dele (sobre branco chapado o backdrop-filter cobra GPU e não entrega nada),
+ * e o contraste claro/escuro vira o ritmo da página sem precisar de divisória.
+ *
+ * Os capítulos escuros são os momentos-âncora — onde o cliente decide.
+ */
+const CLARO = "#ffffff";
+const AZUL_CLARO = "#f0f6ff";
+const NOITE = "#0a1420";
+
+const CAPITULOS_NOITE = new Set<ChaveSecao>(["processo", "investimento"]);
 
 type Props = { params: Promise<{ proposta: string }> };
 
@@ -130,8 +142,9 @@ export default async function PaginaProposta({ params }: Props) {
 
   const blocos = ordem.filter(presente);
 
-  /** O hero é o tom 0; a primeira seção começa no tom 1, e daí alterna. */
-  const tomDe = (i: number) => TONS[(i + 1) % 2];
+  /** As seções claras alternam entre branco e azul claro; as âncoras são noite. */
+  const tomDe = (chave: ChaveSecao, i: number) =>
+    CAPITULOS_NOITE.has(chave) ? NOITE : i % 2 === 0 ? AZUL_CLARO : CLARO;
 
   return (
     <AberturaProposta empresa={cliente.empresa} projeto={proposta.tituloProjeto}>
@@ -150,7 +163,12 @@ export default async function PaginaProposta({ params }: Props) {
       <main>
         {blocos.map((chave, i) => (
           <Fragment key={chave}>
-            <div style={{ backgroundColor: tomDe(i) }}>{montar(chave, i + 1)}</div>
+            <div
+              data-capitulo={CAPITULOS_NOITE.has(chave) ? "noite" : "dia"}
+              style={{ backgroundColor: tomDe(chave, i) }}
+            >
+              {montar(chave, i + 1)}
+            </div>
           </Fragment>
         ))}
       </main>

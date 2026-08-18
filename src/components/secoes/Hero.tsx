@@ -1,18 +1,23 @@
+"use client";
+
+import { motion, useReducedMotion, useTransform } from "motion/react";
 import { formatarDataLonga, textoValidade } from "@/lib/proposta/formatar";
 import { LogoSoftCode } from "@/components/ui/LogoSoftCode";
+import { usePercurso } from "@/components/motion/percurso";
 
 /**
- * ELEMENTO ASSINATURA da página.
+ * HERO — capítulo noite, e a primeira dobra da proposta.
  *
- * O nome da empresa do cliente entra em escala gigante e encolhe até dar lugar
- * ao cabeçalho fixo, conduzido por `scroll()` — não por mouse. É por isso que
- * funciona igual no celular, que é onde o link do WhatsApp vai ser aberto.
+ * Três camadas de parallax com FAIXAS diferentes, não só amplitudes diferentes:
+ * faixas iguais leem como um plano só deslizando, por mais que as distâncias
+ * variem. É a faixa que cria profundidade.
  *
- * Regras que este componente cumpre à risca:
- *   · o h1 é o LCP e nasce visível — nenhuma animação de entrada nele;
- *   · só `transform` e `opacity` são animados;
- *   · nenhum eixo de variable font é interpolado — isso causaria relayout por
- *     frame. O hero e o cabeçalho fixo são elementos distintos em crossfade.
+ * O gesto assinatura — o nome do cliente encolhendo até dar lugar ao cabeçalho —
+ * é conduzido por `useScroll`, e não por `scroll(root)` do CSS: é o efeito que o
+ * cliente PRECISA ver, e `animation-timeline` não existe antes do iOS 26.
+ *
+ * O h1 é o LCP: nasce visível, sem animação de entrada, e nenhum eixo de fonte
+ * variável é interpolado nele (isso reflui a linha a cada frame).
  */
 export function Hero({
   empresa,
@@ -29,49 +34,91 @@ export function Hero({
   validaAte: string;
   expirada: boolean;
 }) {
+  const menosMovimento = useReducedMotion();
+  const { alvo, progresso } = usePercurso(["start start", "end start"]);
+
+  const escalaNome = useTransform(progresso, [0, 1], [1, 0.55]);
+  const opacidadeNome = useTransform(progresso, [0, 0.75], [1, 0]);
+  const subidaNome = useTransform(progresso, [0, 1], ["0%", "-14%"]);
+
+  const camadaFundo = useTransform(progresso, [0, 1], ["0%", "34%"]);
+  const camadaMeio = useTransform(progresso, [0, 1], ["0%", "18%"]);
+  const camadaFrente = useTransform(progresso, [0, 1], ["0%", "-8%"]);
+
   return (
-    <header className="relative isolate flex min-h-[92dvh] flex-col justify-between overflow-hidden px-6 pb-12 pt-8 sm:px-8">
-      {/* camadas de parallax — decorativas, transform apenas */}
-      <div
+    <header
+      ref={alvo}
+      data-capitulo="noite"
+      className="relative isolate flex min-h-[100dvh] flex-col justify-between overflow-hidden bg-noite px-6 pb-14 pt-6 sm:px-10"
+    >
+      {/* três camadas, três faixas — é a faixa que dá profundidade */}
+      <motion.div
         aria-hidden
-        className="camada-parallax pointer-events-none absolute -right-1/4 top-[-10%] -z-10 h-[70dvh] w-[120vw] rounded-full bg-superficie/40 blur-3xl sm:w-[70vw]"
-        style={{ ["--deslocamento" as string]: "-18%" }}
+        className="pointer-events-none absolute -right-1/3 -top-1/4 -z-10 h-[80dvh] w-[130vw] rounded-full bg-[radial-gradient(circle,var(--color-acento-noite)_0%,transparent_62%)] opacity-25 blur-3xl sm:w-[75vw]"
+        style={menosMovimento ? undefined : { y: camadaFundo }}
       />
-      <div
+      <motion.div
         aria-hidden
-        className="camada-parallax pointer-events-none absolute -left-1/3 bottom-[-20%] -z-10 h-[45dvh] w-[100vw] rounded-full bg-acento/5 blur-3xl sm:w-[55vw]"
-        style={{ ["--deslocamento" as string]: "-8%" }}
+        className="pointer-events-none absolute -left-1/4 top-1/3 -z-10 h-[60dvh] w-[110vw] rounded-full bg-[radial-gradient(circle,#6E2ED0_0%,transparent_65%)] opacity-20 blur-3xl sm:w-[55vw]"
+        style={menosMovimento ? undefined : { y: camadaMeio }}
+      />
+      <motion.div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-px bg-gradient-to-r from-transparent via-acento-noite to-transparent opacity-60"
+        style={menosMovimento ? undefined : { y: camadaFrente }}
       />
 
-      <div className="flex items-center justify-between gap-4 text-xs uppercase tracking-[0.28em] text-neblina">
-        <LogoSoftCode className="h-24 w-auto sm:h-28" prioridade />
-        <span className="numero">Proposta comercial</span>
+      <div className="flex items-center justify-between gap-4">
+        <LogoSoftCode className="h-20 w-auto sm:h-24" prioridade escuro />
+        <span className="tipo-mono text-miudo uppercase tracking-[0.28em] text-noite-neblina">
+          Proposta comercial
+        </span>
       </div>
 
-      <div className="assinatura-nome py-10">
-        <p className="mb-5 text-sm uppercase tracking-[0.2em] text-acento">
+      <motion.div
+        className="py-10"
+        style={
+          menosMovimento
+            ? undefined
+            : {
+                scale: escalaNome,
+                opacity: opacidadeNome,
+                y: subidaNome,
+                transformOrigin: "left top",
+              }
+        }
+      >
+        <p className="tipo-mono mb-6 text-miudo uppercase tracking-[0.32em] text-acento-noite">
           Proposta para
         </p>
-        {/* LCP: sem animação de entrada, nasce visível */}
-        <h1 className="tipo-display text-nome">{empresa}</h1>
-      </div>
+        {/* LCP: nasce visível, sem animação de entrada */}
+        <h1 className="tipo-display tipo-display-wonk text-nome !text-noite-texto">
+          {empresa}
+        </h1>
+      </motion.div>
 
-      <div className="grid gap-8 border-t border-linha pt-8 sm:grid-cols-2">
+      <div className="grid gap-8 border-t border-noite-linha pt-8 sm:grid-cols-2">
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-neblina">Projeto</p>
-          <p className="mt-2 text-lg leading-snug text-navy">{projeto}</p>
-          <p className="mt-1 text-sm text-neblina">Aos cuidados de {cliente}</p>
+          <p className="tipo-mono text-miudo uppercase tracking-[0.28em] text-noite-neblina">
+            Projeto
+          </p>
+          <p className="mt-3 text-destaque leading-snug text-noite-texto">{projeto}</p>
+          <p className="mt-1 text-sm text-noite-neblina">Aos cuidados de {cliente}</p>
         </div>
         <dl className="grid grid-cols-2 gap-6 text-sm sm:justify-items-end sm:text-right">
           <div>
-            <dt className="text-xs uppercase tracking-[0.2em] text-neblina">Emissão</dt>
-            <dd className="numero mt-2 text-navy">{formatarDataLonga(emitidaEm)}</dd>
+            <dt className="tipo-mono text-miudo uppercase tracking-[0.28em] text-noite-neblina">
+              Emissão
+            </dt>
+            <dd className="numero mt-2 text-noite-texto">{formatarDataLonga(emitidaEm)}</dd>
           </div>
           <div>
-            <dt className="text-xs uppercase tracking-[0.2em] text-neblina">Validade</dt>
-            <dd className="numero mt-2 text-navy">{formatarDataLonga(validaAte)}</dd>
+            <dt className="tipo-mono text-miudo uppercase tracking-[0.28em] text-noite-neblina">
+              Validade
+            </dt>
+            <dd className="numero mt-2 text-noite-texto">{formatarDataLonga(validaAte)}</dd>
             <dd
-              className={`mt-1 text-xs ${expirada ? "text-neblina" : "text-acento"}`}
+              className={`mt-1 text-xs ${expirada ? "text-noite-neblina" : "text-acento-noite"}`}
             >
               {textoValidade(validaAte)}
             </dd>
@@ -79,67 +126,5 @@ export function Hero({
         </dl>
       </div>
     </header>
-  );
-}
-
-/**
- * A outra metade do gesto: aparece por opacidade quando o nome do hero termina
- * de encolher. Traz o logo do cliente à esquerda e o da SoftCode à direita.
- * Sem suporte a scroll-driven ou com reduced-motion, simplesmente não existe.
- */
-export function CabecalhoFixo({
-  empresa,
-  logoCliente,
-}: {
-  empresa: string;
-  logoCliente?: string;
-}) {
-  return (
-    <div
-      aria-hidden
-      className="cabecalho-fixo fixed inset-x-0 top-0 z-50 h-[var(--altura-cabecalho)] items-center justify-between gap-4 border-b border-linha vidro-sutil bg-fundo/85 px-6 sm:px-8"
-    >
-      <LogoCliente empresa={empresa} url={logoCliente} />
-      <LogoSoftCode className="h-12 w-auto" />
-    </div>
-  );
-}
-
-/**
- * Slot do logo do cliente, sempre monocromático em osso.
- *
- * A cor não é customizável de propósito: logo colorido de terceiro faria a
- * proposta parecer um documento de duas marcas mal costuradas. A monocromia vem
- * de `mask-image` — a forma do arquivo recorta uma área preenchida com
- * --color-navy, então nenhum pixel da cor original passa. Precisa ser navy, e
- * não osso: sobre o cabeçalho branco, osso seria branco sobre branco.
- *
- * Sem logo, o nome da empresa em Playfair ocupa o mesmo lugar.
- */
-function LogoCliente({ empresa, url }: { empresa: string; url?: string }) {
-  if (!url) {
-    return (
-      <span className="tipo-display text-base tracking-tight text-navy">
-        {empresa}
-      </span>
-    );
-  }
-
-  return (
-    <span
-      role="img"
-      aria-label={empresa}
-      className="block h-6 w-28 bg-navy"
-      style={{
-        maskImage: `url("${url}")`,
-        WebkitMaskImage: `url("${url}")`,
-        maskRepeat: "no-repeat",
-        WebkitMaskRepeat: "no-repeat",
-        maskPosition: "left center",
-        WebkitMaskPosition: "left center",
-        maskSize: "contain",
-        WebkitMaskSize: "contain",
-      }}
-    />
   );
 }

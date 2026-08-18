@@ -8,8 +8,7 @@
    ═══════════════════════════════════════════════════════════ */
 
 @theme {
-  /* Paleta dos orçamentos em PDF que a SoftCode já usava: branco com azul.
-     Os azuis conversam com o próprio logo, que tem gradiente #1B63EC → #6E2ED0. */
+  /* ── luz: a paleta dos orçamentos em PDF que a SoftCode já usava ── */
   --color-fundo: #ffffff;
   --color-superficie: #f0f6ff;
   --color-elevado: #f8fafc;
@@ -22,19 +21,61 @@
   --color-linha: #e2e8f0;
   --color-linha-azul: #c7d9f5;
 
+  /* ── noite: os capítulos escuros ──
+     Vidro só existe se houver algo atrás dele. Sobre branco chapado, o
+     backdrop-filter cobra GPU e não entrega nada. Por isso 2 ou 3 seções viram
+     capítulo escuro — e é nelas que o vidro e o metal acontecem. De quebra, o
+     contraste entre capítulo claro e escuro vira o ritmo da página. */
+  --color-noite: #0a1420;
+  --color-noite-elevada: #132131;
+  --color-noite-texto: #e8eef6;
+  --color-noite-neblina: #8fa3bb;
+  --color-noite-linha: #24374d;
+  --color-acento-noite: #5b8dff;
+
   --font-display: var(--fonte-display), Georgia, serif;
   --font-texto: var(--fonte-texto), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--fonte-mono), ui-monospace, monospace;
 
-  --text-nome: clamp(2.75rem, 13vw, 9rem);
-  --text-titulo: clamp(2rem, 7vw, 3.75rem);
-  --text-secao: clamp(1.5rem, 5vw, 2.25rem);
+  /* Escala ampliada: quatro degraus não davam hierarquia suficiente. */
+  --text-nome: clamp(3rem, 15vw, 11rem);
+  --text-mega: clamp(2.5rem, 9vw, 6rem);
+  --text-titulo: clamp(2rem, 7vw, 4rem);
+  --text-secao: clamp(1.5rem, 5vw, 2.5rem);
+  --text-destaque: clamp(1.125rem, 2.4vw, 1.5rem);
   --text-corpo: clamp(1rem, 1.2vw, 1.125rem);
+  --text-miudo: 0.8125rem;
 
   --spacing-denso: clamp(4rem, 9vw, 6rem);
   --spacing-normal: clamp(5rem, 13vw, 9rem);
   --spacing-respiro: clamp(7rem, 18vw, 14rem);
 
+  --radius-peca: 20px;
   --altura-cabecalho: 4rem;
+}
+
+/* Tokens de contexto: cada bloco de seção define o seu, e os componentes leem
+   daqui em vez de cravar cor. É o que permite a MESMA peça funcionar em capítulo
+   claro e escuro sem duplicar componente. */
+:root {
+  --ctx-fundo: var(--color-fundo);
+  --ctx-titulo: var(--color-navy);
+  --ctx-texto: var(--color-texto);
+  --ctx-neblina: var(--color-neblina);
+  --ctx-linha: var(--color-linha);
+  --ctx-acento: var(--color-acento);
+  --ctx-elevado: var(--color-elevado);
+}
+
+[data-capitulo="noite"] {
+  --ctx-fundo: var(--color-noite);
+  --ctx-titulo: var(--color-noite-texto);
+  --ctx-texto: var(--color-noite-texto);
+  --ctx-neblina: var(--color-noite-neblina);
+  --ctx-linha: var(--color-noite-linha);
+  --ctx-acento: var(--color-acento-noite);
+  --ctx-elevado: var(--color-noite-elevada);
+  color: var(--ctx-texto);
 }
 
 /* ─────────────────────────── base ─────────────────────────── */
@@ -57,18 +98,35 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Duas faces, dois pesos: Playfair Display 700 no display, Geist 400 no texto. */
+/* ── as três faces ──
+   O eixo WONK é o que dá personalidade sem trocar de fonte: 0 é séria, 1 é
+   editorial e irregular. opsz alto engrossa as hastes e afina as serifas, que é
+   o que faz título grande parecer desenhado e não só ampliado. */
 .tipo-display {
   font-family: var(--font-display);
   font-weight: 700;
-  color: var(--color-navy);
+  font-variation-settings: "opsz" 96, "SOFT" 12, "WONK" 0;
+  color: var(--ctx-titulo);
   line-height: 1.02;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
   text-wrap: balance;
 }
 
+/* Reservado para os títulos MAIORES, onde a irregularidade some no tamanho e
+   vira assinatura em vez de defeito. */
+.tipo-display-wonk {
+  font-variation-settings: "opsz" 144, "SOFT" 20, "WONK" 1;
+}
+
+.tipo-mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+}
+
 .numero {
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
 }
 
 :focus-visible {
@@ -98,22 +156,6 @@ body {
    confortavelmente em tela, e o movimento passava despercebido.
    ═══════════════════════════════════════════════════════════ */
 
-@keyframes encolher-nome {
-  to {
-    transform: scale(0.42) translateY(-6%);
-    opacity: 0;
-  }
-}
-
-@keyframes surgir {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
 @keyframes desenhar-x {
   from {
     transform: scaleX(0);
@@ -129,12 +171,6 @@ body {
   }
   to {
     transform: scaleY(1);
-  }
-}
-
-@keyframes deslocar {
-  to {
-    transform: translateY(var(--deslocamento, -14%));
   }
 }
 
@@ -156,47 +192,158 @@ body {
 
    E não adianta conferir isso em runtime: o Chromium trata `-webkit-` como
    alias e apaga a declaração do CSSOM. A verificação é no código-fonte. */
-.vidro {
-  -webkit-backdrop-filter: blur(14px) saturate(140%);
-  backdrop-filter: blur(14px) saturate(140%);
+@layer components {
+.vidro,
+.vidro-sutil {
+  position: relative;
+  isolation: isolate;
+  border-radius: var(--radius-peca);
+  background: color-mix(in oklab, var(--ctx-elevado) 55%, transparent);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  backdrop-filter: blur(14px) saturate(150%);
+  box-shadow:
+    0 18px 50px -28px rgb(3 12 24 / 0.55),
+    inset 0 1px 0 rgb(255 255 255 / 0.18);
 }
 
 .vidro-sutil {
-  -webkit-backdrop-filter: blur(8px) saturate(120%);
-  backdrop-filter: blur(8px) saturate(120%);
+  border-radius: 0;
+  -webkit-backdrop-filter: blur(8px) saturate(125%);
+  backdrop-filter: blur(8px) saturate(125%);
+  box-shadow: none;
 }
 
-/* Estado de repouso do cabeçalho fixo. Precisa vir ANTES do @supports:
-   mesma especificidade, então quem vem depois vence — declarado depois,
-   este `display: none` anulava o `display: flex` de dentro do bloco. */
-.cabecalho-fixo {
-  display: none;
+/* A borda de 1px com gradiente de luz é o que separa vidro caro de vidro
+   genérico. `mask-composite` recorta só o anel, sem pintar o miolo. */
+.vidro::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    140deg,
+    color-mix(in oklab, white 55%, transparent) 0%,
+    color-mix(in oklab, white 8%, transparent) 38%,
+    transparent 58%,
+    color-mix(in oklab, var(--ctx-acento) 45%, transparent) 100%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Highlight especular: o brilho diagonal que "vende" a superfície. */
+.vidro::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    120% 80% at 15% -10%,
+    rgb(255 255 255 / 0.22) 0%,
+    rgb(255 255 255 / 0.04) 42%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+/* Sem backdrop-filter (raro, mas barato de cobrir) o painel vira sólido. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .vidro,
+  .vidro-sutil {
+    background: color-mix(in oklab, var(--ctx-elevado) 92%, transparent);
+  }
+}
+
+/* ── metal ──
+   `@property` deixa o ângulo interpolável, o que torna a rotação do brilho
+   suave. Suportado no Safari 16.4+, então roda no iPhone. */
+@property --brilho {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.borda-metal {
+  position: relative;
+  isolation: isolate;
+  border-radius: var(--radius-peca);
+}
+
+.borda-metal::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(
+    from var(--brilho),
+    color-mix(in oklab, var(--ctx-acento) 30%, transparent),
+    #ffffff,
+    color-mix(in oklab, var(--ctx-acento) 85%, transparent),
+    color-mix(in oklab, var(--ctx-acento) 20%, transparent),
+    #ffffff,
+    color-mix(in oklab, var(--ctx-acento) 30%, transparent)
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .borda-metal::before {
+    animation: girar-brilho 7s linear infinite;
+  }
+}
+
+@keyframes girar-brilho {
+  to {
+    --brilho: 360deg;
+  }
+}
+
+/* Varredura de brilho no hover — anima só transform, custo praticamente nulo. */
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .varredura {
+    position: relative;
+    overflow: hidden;
+  }
+  .varredura::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      transparent 42%,
+      rgb(255 255 255 / 0.45) 50%,
+      transparent 58%
+    );
+    transform: translateX(-130%);
+    transition: transform 750ms cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+  }
+  .varredura:hover::after {
+    transform: translateX(130%);
+  }
 }
 
 @supports ((animation-timeline: view()) and (animation-range: 0% 100%)) {
   @media (prefers-reduced-motion: no-preference) {
-    .assinatura-nome {
-      animation: encolher-nome linear both;
-      animation-timeline: scroll(root);
-      animation-range: 0 70svh;
-      transform-origin: left top;
-      will-change: transform, opacity;
-    }
-
-    .cabecalho-fixo {
-      display: flex;
-      opacity: 0;
-      animation: surgir linear both;
-      animation-timeline: scroll(root);
-      animation-range: 55svh 72svh;
-    }
-
-    .camada-parallax {
-      animation: deslocar linear both;
-      animation-timeline: scroll(root);
-      animation-range: 0 100svh;
-    }
-
     .linha-tempo {
       transform-origin: top center;
       animation: desenhar-y linear both;
@@ -377,7 +524,6 @@ body {
      (.etapa-luz, .aspas-grande, .filete-*, .palavra-sobe, .corda) foram
      removidos: eram nomes sem contraparte no TSX, e faziam a lista parecer
      mais protetora do que era. */
-  .assinatura-nome,
   .ponto-fase,
   .convite-cartao,
   .convite-conteudo {
@@ -389,8 +535,7 @@ body {
   .borda-topo,
   .borda-base,
   .borda-esq,
-  .borda-dir,
-  .camada-parallax {
+  .borda-dir {
     transform: none !important;
     opacity: 1 !important;
   }

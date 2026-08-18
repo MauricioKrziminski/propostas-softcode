@@ -170,7 +170,10 @@ const motor = await pg.evaluate(() => {
   };
 });
 checar(motor.guard, "guard do @supports satisfeito", "guard do @supports falhou — a página está no fallback estático");
-checar(motor.scroll > 0 && motor.view > 0, `scroll-driven ativo (${motor.scroll} ScrollTimeline, ${motor.view} ViewTimeline)`, "nenhuma animação scroll-driven instanciada", JSON.stringify(motor.tipos));
+/* ScrollTimeline deixou de ser exigido: `animation-timeline` só existe no iOS
+   26+, então tudo que o cliente PRECISA ver migrou para `useScroll` (rAF).
+   O CSS scroll-driven ficou só como decoração — daí exigir só ViewTimeline. */
+checar(motor.view > 0, `decoração scroll-driven ativa (${motor.view} ViewTimeline)`, "nenhuma animação scroll-driven instanciada", JSON.stringify(motor.tipos));
 
 /* Títulos de seção NÃO podem voltar a ser sticky: comiam a viewport do celular
    e disputavam atenção com o conteúdo. */
@@ -189,8 +192,18 @@ const separacao = await pg.evaluate(() => {
   const comBlur = blocos.filter((b) => getComputedStyle(b).filter !== "none").length;
   return { blocos: blocos.length, distintas: new Set(cores).size, comGradiente, comBlur };
 });
-checar(separacao.blocos > 0 && separacao.distintas === 2, `${separacao.blocos} seções alternando entre 2 tons`, `esperava 2 tons alternados, encontrei ${separacao.distintas}`);
+checar(separacao.blocos > 0 && separacao.distintas === 3, `${separacao.blocos} seções em 3 tons (claro, azul claro e noite)`, `esperava 3 tons, encontrei ${separacao.distintas}`);
 checar(separacao.comGradiente === 0 && separacao.comBlur === 0, "divisão seca (sem gradiente e sem blur)", `${separacao.comGradiente} com gradiente, ${separacao.comBlur} com blur`);
+
+/* Os capítulos escuros são o que fazem o vidro existir: sobre branco chapado o
+   backdrop-filter cobra GPU e não entrega nada. */
+const capitulos = await pg.evaluate(() => ({
+  noite: document.querySelectorAll('[data-capitulo="noite"]').length,
+  comVidroDentro: [...document.querySelectorAll('[data-capitulo="noite"]')]
+    .filter((c) => c.querySelector(".vidro")).length,
+}));
+checar(capitulos.noite >= 2, `${capitulos.noite} capítulos noite`, `esperava ao menos 2 capítulos noite, encontrei ${capitulos.noite}`);
+checar(capitulos.comVidroDentro > 0, "vidro dentro de capítulo escuro (é onde ele rende)", "nenhum vidro dentro de capítulo escuro — sobre fundo claro ele não aparece");
 
 /* A seção travada precisa de fato travar: contêiner alto + filho sticky. */
 const travada = await pg.evaluate(() => {
@@ -276,7 +289,10 @@ const movimento = await pgRm.evaluate(() => {
     const s = getComputedStyle(e);
     if (s.animationName !== "none") animando.push(e.tagName.toLowerCase() + "." + (e.className || "").toString().split(" ")[0]);
   }
-  const candidatos = [...document.querySelectorAll("[style*='opacity'], .palavra-clip, .assinatura-nome")]
+  // Com reduced-motion o motion NÃO escreve estilo inline nenhum — então
+  // procurar por `[style*=opacity]` aqui inspecionaria conjunto vazio. O que
+  // importa neste modo é o conteúdo de verdade estar visível.
+  const candidatos = [...document.querySelectorAll("section p, section li, section h2, section h3, .palavra-clip")]
     .filter((e) => !e.closest('[aria-hidden="true"]'));
   const escondidos = candidatos
     .filter((e) => parseFloat(getComputedStyle(e).opacity) < 0.99)

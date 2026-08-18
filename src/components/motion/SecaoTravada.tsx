@@ -32,11 +32,18 @@ export function SecaoTravada({
   paineis,
   alturaPorItem = 90,
   etiquetaProgresso,
+  moldura,
 }: {
   paineis: ReactNode[];
   /** Altura de scroll por painel, em vh. */
   alturaPorItem?: number;
   etiquetaProgresso?: string;
+  /**
+   * Classe da moldura que envolve os painéis. É AQUI que o vidro entra: só um
+   * painel aparece por vez, então `backdrop-filter` em cada um seria GPU paga
+   * cinco vezes sem nada em troca.
+   */
+  moldura?: string;
 }) {
   const menosMovimento = useReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
@@ -73,21 +80,21 @@ export function SecaoTravada({
       <div className="sticky top-0 flex min-h-[100dvh] flex-col justify-center py-16">
         {/* progresso: onde estou e quanto falta */}
         <div className="mb-10 flex items-center gap-4">
-          <span className="numero shrink-0 text-xs uppercase tracking-[0.28em] text-acento">
+          <span className="tipo-mono shrink-0 text-miudo uppercase tracking-[0.28em] text-[var(--ctx-acento)]">
             {etiquetaProgresso} {String(ativo + 1).padStart(2, "0")}
-            <span className="text-neblina">
+            <span className="text-[var(--ctx-neblina)]">
               /{String(paineis.length).padStart(2, "0")}
             </span>
           </span>
-          <div className="h-px flex-1 bg-linha">
+          <div className="h-px flex-1 bg-[var(--ctx-linha)]">
             <motion.div
-              className="h-full origin-left bg-acento"
+              className="h-full origin-left bg-[var(--ctx-acento)]"
               style={{ scaleX: barra }}
             />
           </div>
         </div>
 
-        <div className="relative">
+        <div className={`relative ${moldura ?? ""}`}>
           {paineis.map((painel, i) => (
             <motion.div
               key={i}

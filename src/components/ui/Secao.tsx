@@ -42,7 +42,7 @@ export function Secao({
           <header className="mb-10 sm:mb-14">
             {etiqueta && (
               <Revelar direcao="esquerda" como="p">
-                <span className="numero block text-xs uppercase tracking-[0.28em] text-acento">
+                <span className="tipo-mono block text-miudo uppercase tracking-[0.32em] text-[var(--ctx-acento)]">
                   {etiqueta}
                 </span>
               </Revelar>
@@ -50,11 +50,11 @@ export function Secao({
             {titulo && (
               <TituloRevelado
                 texto={titulo}
-                className="tipo-display mt-3 text-titulo"
+                className="tipo-display mt-4 text-titulo"
               />
             )}
             <Revelar direcao="esquerda" atraso={0.15}>
-              <span aria-hidden className="mt-6 block h-px w-20 bg-acento" />
+              <span aria-hidden className="mt-7 block h-px w-24 bg-[var(--ctx-acento)]" />
             </Revelar>
           </header>
         )}
