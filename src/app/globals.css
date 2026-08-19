@@ -164,13 +164,27 @@ input:disabled {
   outline-style: solid;
   outline-width: 2px;
   outline-color: var(--ctx-acento, var(--color-acento));
-  outline-offset: 3px;
-  border-radius: 3px;
+  outline-offset: 2px;
+  /* NÃO force `border-radius` aqui. A regra antiga fixava 3px, e o efeito era
+     um campo de canto arredondado virar quase quadrado no instante em que
+     recebia foco, com o anel arredondado por fora: duas bordas de formatos
+     diferentes. Sem a linha, o anel simplesmente acompanha o raio do elemento. */
+
   /* `transition-colors` do Tailwind v4 inclui `outline-color`. Sem esta linha o
      anel LEVA ~300ms para ficar visível, e nesse meio-tempo ele é
      `currentColor`, navy sobre fundo claro, e quase preto sobre o botão azul.
      Retorno de foco precisa ser imediato. */
   transition-property: none;
+}
+
+/* Campo de texto tem borda própria, então um anel afastado vira duas bordas com
+   um vão no meio. Nele o anel entra PARA DENTRO e encosta na borda, virando uma
+   aresta só, mais grossa. Caixa de marcar e rádio ficam de fora: são pequenos
+   demais para caber um anel interno. */
+input:not([type="checkbox"]):not([type="radio"]):focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline-offset: -2px;
 }
 
 .alvo-toque {

@@ -33,6 +33,11 @@
   --mesa-aviso: #f0b429;
   --mesa-ok: #3fbf7f;
 
+  /* O anel de foco global lê `--ctx-acento`. Sem esta linha ele cairia no azul
+     da paleta clara dentro da cabine escura, que é mais escuro e some contra o
+     fundo. Aqui ele passa a ser o azul do painel. */
+  --ctx-acento: var(--mesa-acento);
+
   color-scheme: dark;
   background-color: var(--mesa-fundo);
   color: var(--mesa-tinta);
