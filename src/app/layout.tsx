@@ -46,15 +46,38 @@ const mono = Geist_Mono({
  *
  * Sem ela, o card do WhatsApp aponta para um caminho relativo e o aplicativo não
  * consegue buscar a imagem: o link chega sem foto, que é justamente o que o
- * `opengraph-image` existe para evitar. Em produção vem do domínio próprio; em
- * pré-visualização, do endereço que a Vercel gera; no computador, do localhost.
+ * `opengraph-image` existe para evitar.
+ *
+ * A função existe em vez de um `??` porque variável de ambiente VAZIA não é
+ * variável ausente: `??` deixa a string vazia passar, e `new URL("")` derruba o
+ * build inteiro na coleta de dados das páginas. Foi assim que o primeiro deploy
+ * quebrou. Aqui, vazio, só espaço ou valor inválido caem no padrão.
  */
-const enderecoBase =
-  process.env.NEXT_PUBLIC_URL_BASE ??
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+function enderecoBase(): string {
+  const candidatos = [
+    process.env.NEXT_PUBLIC_URL_BASE,
+    /* Domínio estável do projeto, quando existe; `VERCEL_URL` muda a cada
+       deploy e serve só como último recurso em pré-visualização. */
+    process.env.VERCEL_PROJECT_PRODUCTION_URL &&
+      `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`,
+    process.env.VERCEL_URL && `https://${process.env.VERCEL_URL}`,
+    "http://localhost:3000",
+  ];
+
+  for (const bruto of candidatos) {
+    const valor = bruto?.trim().replace(/\/+$/, "");
+    if (!valor) continue;
+    try {
+      return new URL(valor).toString();
+    } catch {
+      console.warn(`[metadataBase] endereço inválido, ignorado: ${valor}`);
+    }
+  }
+  return "http://localhost:3000";
+}
 
 export const metadata: Metadata = {
-  metadataBase: new URL(enderecoBase),
+  metadataBase: new URL(enderecoBase()),
   title: "SoftCode",
   robots: { index: false, follow: false },
 };
