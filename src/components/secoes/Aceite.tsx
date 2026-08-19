@@ -5,6 +5,7 @@ import { Secao } from "@/components/ui/Secao";
 import { BotaoLink } from "@/components/ui/Botao";
 import { formatarValor, rotulo } from "@/lib/proposta/formatar";
 import { CONTATO, linkEmail, linkWhatsApp } from "@/lib/contato";
+import { avisar } from "@/lib/eventos-cliente";
 import type { Aceite as Dados, OpcaoInvestimento } from "@/lib/proposta/schema";
 
 /**
@@ -12,9 +13,10 @@ import type { Aceite as Dados, OpcaoInvestimento } from "@/lib/proposta/schema";
  * ganha o tratamento mais forte da peça: vidro, borda metálica girando e
  * varredura de brilho no hover.
  *
- * FASE 1: sem banco, o aceite abre o e-mail já preenchido com a opção escolhida.
- * FASE 2: esta MESMA interface passa a chamar a Server Action que grava
- * timestamp, IP, user-agent e `opcao_id`, nada aqui precisa ser redesenhado.
+ * O aceite continua saindo pelo WhatsApp do cliente, e agora ele também GRAVA:
+ * o mesmo clique dispara um aviso para `/api/eventos`, que registra data, hora,
+ * IP, navegador e a opção escolhida, e manda o e-mail para a SoftCode. O texto
+ * abaixo promete exatamente isso ao cliente, e é essa gravação que o cumpre.
  *
  * O aviso de registro fica no fluxo, acima do botão, e não atrás de um link: é
  * ele que dá validade ao aceite, não um disclaimer defensivo.
@@ -39,6 +41,20 @@ export function Aceite({
   );
 
   const opcao = opcoes.find((o) => o.id === escolhida);
+
+  /* O aviso sai no MESMO clique que leva o cliente embora, e por isso ele usa
+     `sendBeacon`: o WhatsApp assume a tela e a aba vai para segundo plano antes
+     de qualquer requisição comum terminar. Não é `preventDefault`: segurar o
+     cliente para esperar uma telemetria seria trocar a venda pelo registro. */
+  const avisarAceite = (canal: string) => {
+    if (!opcao) return;
+    avisar(caminho, "aceite", {
+      opcaoId: opcao.id,
+      opcaoNome: opcao.nome,
+      valorCentavos: opcao.valorCentavos,
+      canal,
+    });
+  };
 
   const corpo = [
     `Olá, aqui é da ${empresa}.`,
@@ -118,6 +134,7 @@ export function Aceite({
               e-mail continua logo ao lado, para quem prefere formalizar. */}
           <a
             href={linkWhatsApp(corpo)}
+            onClick={() => avisarAceite("WhatsApp")}
             target="_blank"
             rel="noopener noreferrer"
             referrerPolicy="no-referrer"
@@ -134,6 +151,7 @@ export function Aceite({
           {opcao && (
             <BotaoLink
               href={linkEmail(`Aceite da proposta: ${empresa}`, corpo)}
+              onClick={() => avisarAceite("e-mail")}
               className="border-noite-linha text-noite-texto hover:border-acento-noite hover:text-acento-noite"
             >
               Aceitar por e-mail
@@ -166,6 +184,7 @@ export function Aceite({
                 `Olá! Estou vendo a proposta da ${empresa} e queria conversar.`,
                 pessoa.numero,
               )}
+              onClick={() => avisar(caminho, "contato", { canal: `WhatsApp ${pessoa.nome}` })}
               target="_blank"
               rel="noopener noreferrer"
               referrerPolicy="no-referrer"

@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
 
 import { DocumentoProposta } from "@/lib/pdf/DocumentoProposta";
@@ -5,6 +6,8 @@ import { buscarPropostaPorCaminho } from "@/lib/proposta/repositorio";
 import { caminhoPublico } from "@/lib/proposta/schema";
 import { estaExpirada } from "@/lib/proposta/formatar";
 import { sessaoValida } from "@/lib/admin/sessao";
+import { contaComoVisualizacaoHumana } from "@/lib/crawlers";
+import { registrarEvento } from "@/lib/eventos";
 
 /**
  * `/{slug}-{token}/pdf`, o arquivo que o cliente corporativo anexa no processo
@@ -20,7 +23,7 @@ import { sessaoValida } from "@/lib/admin/sessao";
 export const runtime = "nodejs";
 
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ proposta: string }> },
 ) {
   const { proposta: caminho } = await params;
@@ -31,8 +34,28 @@ export async function GET(
   }
 
   /* Mesma regra da página: rascunho só existe para quem tem sessão de admin. */
-  if (proposta.status === "rascunho" && !(await sessaoValida())) {
+  const admin = await sessaoValida();
+  if (proposta.status === "rascunho" && !admin) {
     return new Response("Não encontrado", { status: 404 });
+  }
+
+  /**
+   * O download é rastreado AQUI, no servidor, e não no clique do botão: o
+   * cliente corporativo salva este endereço e volta nele direto, ou manda para
+   * o jurídico. Rastrear no botão perderia justamente essas voltas.
+   *
+   * `after()` porque o e-mail não pode atrasar o PDF, e porque fogo-e-esquece
+   * solto em serverless morre junto com a resposta. Admin, crawler e prefetch
+   * ficam de fora: nenhum dos três é o cliente baixando o documento.
+   */
+  const humano = contaComoVisualizacaoHumana({
+    userAgent: req.headers.get("user-agent"),
+    purpose: req.headers.get("purpose"),
+    secPurpose: req.headers.get("sec-purpose"),
+    xPurpose: req.headers.get("x-purpose"),
+  });
+  if (humano && !admin) {
+    after(() => registrarEvento(proposta, "pdf_baixado"));
   }
 
   const buffer = await renderToBuffer(

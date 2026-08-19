@@ -90,14 +90,19 @@ function linhaParaProposta(linha: LinhaProposta): Proposta | null {
  * coluna gerada. O slug sozinho não resolve nada, e token errado é indistinguível
  * de proposta inexistente: as duas situações devolvem `null` e viram o mesmo 404.
  */
-export async function buscarPropostaPorCaminho(caminho: string): Promise<Proposta | null> {
+export async function buscarPropostaPorCaminho(caminho: string): Promise<PropostaComId | null> {
   if (!caminho || caminho.length > 120) return null;
 
   const [linha] = await comUmaRetentativa(() =>
     bd().select().from(propostas).where(eq(propostas.caminho, caminho)).limit(1),
   );
+  if (!linha) return null;
 
-  return linha ? linhaParaProposta(linha) : null;
+  /* O `id` vem junto porque o registro de eventos precisa da chave estrangeira,
+     e resolver a proposta duas vezes (uma para renderizar, outra para gravar a
+     visita) seria uma consulta a mais no caminho quente do cliente. */
+  const proposta = linhaParaProposta(linha);
+  return proposta ? { ...proposta, id: linha.id, caminho: linha.caminho ?? linha.slug } : null;
 }
 
 /**

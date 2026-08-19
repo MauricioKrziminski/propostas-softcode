@@ -12,6 +12,7 @@
     "start": "next start",
     "lint": "eslint",
     "valida:mobile": "node scripts/valida-mobile.mjs",
+    "valida:eventos": "node --env-file=.env.local scripts/valida-eventos.mjs",
     "semear": "node --env-file=.env.local scripts/semear.mjs",
     "banco:gerar": "drizzle-kit generate",
     "conferir": "node --env-file=.env.local scripts/conferir-conexao.mjs",

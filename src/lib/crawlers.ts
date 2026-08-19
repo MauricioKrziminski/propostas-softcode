@@ -5,7 +5,7 @@
  *   - `app/robots.ts` LIBERA estes agentes, senão o card do WhatsApp não é
  *     gerado (os crawlers da Meta respeitam robots.txt, e a regra geral é
  *     `Disallow: /`);
- *   - o tracking da Fase 2 IGNORA estes mesmos agentes, senão colar o link no
+ *   - o registro de eventos IGNORA estes mesmos agentes, senão colar o link no
  *     WhatsApp já marcaria a proposta como visualizada e dispararia o e-mail de
  *     "o cliente abriu" antes de o cliente abrir.
  *
@@ -61,8 +61,8 @@ export function ehPrefetch({
 }
 
 /**
- * Regra final do tracking (usada na Fase 2). Fora dela, nada é gravado:
- * sem linha em `proposta_visualizacoes`, sem incremento de contador, sem e-mail.
+ * Regra final do registro de eventos. Fora dela, nada acontece: sem linha em
+ * `proposta_eventos`, sem e-mail para a SoftCode.
  */
 export function contaComoVisualizacaoHumana(c: CabecalhosDeAcesso): boolean {
   const ua = c.userAgent?.trim();
