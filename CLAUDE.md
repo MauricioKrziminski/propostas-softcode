@@ -149,6 +149,43 @@ proposta**, o seed atual é a proposta real da Barba Log, não um exemplo.
 - As réguas que separam blocos de comentário são traço de caixa (`─`, U+2500),
   outro caractere. Elas podem ficar; travessão dentro de frase, não.
 
+## Deploy: Vercel com DNS na Cloudflare
+
+O site institucional (`softcodedev.com.br`) mora na Cloudflare. As propostas vão
+para a Vercel em `propostas.softcodedev.com.br`, então quem manda no DNS continua
+sendo a Cloudflare, e é lá que o subdomínio é apontado.
+
+**Variáveis na Vercel** (Project Settings > Environment Variables), as mesmas do
+`.env.local` mais duas: `DATABASE_URL` (pooler de transação, porta 6543),
+`ADMIN_SENHA_HASH`, `SESSAO_SEGREDO`, `NEXT_PUBLIC_URL_BASE`. O `CRON_SECRET` a
+Vercel injeta sozinha ao criar o cron.
+
+**O registro na Cloudflare:**
+
+| Campo | Valor |
+| --- | --- |
+| Tipo | CNAME |
+| Nome | `propostas` |
+| Destino | o que a Vercel mostrar (`cname.vercel-dns.com` ou similar) |
+| Proxy | **DNS only** (nuvem CINZA, não laranja) |
+
+**A nuvem cinza não é detalhe.** Com o proxy da Cloudflare ligado:
+  · a Vercel não consegue emitir o certificado, porque a validação passa a bater
+    na Cloudflare em vez de no servidor dela;
+  · se o modo SSL da Cloudflare estiver em "Flexible", o navegador entra em laço
+    de redirecionamento e a proposta não abre;
+  · e a proposta perde o `X-Robots-Tag` e os cabeçalhos que a Vercel manda, que
+    são o que mantém tudo isto fora do Google.
+
+**O cron do pulso** (`vercel.json`) bate em `/api/pulso` uma vez por dia. Ele
+existe porque projeto Supabase gratuito PAUSA depois de sete dias sem requisição,
+e banco pausado significa proposta que não abre justamente quando o cliente
+demorou para ler o link. No plano Hobby da Vercel, cron diário é o que cabe, e é
+o suficiente.
+
+**Depois de subir**, conferir nesta ordem: `/painel` pede senha, uma proposta
+real abre, o PDF baixa, e `curl -I` no domínio mostra `x-robots-tag: noindex`.
+
 ## Convenções de commit
 
 [Conventional Commits](https://www.conventionalcommits.org/): `tipo(escopo): descrição`

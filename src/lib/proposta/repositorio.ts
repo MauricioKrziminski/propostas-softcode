@@ -1,6 +1,6 @@
 import "server-only";
 
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, sql } from "drizzle-orm";
 
 import { bd } from "@/lib/banco/cliente";
 import { propostas, type LinhaProposta } from "@/lib/banco/esquema";
@@ -117,6 +117,16 @@ async function comUmaRetentativa<T>(consulta: () => Promise<T>): Promise<T> {
     await new Promise((r) => setTimeout(r, 250));
     return consulta();
   }
+}
+
+/**
+ * A consulta mais barata possível, só para o banco saber que ainda existe.
+ *
+ * Projeto Supabase gratuito pausa depois de sete dias sem requisição. Um `select
+ * 1` por dia zera esse contador. Ver `src/app/api/pulso/route.ts`.
+ */
+export async function pulsar(): Promise<void> {
+  await bd().execute(sql`select 1`);
 }
 
 /* ─────────────────────────── o que o admin usa ─────────────────────────── */

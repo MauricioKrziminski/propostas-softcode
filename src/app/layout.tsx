@@ -41,7 +41,20 @@ const mono = Geist_Mono({
   variable: "--fonte-mono",
 });
 
+/**
+ * `metadataBase` resolve os endereços relativos das imagens de compartilhamento.
+ *
+ * Sem ela, o card do WhatsApp aponta para um caminho relativo e o aplicativo não
+ * consegue buscar a imagem: o link chega sem foto, que é justamente o que o
+ * `opengraph-image` existe para evitar. Em produção vem do domínio próprio; em
+ * pré-visualização, do endereço que a Vercel gera; no computador, do localhost.
+ */
+const enderecoBase =
+  process.env.NEXT_PUBLIC_URL_BASE ??
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+
 export const metadata: Metadata = {
+  metadataBase: new URL(enderecoBase),
   title: "SoftCode",
   robots: { index: false, follow: false },
 };
