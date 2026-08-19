@@ -9,9 +9,9 @@ para clientes. A página pública é alimentada pelo Postgres do Supabase, valid
 pelo mesmo schema Zod que os componentes usam. O `/admin` monta e edita as
 propostas.
 
-Ainda **em aberto**: tracking de visualização, registro do aceite e e-mail
-(Resend). A animação usa `motion`, não instalar GSAP nem Lenis sem alinhamento
-(a decisão e o porquê estão no plano).
+Cada ação do cliente na proposta dele vira linha em `proposta_eventos` e um
+e-mail para a SoftCode, pelo Resend. A animação usa `motion`, não instalar GSAP
+nem Lenis sem alinhamento (a decisão e o porquê estão no plano).
 
 ## Stack
 
@@ -40,12 +40,16 @@ Instalação de dependências: `npm install <pacote>`.
 | `npm start` | Roda o build de produção |
 | `npm run lint` | ESLint |
 | `npm run valida:mobile` | Validação mobile em 390×844 real (com o dev server no ar) |
+| `npm run valida:eventos` | Prova o registro de eventos e a deduplicação do e-mail |
 | `npm run semear` | Insere as propostas de `src/seed/` no banco (idempotente pelo slug) |
 | `npm run banco:gerar` | Gera SQL de migração a partir de `src/lib/banco/esquema.ts` |
 
 Variáveis de ambiente em `.env.local` (modelo em `.env.example`): `DATABASE_URL`
 (pooler de transação do Supabase, porta 6543), `ADMIN_SENHA_HASH`
-(`node scripts/gerar-senha.mjs "senha"`) e `SESSAO_SEGREDO`.
+(`node scripts/gerar-senha.mjs "senha"`), `SESSAO_SEGREDO` e, para os avisos de
+evento, `RESEND_API_KEY`, `EMAIL_FROM`, `EMAIL_REPLY_TO` e `CONTACT_INBOX`.
+Sem as quatro do Resend nada quebra: o evento continua sendo gravado e o envio
+vira aviso no log.
 
 `valida:mobile` roda ao final de **toda** fase. Ele verifica, num viewport de
 iPhone: overflow horizontal, alvos de toque de 44px, ausência de `100vh`,
@@ -84,6 +88,129 @@ proposta**, o seed atual é a proposta real da Barba Log, não um exemplo.
   abaixo do bloco anula o `display: flex` de dentro dele e o elemento nunca
   aparece: foi exatamente assim que o cabeçalho fixo ficou invisível por uma
   fase inteira sem ninguém notar.
+- **O convite é um ENVELOPE LACRADO sobre fundo noite.** O fundo escuro não é
+  gosto: é o que faz o papel claro brilhar e o que dá contraste à abertura. O
+  lacre também não é enfeite: aqui a autorização é a posse do token na URL, e
+  lacre diz exatamente "preparado para você, ninguém abriu antes".
+- **É a face de TRÁS do envelope, não a da frente.** A frente (retângulo com um
+  V no topo) é o desenho de "e-mail" de qualquer barra de aplicativo, e não tem
+  como fugir disso mantendo a frente: quanto mais o V some, menos parece
+  envelope; quanto mais ele cresce, mais parece ícone. A face de trás resolve os
+  dois lados: aba grande descendo de cima, aba de baixo subindo do rodapé, e o
+  lacre no encontro das duas. Duas dobras se encontrando é o que o olho lê como
+  construção de papel.
+- **Endereçamento à ESQUERDA, lacre centralizado.** Tudo centralizado num
+  retângulo é composição de cartão de visita; envelope endereçado tem o bloco do
+  destinatário à esquerda e o lacre no eixo do papel. São dois eixos diferentes,
+  e é essa tensão que faz a peça parecer desenhada em vez de empilhada.
+- **A aba de trás não passa de 36% e o bloco começa abaixo do lacre.** O lacre
+  mora no vértice da aba, e com nome de cliente de duas linhas o bloco cresce
+  para cima: aba mais funda empurra o carimbo para cima da etiqueta. O
+  `valida:mobile` troca o nome no DOM por um longo e mede de novo, porque a
+  proposta semeada tem nome curto e a checagem passaria no vácuo.
+- **O papel do envelope é ESCURO e o forro dele é claro.** Papelaria de alto
+  padrão faz exatamente isso, e no produto resolve três coisas de uma vez: o
+  envelope deixa de ser mais um retângulo branco entre outros retângulos brancos
+  e vira objeto; a carta que sai de dentro é BRANCA, então a saída ganha o
+  contraste que faltava (papel claro emergindo de papel escuro, e não branco
+  saindo de branco); e o lacre inverte junto, de cera escura para cera perolada,
+  voltando a ser a coisa mais clara da peça, que é onde o olho precisa ir. A
+  tinta é clara sobre escuro: é impressão em foil, não em preto.
+- **A mesa precisa ser mais ESCURA que o envelope**, senão objeto escuro sobre
+  fundo escuro vira mancha. E o recorte vem da ARESTA: fio de luz na borda de
+  cima e nas laterais, sombra funda embaixo. Sem isso o envelope encosta no
+  fundo e some. Em papel escuro o grão também precisa de mais opacidade: é ele
+  que impede o navy de virar plástico.
+- **Cera MATE, nunca pastilha.** Gradiente radial forte mais anel de luz dura
+  transformam o lacre num botão de interface. Cera de verdade tem a luz
+  espalhada e a borda um pouco irregular, não brilho especular no canto.
+- **A troca de face da aba é por OPACIDADE dentro dos keyframes da rotação, não
+  por `backface-visibility`.** Com as duas faces em `preserve-3d`, uma girada
+  180 graus e as duas com `backface-visibility: hidden`, o computado sai
+  exatamente como o esperado nos dois motores e mesmo assim o forro aparece por
+  cima com a aba FECHADA: o `clip-path` de cada face é propriedade de
+  agrupamento, a face vira grupo achatado e o verso deixa de ser escondido. A
+  troca cai no quadro dos 90 graus, onde a aba está de perfil e tem largura
+  zero, então é literalmente invisível.
+- **Na abertura, o envelope INTEIRO precisa se apagar antes de a câmera
+  avançar.** A aba é pintada na frente da carta (`translateZ` maior), então
+  cobrir a viewport com a carta não basta: com a aba ainda opaca sobrava uma
+  faixa navy atravessada no alto da tela justo no quadro em que o papel deveria
+  ter tomado tudo.
+- **O endereçamento é FLEX em coluna, nunca grid.** Item de grid tem
+  `align-self: stretch` por padrão e sua altura passa a vir da trilha, não do
+  conteúdo: com nome de duas linhas uma trilha saía menor que o texto e o
+  recorte de linha comia metade do escopo.
+- **O envelope se MONTA na frente do cliente e depois se abre.** Ele chega com a
+  aba levantada, o endereço é escrito enquanto ela cai (em paralelo, senão o
+  envelope fica meio segundo em branco esperando a vez do texto), e só com a aba
+  baixada o lacre prensa. Depois disso ele RESPIRA devagar, para sempre: peça
+  parada em tela cheia lê como imagem, e o movimento lento é o que a mantém
+  objeto justo enquanto a pessoa decide se clica.
+- **Abrir não troca de tela, ABRE o envelope.** O lacre rompe, a aba gira para
+  trás em 3D (`perspective` no pai, `preserve-3d` no filho, e é por isso que ela
+  passa por trás do corpo depois dos 90 graus sem `z-index` nenhum), a carta sobe
+  de dentro e a câmera entra nela. São cinco animações encadeadas em CINCO
+  elementos diferentes: duas no mesmo elemento fazem a segunda apagar a primeira.
+- **A animação de fechar a aba usa `backwards`, nunca `both`.** Com `both` o
+  estado final fica cravado para sempre, nenhuma declaração de `transform` volta
+  a valer, e o hover que levanta a aba morre em silêncio. Com `backwards` a
+  animação solta o elemento no fim, e como o `to` do keyframe é idêntico ao
+  repouso não há salto.
+- **Animação com atraso e `from` VISÍVEL precisa de `forwards`, não `both`.** A
+  onda do carimbo começa em `opacity: 0.5`; com `both` o navegador segura esse
+  primeiro quadro durante todo o atraso, e um anel azul ficava parado em volta do
+  lacre pelo primeiro segundo e meio. Ninguém pega isso olhando o estado final.
+- **O hover levanta a aba PARA A FRENTE (`rotateX` positivo), e o lacre precisa
+  de `translateZ` FOLGADO.** Para trás, que é o sentido da abertura de verdade, a
+  ponta vai para z negativo e a aba desaparece atrás do corpo. Para a frente ela
+  aparece, mas a ponta AVANÇA em profundidade: com 8 graus numa aba de ~119px são
+  uns 17px, e o lacre a 4px ficava atrás dela, aparecendo cortado ao meio. Com
+  28px o carimbo fica na frente em qualquer ângulo, e a perspectiva só cobra 2%
+  de ampliação. A checagem certa é `elementFromPoint` no centro do lacre: ela
+  mede a ordem que o 3D de fato resolveu, e não a que o CSS parece dizer.
+- **A ordem da saída é o truque inteiro: COBRIR primeiro, dissolver depois.** A
+  carta precisa tomar a viewport antes de a camada começar a se apagar. Fazendo
+  as duas coisas juntas, o papel fica meio transparente no meio do caminho, a
+  aresta de baixo dele corta a tela na horizontal, e "entrar na carta" vira
+  "painel cinza passando". E a frente do envelope só se apaga DEPOIS de a carta
+  estar meio caminho fora, senão ela parece atravessar o endereçamento em vez de
+  sair de dentro. `SAIDA_MS` em `AberturaProposta.tsx` precisa casar com a última
+  animação de `.convite-saindo`.
+- **O lacre fica FORA da aba**, e por isso não gira com ela: ele rompe, ela abre.
+  Fora também porque tem texto, e texto girando em 3D é re-rasterizado quadro a
+  quadro no WebKit.
+- **Nada de `data-capitulo="noite"` no `#convite`.** O fundo é escuro mas o
+  ENVELOPE é claro, e o atributo faz `--ctx-titulo` virar quase branco para tudo
+  que está dentro: o nome do cliente saía branco sobre papel branco, invisível.
+  Dentro do convite cada cor é explícita.
+- **Peça do convite que use classe declarada dentro de `@media` precisa de
+  especificidade EXTRA.** A frente do envelope usa `.cartao-luz`, que só existe
+  sob `(hover: hover) and (pointer: fine)` e traz `position: relative`: mesma
+  especificidade, declarada depois, ela vencia o `position: absolute` do
+  envelope. No celular nada acontecia; no desktop o endereçamento saía de dentro
+  do envelope e ia parar no fundo escuro. Por isso o seletor é
+  `.convite-3d .convite-frente`, e por isso `valida:mobile` tem um bloco em
+  ponteiro fino: nenhum teste em viewport de celular pega essa classe de defeito.
+- **O gesto memorável é UM: a luz de foil atravessando o nome do cliente**, que
+  aqui é o endereço do envelope. Uma vez, sem repetir no hover nem no toque, e só
+  DEPOIS de o convite já estar focado (1350ms). Referência premiada gasta de 1,5s
+  a 4,5s porque é portfólio; aqui o cliente veio de um toque no WhatsApp em 4G.
+- **A luz do nome é recorte de texto com DUAS animações que se cancelam.** A
+  janela mascarada anda para um lado e o texto dentro dela anda para o outro,
+  mesma largura e mesmo tempo, então só a luz viaja. É o jeito de recortar o
+  brilho nos glifos sem animar `background-position` (e `mask-image` nem
+  interpola, é propriedade discrete). A cópia iluminada é texto PURO:
+  `background-clip: text` não enxerga texto dentro de `inline-block` filho, e com
+  as caixas de recorte do original a camada simplesmente não aparecia. O `<h1>` é
+  `fit-content`, senão metade do percurso da luz varre espaço vazio ao lado do
+  nome. E `-webkit-text-fill-color` vai junto de `color`: no Safari o segundo
+  sozinho não apaga o texto.
+- **O foco vai para o DIÁLOGO, não para o botão.** `.focus()` sem interação
+  anterior casa `:focus-visible` na maioria dos navegadores, e o resultado é um
+  anel azul grosso desenhado sozinho em cima da peça principal, num aparelho onde
+  ninguém está usando teclado. No contêiner com `role="dialog"` o leitor de tela
+  anuncia o convite inteiro, e Enter e Esc já abrem de qualquer lugar.
 - **A divisória entre seções é a própria diferença de cor**, e é SECA: sem
   gradiente, sem blur, sem curva. Os tons alternados são decididos pela página,
   nunca pela seção.
@@ -130,6 +257,20 @@ proposta**, o seed atual é a proposta real da Barba Log, não um exemplo.
 - **No painel, toda página e toda action chamam `exigirAdmin()` na primeira
   linha.** O `proxy.ts` só faz checagem otimista de cookie; Server Action é
   endpoint HTTP e pode ser chamada sem passar por rota nenhuma.
+- **Quem decide se o e-mail sai é o BANCO, não a aplicação.** A inserção em
+  `proposta_eventos` é `on conflict do nothing` contra o índice único
+  `(proposta_id, tipo, chave)`, e o aviso só é enviado se uma linha nasceu. Uma
+  verificação, não duas. A `chave` define a janela: abrir, entrar e baixar usam
+  a DATA (repetem no dia seguinte, não a cada F5), e o **aceite nunca
+  deduplica**, porque perder um "abriu" não custa nada e engolir um "fechou
+  negócio" custa a venda. O teto de 8 aceites por dia existe só para o botão
+  não virar amplificador de e-mail para quem tem o link.
+- **Evento nunca derruba a página.** Toda gravação e todo envio ficam dentro de
+  `try`, e a rota `/api/eventos` responde 204 SEMPRE, achando a proposta ou não:
+  um 404 ali diria "este slug existe", que é o que a página se recusa a dizer.
+  Crawler de preview, prefetch, rascunho e sessão de admin não geram evento;
+  sem esse filtro, colar o link no WhatsApp já avisaria "o cliente abriu", e
+  conferir a própria proposta mandaria e-mail para si mesmo.
 - **Slug e token nunca mudam depois de criados.** Os dois formam o link que já
   está no WhatsApp do cliente. Precisando de endereço novo, duplique.
 
@@ -156,9 +297,15 @@ para a Vercel em `propostas.softcodedev.com.br`, então quem manda no DNS contin
 sendo a Cloudflare, e é lá que o subdomínio é apontado.
 
 **Variáveis na Vercel** (Project Settings > Environment Variables), as mesmas do
-`.env.local` mais duas: `DATABASE_URL` (pooler de transação, porta 6543),
-`ADMIN_SENHA_HASH`, `SESSAO_SEGREDO`, `NEXT_PUBLIC_URL_BASE`. O `CRON_SECRET` a
+`.env.local` mais uma: `DATABASE_URL` (pooler de transação, porta 6543),
+`ADMIN_SENHA_HASH`, `SESSAO_SEGREDO`, `RESEND_API_KEY`, `EMAIL_FROM`,
+`EMAIL_REPLY_TO`, `CONTACT_INBOX` e `NEXT_PUBLIC_URL_BASE`. O `CRON_SECRET` a
 Vercel injeta sozinha ao criar o cron.
+
+O `NEXT_PUBLIC_URL_BASE` importa duas vezes: ele monta o card do WhatsApp e é o
+endereço do botão "Abrir a proposta" dentro do e-mail de aviso. E o domínio do
+`EMAIL_FROM` precisa estar VERIFICADO no Resend, senão a API recusa e o aviso
+nunca chega.
 
 **O registro na Cloudflare:**
 
