@@ -407,13 +407,384 @@ checar(movimento.candidatos > 0 && movimento.comTransform > 0, `inspecionando ${
 checar(movimento.escondidos.length === 0, "todo conteúdo visível", "conteúdo escondido com reduced-motion", movimento.escondidos.join(", "));
 checar(movimento.transformados.length === 0, "nenhum transform residual (filetes e bordas em estado final)", "transform residual com reduced-motion", movimento.transformados.join(", "));
 
-/* A aba do envelope precisa sumir com reduced-motion, parada, ela cobre o topo
-   do cartão. O CSS escondia uma classe que o TSX não usava. */
-const abaVisivel = await pgRm.evaluate(() => {
-  const aba = document.querySelector(".convite-aba-auto");
-  return aba ? getComputedStyle(aba).display !== "none" : false;
+/* A capa do convite com reduced-motion: nome inteiro visível e a camada de luz
+   apagada. Parada, a luz é uma faixa metálica cobrindo metade do nome.
+
+   A medição é numa aba PRÓPRIA, que não dispensa o convite: a checagem antiga
+   olhava a página já com o convite fora do DOM, então `querySelector` devolvia
+   `null` e ela passava no vácuo, sempre. */
+const ctxCapa = await navegador.newContext({ ...iPhone, reducedMotion: "reduce" });
+const pgCapa = await ctxCapa.newPage();
+await pgCapa.goto(BASE + CAMINHO, { waitUntil: "networkidle" });
+await pgCapa.waitForTimeout(600);
+const capa = await pgCapa.evaluate(() => {
+  const luz = document.querySelector(".convite-foil");
+  const onda = document.querySelector(".convite-onda");
+  const lacre = document.querySelector(".convite-lacre");
+  const palavras = [...document.querySelectorAll("#convite .convite-caixa > span")];
+  const parado = (e) =>
+    ["none", "matrix(1, 0, 0, 1, 0, 0)"].includes(getComputedStyle(e).transform);
+  return {
+    achouLuz: Boolean(luz),
+    luzApagada: luz ? parseFloat(getComputedStyle(luz).opacity) === 0 : false,
+    achouLacre: Boolean(lacre && onda),
+    /* A aba parada no meio do giro é um triângulo flutuando fora do envelope. */
+    abaFechada: (() => {
+      const a = document.querySelector(".convite-aba");
+      if (!a) return false;
+      const t = getComputedStyle(a).transform;
+      /* `translateZ(3px)` é o repouso: matriz 3D sem rotação nenhuma. */
+      return !t.includes("matrix3d") || /matrix3d\(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0/.test(t);
+    })(),
+    /* A onda do carimbo parada é um anel azul desenhado em volta do lacre, e o
+       lacre parado no meio da prensa é um selo gigante estourando o cartão. */
+    ondaApagada: onda ? parseFloat(getComputedStyle(onda).opacity) === 0 : false,
+    lacreAssentado: lacre ? parado(lacre) : false,
+    palavras: palavras.length,
+    escondidas: palavras.filter((e) => {
+      const s = getComputedStyle(e);
+      return parseFloat(s.opacity) < 0.99 || !["none", "matrix(1, 0, 0, 1, 0, 0)"].includes(s.transform);
+    }).length,
+    animando: [...document.querySelectorAll("#convite *")].filter(
+      (e) => getComputedStyle(e).animationName !== "none",
+    ).length,
+    botao: Boolean(document.querySelector("#convite button")),
+  };
 });
-checar(!abaVisivel, "aba do envelope escondida com reduced-motion", "a aba do envelope ficou visível e parada sobre o cartão");
+checar(capa.achouLuz, "a camada de luz existe no DOM", "seletor .convite-foil vazio, a checagem passaria no vácuo");
+checar(capa.luzApagada, "luz do nome apagada com reduced-motion", "a luz ficou parada cobrindo o nome");
+checar(capa.achouLacre, "o lacre e a onda existem no DOM", "seletores do lacre vazios, a checagem passaria no vácuo");
+checar(capa.ondaApagada, "onda do carimbo apagada com reduced-motion", "a onda ficou parada como anel azul em volta do lacre");
+checar(capa.lacreAssentado, "lacre assentado com reduced-motion", "o lacre ficou parado no meio da prensa, em escala grande");
+checar(capa.abaFechada, "aba do envelope fechada com reduced-motion", "a aba ficou parada no meio do giro, flutuando fora do envelope");
+checar(capa.palavras > 0 && capa.escondidas === 0, `nome inteiro visível (${capa.palavras} palavra(s))`, "palavra do nome escondida com reduced-motion");
+checar(capa.animando === 0, "nada animando na capa", `${capa.animando} elemento(s) da capa ainda animam`);
+checar(capa.botao, "a capa tem botão para dispensar", "sem <button> dentro de #convite: o convite viraria beco sem saída");
+
+/* Duas colisões de composição que só apareceram com nome de cliente de duas
+   linhas, e que voltam calado se alguém mexer nas constantes de espaçamento:
+     · o lacre mora no vértice da aba e desce sobre a etiqueta;
+     · o recorte de linha (`overflow: hidden`) fica MENOR que o texto e come
+       metade do escopo. Foi o `align-self: stretch` de item de grid: a altura
+       vinha da trilha, não do conteúdo. */
+const composicao = await pgCapa.evaluate(() => {
+  const cx = (s) => document.querySelector(s)?.getBoundingClientRect();
+  const lacre = cx(".convite-lacre-area");
+  const etiqueta = cx(".convite-etiqueta");
+  const frente = cx(".convite-frente");
+  const endereco = cx(".convite-endereco");
+  const cortadas = [...document.querySelectorAll("#convite .linha-clip")].filter((e) => {
+    const dentro = e.firstElementChild?.getBoundingClientRect();
+    return dentro && Math.round(dentro.height) > Math.round(e.getBoundingClientRect().height) + 1;
+  }).length;
+  return {
+    achou: Boolean(lacre && etiqueta && frente && endereco),
+    lacreLivre: lacre.bottom <= etiqueta.top + 1,
+    recortes: document.querySelectorAll("#convite .linha-clip").length,
+    cortadas,
+    enderecoDentro: endereco.top >= frente.top && endereco.bottom <= frente.bottom,
+  };
+});
+checar(composicao.achou, "as peças da composição existem no DOM", "seletores da composição vazios, a checagem passaria no vácuo");
+checar(composicao.lacreLivre, "o lacre não encosta na etiqueta", "o lacre desceu sobre o texto do endereçamento");
+checar(
+  composicao.recortes > 0 && composicao.cortadas === 0,
+  `${composicao.recortes} recorte(s) de linha, nenhum cortando o texto`,
+  `${composicao.cortadas} linha(s) com o texto maior que o próprio recorte: metade da frase some`,
+);
+checar(composicao.enderecoDentro, "o endereçamento cabe dentro do envelope", "o endereçamento transbordou o envelope");
+
+/* O caso que quebra é NOME LONGO, e a proposta semeada tem nome curto: com uma
+   linha só o bloco centralizado nunca chega perto do lacre, e a checagem acima
+   passa mesmo com a geometria errada. Em vez de semear outra proposta só para
+   isto, o nome é trocado no DOM e a composição é medida de novo. */
+const comNomeLongo = await pgCapa.evaluate(() => {
+  const caixas = [...document.querySelectorAll("#convite .convite-caixa")];
+  caixas[0].querySelector("span").textContent = "Transportadora Almeida e Filhos Logística";
+  caixas.slice(1).forEach((e) => e.remove());
+  const cx = (s) => document.querySelector(s).getBoundingClientRect();
+  const lacre = cx(".convite-lacre-area");
+  const etiqueta = cx(".convite-etiqueta");
+  const rodape = cx(".convite-canto-esq");
+  const endereco = cx(".convite-endereco");
+  const nome = cx("#convite h1");
+  return {
+    linhas: Math.round(nome.height / parseFloat(getComputedStyle(document.querySelector(".convite-nome")).lineHeight)),
+    lacreLivre: lacre.bottom <= etiqueta.top + 1,
+    rodapeLivre: endereco.bottom <= rodape.top + 1,
+  };
+});
+checar(
+  comNomeLongo.linhas >= 2,
+  `nome longo ocupa ${comNomeLongo.linhas} linhas (é o caso que aperta)`,
+  "o nome de teste não quebrou em várias linhas: a checagem não está exercitando nada",
+);
+checar(comNomeLongo.lacreLivre, "com nome longo o lacre continua livre", "com nome de duas linhas o endereçamento sobe e encosta no lacre");
+checar(comNomeLongo.rodapeLivre, "com nome longo o rodapé continua livre", "com nome de duas linhas o endereçamento desce sobre o rodapé");
+await pgCapa.screenshot({ path: `${SAIDA}/390-convite-reduced-motion.png` });
+await ctxCapa.close();
+
+/* E o convite COM movimento: foto do estado final e a prova da ABERTURA.
+
+   Duas coisas são verificadas aqui, e as duas já quebraram:
+
+   1. a SOBREPOSIÇÃO. A passagem convite → proposta existe em três fases
+      justamente para as duas telas conviverem por um instante. Com duas fases,
+      a proposta só começava a entrar depois de o convite sair inteiro, e
+      sobrava um quadro de tela vazia no meio.
+
+   2. a COBERTURA. A carta precisa tomar a viewport ANTES de a camada começar a
+      se apagar. Sem isso, o papel fica translúcido no meio do caminho, a aresta
+      de baixo dele corta a tela na horizontal, e "entrar na carta" vira "painel
+      cinza passando".
+
+   Os nomes das animações estão escritos à mão aqui, então eles PRECISAM
+   acompanhar `globals.css`. Já ficaram defasados uma vez: o congelamento não
+   pegava animação nenhuma, a medição lia o estado ao vivo e a checagem passava
+   no vácuo. A asserção de cobertura existe também para isso: ela é falsa se o
+   congelamento não estiver funcionando. */
+const ANIMACOES_DA_ABERTURA = [
+  "convite-romper",
+  "convite-abrir-aba",
+  "convite-forro-abrindo",
+  "convite-tirar-carta",
+  "convite-entrar-na-carta",
+  "convite-sumir",
+  "proposta-entrar",
+];
+const ctxConvite = await navegador.newContext({ ...iPhone });
+const pgConvite = await ctxConvite.newPage();
+await pgConvite.goto(BASE + CAMINHO, { waitUntil: "networkidle" });
+await pgConvite.waitForTimeout(2400);
+await pgConvite.screenshot({ path: `${SAIDA}/390-convite.png` });
+
+/* O envelope precisa CHEGAR ABERTO e se fechar: é a animação da peça em si, e
+   ela é fácil de perder num refactor (basta a regra da aba sumir que o
+   envelope passa a aparecer pronto, sem nada acusar). Medido cedo, ao vivo:
+   congelar não serve, porque animação com `fill: backwards` já soltou o
+   elemento quando a cena termina, e reposicionar o relógio não a traz de
+   volta. Foi assim que uma medição errada quase me convenceu de que a aba não
+   estava animando. */
+const ctxAba = await navegador.newContext({ ...iPhone });
+const pgAba = await ctxAba.newPage();
+await pgAba.goto(BASE + CAMINHO, { waitUntil: "domcontentloaded" });
+await pgAba.waitForTimeout(300);
+const grausDaAba = async (pagina) =>
+  pagina.evaluate(() => {
+    const t = getComputedStyle(document.querySelector(".convite-aba")).transform;
+    const m = t.match(/matrix3d\(1, 0, 0, 0, 0, ([-\d.]+), ([-\d.]+)/);
+    return m ? Math.round((Math.atan2(+m[2], +m[1]) * 180) / Math.PI) : 0;
+  });
+const abaNoComeco = await grausDaAba(pgAba);
+await pgAba.waitForTimeout(1500);
+const abaNoFim = await grausDaAba(pgAba);
+checar(
+  abaNoComeco < -90,
+  `o envelope chega ABERTO e se fecha (${abaNoComeco}° para ${abaNoFim}°)`,
+  `a aba começou em ${abaNoComeco}°: o envelope aparece pronto, sem se montar`,
+);
+checar(Math.abs(abaNoFim) <= 2, "e a aba assenta fechada", `a aba parou em ${abaNoFim}°`);
+await ctxAba.close();
+
+await pgConvite.locator("#convite button").click({ noWaitAfter: true });
+/** Congela a abertura num instante exato e mede o que está em cena. */
+async function abrirEmCamaLenta(instante) {
+  const congelou = await pgConvite.evaluate(
+    ([ms, nomes]) => {
+      let n = 0;
+      for (const a of document.getAnimations()) {
+        if (nomes.includes(a.animationName || "")) {
+          a.pause();
+          a.currentTime = ms;
+          n++;
+        }
+      }
+      const capa = document.querySelector("#convite");
+      const proposta = document.querySelector(".proposta-entrando");
+      const carta = document.querySelector(".convite-carta");
+      const visivel = (e) => (e ? parseFloat(getComputedStyle(e).opacity) : 0);
+      const r = carta?.getBoundingClientRect();
+      /* A aba é pintada NA FRENTE da carta (`translateZ` maior), então cobrir a
+         viewport com a carta não basta: se a aba ainda estiver opaca, sobra uma
+         faixa navy no alto. Já aconteceu. */
+      const aba = document.querySelector(".convite-aba-forro");
+      const abaFora = document.querySelector(".convite-aba-fora");
+      return {
+        congeladas: n,
+        capa: visivel(capa),
+        proposta: visivel(proposta),
+        cartaCobre: Boolean(r) && r.top <= 0 && r.bottom >= window.innerHeight,
+        envelopeApagado: visivel(aba) < 0.05 && visivel(abaFora) < 0.05,
+      };
+    },
+    [instante, ANIMACOES_DA_ABERTURA],
+  );
+  return congelou;
+}
+
+/* 820ms: o instante em que a carta acabou de tomar a tela e a camada ainda não
+   começou a se apagar. É o quadro que define se a passagem funciona. */
+const cobertura = await abrirEmCamaLenta(820);
+checar(
+  cobertura.congeladas >= 4,
+  `${cobertura.congeladas} animações da abertura congeladas`,
+  "nenhuma animação da abertura foi encontrada: os nomes em ANIMACOES_DA_ABERTURA saíram de sincronia com globals.css",
+);
+checar(
+  cobertura.cartaCobre,
+  "a carta cobre a tela antes de a camada se apagar",
+  "sobra fundo em volta da carta no quadro da dissolução: a passagem vira painel translúcido",
+);
+checar(
+  cobertura.envelopeApagado,
+  "o envelope já saiu de cena quando a carta cobre",
+  "a aba continua pintada na frente da carta: sobra uma faixa navy no alto da tela",
+);
+
+/* 900ms: já dentro da dissolução, com as duas em cena. */
+const passagem = await abrirEmCamaLenta(900);
+checar(
+  passagem.capa > 0.05 && passagem.capa < 0.99 && passagem.proposta > 0.05,
+  `convite e proposta se sobrepõem na passagem (${passagem.capa.toFixed(2)} sobre ${passagem.proposta.toFixed(2)})`,
+  "a proposta só aparece depois de o convite sumir: volta o quadro de tela vazia no meio",
+);
+await pgConvite.screenshot({ path: `${SAIDA}/390-passagem.png` });
+await ctxConvite.close();
+
+/* ───────── o convite em PONTEIRO FINO (desktop) ─────────
+
+   Existe porque um defeito real passou batido: a frente do envelope usa
+   `.cartao-luz`, que só é declarada dentro de `@media (hover: hover) and
+   (pointer: fine)` e traz `position: relative`. Mesma especificidade da regra
+   do envelope, declarada depois, ela vencia: no celular nada acontecia, no
+   desktop o endereçamento saía de dentro do envelope e ia parar no fundo
+   escuro. Nenhum teste de viewport de celular pega isso. */
+console.log("\n▸ convite em ponteiro fino");
+const ctxFino = await navegador.newContext({ viewport: { width: 1440, height: 900 } });
+const pgFino = await ctxFino.newPage();
+await pgFino.goto(BASE + CAMINHO, { waitUntil: "networkidle" });
+await pgFino.waitForTimeout(2400);
+
+const dentro = await pgFino.evaluate(() => {
+  const caixa = (sel) => document.querySelector(sel)?.getBoundingClientRect();
+  const env = caixa(".convite-envelope");
+  const cabe = (r) =>
+    Boolean(r) && r.top >= env.top - 1 && r.bottom <= env.bottom + 1 &&
+    r.left >= env.left - 1 && r.right <= env.right + 1;
+  return {
+    achou: Boolean(env),
+    endereco: cabe(caixa(".convite-endereco")),
+    canto: cabe(caixa(".convite-canto-esq")),
+    lacre: cabe(caixa(".convite-lacre-area")),
+  };
+});
+checar(dentro.achou, "o envelope existe no DOM", "seletor .convite-envelope vazio, a checagem passaria no vácuo");
+checar(dentro.endereco, "endereçamento dentro do envelope", "o endereçamento saiu de dentro do envelope em ponteiro fino");
+checar(dentro.canto, "remetente e validade dentro do envelope", "os cantos saíram de dentro do envelope em ponteiro fino");
+checar(dentro.lacre, "lacre dentro do envelope", "o lacre saiu de dentro do envelope em ponteiro fino");
+
+/* E a paralaxe: dois números escritos pelo ponteiro, traduzidos pelo CSS. Sem
+   ponteiro fino ela nem é montada, então este é o único lugar que a exercita. */
+await pgFino.mouse.move(120, 120);
+await pgFino.waitForTimeout(800);
+const esquerda = await pgFino.evaluate(() => ({
+  palco: getComputedStyle(document.querySelector(".convite-palco")).transform,
+  foco: getComputedStyle(document.querySelector(".convite-foco")).transform,
+}));
+await pgFino.mouse.move(1320, 780);
+await pgFino.waitForTimeout(800);
+const direita = await pgFino.evaluate(() => ({
+  palco: getComputedStyle(document.querySelector(".convite-palco")).transform,
+  foco: getComputedStyle(document.querySelector(".convite-foco")).transform,
+}));
+const desloca = (t) => Number((t.match(/matrix\(1, 0, 0, 1, (-?[\d.]+)/) ?? [])[1] ?? 0);
+checar(
+  desloca(esquerda.palco) < -1 && desloca(direita.palco) > 1,
+  `paralaxe segue o ponteiro (${desloca(esquerda.palco).toFixed(1)}px a ${desloca(direita.palco).toFixed(1)}px)`,
+  "o envelope não reagiu ao ponteiro: --px/--py ou o calc() do CSS quebraram",
+);
+checar(
+  desloca(esquerda.foco) > 1 && desloca(direita.foco) < -1,
+  "o foco de luz anda ao contrário da peça (é isso que cria profundidade)",
+  "o foco de luz anda junto com o envelope, então não há profundidade nenhuma",
+);
+
+/* O ponteiro no botão ENTREABRE o envelope. Depende de `:has()` e de a animação
+   de fechamento ter soltado o elemento (`fill: backwards`): trocar para `both`
+   crava o estado final e mata o hover em silêncio. */
+const abaFino = () =>
+  pgFino.evaluate(() => {
+    const t = getComputedStyle(document.querySelector(".convite-aba")).transform;
+    const m = t.match(/matrix3d\(1, 0, 0, 0, 0, ([-\d.]+), ([-\d.]+)/);
+    return m ? Math.round((Math.atan2(+m[2], +m[1]) * 180) / Math.PI) : 0;
+  });
+await pgFino.hover("#convite button");
+await pgFino.waitForTimeout(700);
+const abaComHover = await abaFino();
+checar(
+  abaComHover > 5,
+  `a aba se levanta com o ponteiro no botão (${abaComHover}°)`,
+  "a aba não reagiu ao hover: `:has()` ou o fill da animação de fechamento quebraram",
+);
+/* Positiva, e o sinal importa: para trás a ponta vai para z negativo, o 3D
+   ordena certo e a aba desaparece atrás do corpo do envelope em vez de
+   levantar. Já aconteceu. */
+checar(
+  abaComHover > 0,
+  "e ela levanta para a FRENTE (para trás ela some atrás do envelope)",
+  `a aba girou para trás (${abaComHover}°) e some atrás do corpo do envelope`,
+);
+
+/* E o outro lado da mesma moeda: tombando para a frente, a PONTA da aba avança
+   em profundidade e pode passar POR CIMA do lacre. Aconteceu, e o carimbo
+   aparecia cortado ao meio no hover. `elementFromPoint` no centro do lacre é a
+   pergunta certa, porque ela mede a ordem que o 3D de fato resolveu, e não a
+   que o CSS parece dizer. */
+const quemEstaNoLacre = () =>
+  pgFino.evaluate(() => {
+    const r = document.querySelector(".convite-lacre").getBoundingClientRect();
+    const alvo = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
+    return {
+      tapado: !alvo?.closest(".convite-lacre-area"),
+      porQuem: (alvo?.className || "").toString().split(" ")[0] || alvo?.tagName,
+    };
+  });
+const lacreComHover = await quemEstaNoLacre();
+checar(
+  !lacreComHover.tapado,
+  "o lacre continua na frente com o ponteiro no botão",
+  `a aba passou por cima do lacre no hover (no ponto está: ${lacreComHover.porQuem})`,
+);
+await pgFino.screenshot({ path: `${SAIDA}/1440-convite.png` });
+
+await pgFino.mouse.move(60, 60);
+await pgFino.waitForTimeout(600);
+const lacreParado = await quemEstaNoLacre();
+checar(
+  !lacreParado.tapado,
+  "e continua na frente em repouso",
+  `algo cobre o lacre em repouso: ${lacreParado.porQuem}`,
+);
+
+/* E a respiração: sem ela a peça vira imagem parada depois que a cena acaba. */
+const alturaDaPeca = () =>
+  pgFino.evaluate(() => {
+    const m = getComputedStyle(document.querySelector(".convite-peca")).transform.match(
+      /matrix\(1, 0, 0, 1, [-\d.]+, ([-\d.]+)\)/,
+    );
+    return m ? Number(m[1]) : null;
+  });
+await pgFino.mouse.move(200, 200);
+await pgFino.waitForTimeout(400);
+const respiro1 = await alturaDaPeca();
+await pgFino.waitForTimeout(2200);
+const respiro2 = await alturaDaPeca();
+checar(
+  respiro1 !== null && respiro2 !== null && Math.abs(respiro1 - respiro2) > 0.5,
+  `o envelope respira (${respiro1?.toFixed(1)}px para ${respiro2?.toFixed(1)}px)`,
+  "o envelope ficou parado depois da cena: a peça vira imagem em vez de objeto",
+);
+await ctxFino.close();
 
 await pgRm.screenshot({ path: `${SAIDA}/390-reduced-motion.png`, fullPage: true });
 await ctxRm.close();

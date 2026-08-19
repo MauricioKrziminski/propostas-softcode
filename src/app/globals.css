@@ -466,12 +466,638 @@ select:focus-visible {
 }
 
 /* ═════════════ o convite ═════════════
-   Animação de TEMPO, não de scroll: é uma abertura, acontece uma vez. */
 
-@keyframes convite-entrar {
+   Um ENVELOPE LACRADO, pousado numa mesa escura. O clique não troca de tela:
+   o lacre rompe, a aba gira para trás em 3D, a carta sai de dentro e a câmera
+   entra nela. A proposta estava lá dentro o tempo todo.
+
+   O estado de REPOUSO é o que está declarado aqui fora, e ele é o estado FINAL
+   da chegada: envelope montado, fechado, tudo visível, luz apagada. As
+   animações vivem inteiras dentro do `@media (prefers-reduced-motion:
+   no-preference)`. Quem pede menos movimento recebe o envelope pronto sem
+   precisar de uma lista de `!important` desfazendo transform elemento por
+   elemento. Foi essa lista que, na primeira versão, deixou a aba visível e
+   PARADA cobrindo o cartão.
+
+   Tudo que se move move `transform` ou `opacity`, e nada mais.
+   ═══════════════════════════════════════════════════════════ */
+
+/* A paralaxe de ponteiro entra por estas duas, escritas pelo TSX de -1 a 1.
+   Declaradas aqui para o `calc()` ter valor antes de qualquer JS rodar. */
+#convite {
+  /* A mesa precisa ser mais ESCURA que o envelope agora, senão objeto escuro
+     sobre fundo escuro vira mancha. `#convite` é seletor de id, então vence a
+     utility de fundo sem `!important`. */
+  background-color: #05090f;
+  --px: 0;
+  --py: 0;
+  /* O papel do envelope é ESCURO, e o forro dele é claro: o inverso do que
+     estava aqui. Papelaria de alto padrão faz exatamente isso, e no produto
+     resolve três coisas de uma vez:
+       · o envelope deixa de ser mais um retângulo branco entre outros
+         retângulos brancos e vira objeto;
+       · a carta que sai de dentro é BRANCA, então a saída ganha o contraste
+         que faltava (papel claro emergindo de papel escuro, e não branco
+         saindo de branco);
+       · o lacre inverte junto, de cera escura para cera perolada, e volta a
+         ser a coisa mais clara da peça, que é onde o olho precisa ir.
+     A tinta agora é clara sobre escuro: é impressão em foil, não em preto. */
+  --papel: #1b3049;
+  --papel-fundo: #101d2e;
+  --papel-linha: #33506f;
+  --tinta: #eaf0f9;
+  --tinta-fraca: #a9bdd8;
+  /* Não mais escuro que isto: em corpo 8 sobre o navy do envelope, `#6d86a8`
+     ficava em 3.5:1, abaixo do mínimo de leitura. */
+  --tinta-tenue: #90a8c9;
+  /* O forro da aba, agora claro: é ele que prepara o olho para a carta. */
+  --forro: #f2f6fd;
+}
+
+/* A mesa: foco frio de cima, halo azul no miolo e vinheta fechando as bordas.
+   `inset` negativo porque ela se desloca na paralaxe e a borda não pode
+   aparecer. */
+.convite-foco {
+  position: absolute;
+  inset: -48px;
+  background:
+    radial-gradient(102% 58% at 50% -4%, #1d2f4c 0%, transparent 60%),
+    radial-gradient(46% 32% at 50% 38%, rgb(37 99 235 / 0.22) 0%, transparent 70%),
+    radial-gradient(130% 100% at 50% 50%, transparent 38%, rgb(0 0 0 / 0.72) 100%);
+}
+
+.convite-peca {
+  position: relative;
+  /* Isola o empilhamento: sem isto a pilha de folhas, que é `z-index: 0`,
+     disputa contexto com o resto da página e some atrás do fundo noite. */
+  isolation: isolate;
+}
+
+/* ── a espessura ──
+   Duas folhas por baixo, afinando. É o que responde, antes de qualquer texto,
+   à pergunta de quem abre um link no WhatsApp: isto é documento ou panfleto? */
+.convite-pilha {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.convite-pilha span {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  /* O deslocamento de cada folha vive em custom property porque o keyframe é
+     UM só para as duas: `var()` dentro de `@keyframes` resolve por elemento.
+     A torção mínima é o que separa "duas sombras alinhadas" de "duas folhas
+     que caíram ali". Meio grau basta; um grau já vira bagunça. */
+  transform: translateY(var(--dy)) rotate(var(--rot)) scaleX(var(--sx));
+}
+
+.convite-pilha span:nth-child(1) {
+  --dy: 6px;
+  --sx: 0.958;
+  --rot: -0.55deg;
+  background: #16273c;
+}
+.convite-pilha span:nth-child(2) {
+  --dy: 12px;
+  --sx: 0.926;
+  --rot: 0.8deg;
+  background: #0e1a2a;
+}
+
+/* ── o envelope ──
+   `perspective` mora no pai e `preserve-3d` no filho: é o par que faz a aba
+   girar em PROFUNDIDADE, e é por isso que ela passa por trás do corpo depois
+   dos 90 graus, sozinha, sem `z-index` nenhum.
+
+   É a face de TRÁS do envelope, a que a gente olha quando vai abrir: aba grande
+   descendo de cima, aba de baixo subindo, e o lacre no encontro das duas. A
+   face da frente (retângulo com um V raso no topo) é o desenho de "e-mail" de
+   qualquer barra de aplicativo, e não tem jeito de fugir disso mantendo a
+   frente: quanto mais o V some, menos parece envelope; quanto mais ele cresce,
+   mais parece ícone. Virar a peça resolve os dois lados. */
+.convite-envelope {
+  position: relative;
+  z-index: 1;
+  aspect-ratio: 1.06;
+  perspective: 1200px;
+}
+
+.convite-3d {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  /* A origem fica na borda de CIMA porque é lá que o centro da carta para
+     depois de sair do envelope, e é esse ponto que a câmera atravessa. Com a
+     origem no meio, o avanço empurrava a carta para fora da tela em vez de
+     para cima de quem olha. */
+  transform-origin: 50% 0%;
+}
+
+/* A carta, dentro do envelope. Fechado, ela está inteira atrás da frente. */
+.convite-carta {
+  position: absolute;
+  inset: 5% 6% 8%;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #ffffff 0%, #eef3fb 100%);
+  box-shadow: 0 10px 26px -14px rgb(0 0 0 / 0.7);
+}
+
+/* O corte pintado da carta, na aresta de cima: é o que se vê primeiro quando
+   ela começa a sair, e a única cor forte da peça depois do lacre. */
+.convite-carta-fio {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  block-size: 3px;
+  border-start-start-radius: 6px;
+  border-start-end-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in oklab, var(--color-acento) 55%, #ffffff) 0%,
+    var(--color-acento) 50%,
+    color-mix(in oklab, var(--color-acento) 55%, #ffffff) 100%
+  );
+}
+
+/* A frente do envelope: é ela que leva o endereçamento.
+
+   O seletor é DESCENDENTE (`.convite-3d .convite-frente`) e não a classe
+   sozinha, e isso não é estilo: a frente também usa `.cartao-luz`, que mora lá
+   embaixo dentro de `@media (hover: hover) and (pointer: fine)` e declara
+   `position: relative`. Mesma especificidade, declarada depois, ela vencia. O
+   efeito era invisível no celular e brutal no desktop: a frente saía do
+   `inset: 0`, o endereçamento absoluto perdia a referência e ia parar FORA do
+   envelope, no meio do fundo escuro. Dois níveis de especificidade encerram a
+   disputa sem depender da ordem do arquivo. */
+.convite-3d .convite-frente {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  background: linear-gradient(168deg, #21395a 0%, #1a2e48 52%, #13233a 100%);
+  /* 2px à frente da carta, para o 3D resolver a ordem sozinho. */
+  transform: translateZ(2px);
+  /* A ARESTA do papel. Num objeto ESCURO sobre mesa escura é ela que faz o
+     recorte: fio de luz na borda de cima e nas laterais, sombra funda embaixo.
+     Sem isso o envelope encosta no fundo e some. */
+  box-shadow:
+    inset 0 1px 0 rgb(200 222 255 / 0.34),
+    inset 1px 0 0 rgb(200 222 255 / 0.13),
+    inset -1px 0 0 rgb(200 222 255 / 0.13),
+    inset 0 -1px 0 rgb(0 0 0 / 0.5),
+    0 46px 84px -34px rgb(0 0 0 / 0.9),
+    0 14px 34px -16px rgb(0 0 0 / 0.7);
+}
+
+/* Grão no PAPEL, não só no fundo. Sem ele o envelope é cor chapada. */
+.convite-grao {
+  position: absolute;
+  inset: 0;
+  /* Mais grão do que no papel claro: em superfície escura o ruído some, e é ele
+     que impede o navy de virar plástico. */
+  opacity: 0.09;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+/* ── a aba de BAIXO ──
+   A que sobe do rodapé e é coberta pela aba de cima. Ela é a diferença entre
+   "retângulo com um triângulo" e "papel dobrado": duas dobras se encontrando é
+   o que o olho lê como construção. O `drop-shadow` claro desenha o fio de luz
+   ao longo das duas diagonais, coisa que `border` não faria num `clip-path`. */
+.convite-base {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  /* Rasa: com 30% o vinco dela cruzava bem no meio da linha do escopo, e duas
+     diagonais atravessando texto viram ruído. Aqui ela fica abaixo do bloco de
+     endereçamento, sob o rodapé, que é onde a dobra de baixo de fato mora. */
+  block-size: 17%;
+  clip-path: polygon(0 100%, 0 46%, 50% 0, 100% 46%, 100% 100%);
+  background: linear-gradient(0deg, #0a1422 0%, #0f1e30 100%);
+  filter: drop-shadow(0 -1px 0 rgb(190 214 250 / 0.22));
+  pointer-events: none;
+}
+
+/* O endereçamento vive na metade de baixo, abaixo da aba. `top` e `bottom` em
+   porcentagem funcionam porque o envelope tem altura definida (`aspect-ratio`),
+   e é o único jeito de a caixa acompanhar a aba em qualquer largura. */
+.convite-endereco {
+  position: absolute;
+  inset-inline: 8%;
+  top: 44%;
+  bottom: 16%;
+  /* FLEX, e não grid: item de grid tem `align-self: stretch` por padrão e sua
+     altura passa a vir da TRILHA, não do conteúdo. Com nome de duas linhas a
+     conta apertava, uma trilha saía menor que o texto dentro dela, e o recorte
+     de linha (`overflow: hidden`) comia metade do escopo. Em coluna flex a
+     altura de cada linha é a dela mesma. */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* À ESQUERDA, e é a mudança que mais muda a peça depois da silhueta. Tudo
+     centralizado num retângulo é composição de cartão de visita; envelope
+     endereçado tem o bloco do destinatário alinhado à esquerda, com o lacre
+     centralizado lá em cima. São dois eixos diferentes, e é essa tensão que faz
+     a coisa parecer desenhada em vez de empilhada. */
+  align-items: flex-start;
+  text-align: start;
+}
+
+/* ── a etiqueta, batida letra por letra ── */
+.convite-etiqueta {
+  font-size: 0.5625rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--tinta-tenue);
+}
+
+.convite-letra {
+  display: inline-block;
+  /* Espaço em branco dentro de `inline-block` colapsa; a largura tem que vir de
+     algum lugar, e vem daqui. */
+  white-space: pre;
+}
+
+/* O rodapé do envelope: remetente à esquerda, validade à direita, na mesma
+   linha de base. É o que fecha a composição embaixo e devolve simetria só onde
+   ela ajuda. */
+.convite-canto {
+  position: absolute;
+  bottom: 6%;
+  font-size: 0.5rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--tinta-tenue);
+}
+.convite-canto-esq {
+  inset-inline-start: 8%;
+}
+.convite-canto-dir {
+  inset-inline-end: 8%;
+}
+
+/* ── a aba, FORRADA ──
+   Duas faces empilhadas: papel por fora, azul profundo por dentro. Fechada só
+   se vê o papel; ao virar, o forro aparece. É o detalhe que uma gráfica cobra
+   caro para fazer, e aqui ele ainda paga uma segunda conta: dá o que ver
+   durante a rotação, que de outro modo seria um triângulo branco girando contra
+   o escuro.
+
+   NÃO usa `backface-visibility`, e essa foi a primeira tentativa. Com as duas
+   faces em `preserve-3d`, uma delas girada 180 graus e as duas com
+   `backface-visibility: hidden`, o computado saía exatamente como o esperado nos
+   dois motores e mesmo assim o forro aparecia por cima com a aba FECHADA: o
+   `clip-path` de cada face é propriedade de agrupamento, a face é renderizada
+   como grupo achatado, e o verso deixa de ser escondido. Resultado: o envelope
+   nascia com a aba navy e o lacre, que também é navy, sumia dentro dela.
+
+   Quem manda aqui é a OPACIDADE, trocada dentro dos mesmos keyframes que giram
+   a aba, no quadro em que ela passa dos 90 graus. Nesse ponto a aba está de
+   perfil e tem largura zero, então a troca é literalmente invisível, e não
+   depende de nenhum comportamento sutil de 3D. As duas faces usam o MESMO
+   recorte: a que estiver por cima já vem espelhada pela rotação do pai. */
+.convite-aba {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  /* 36%: é a aba de TRÁS, e ela é grande mesmo. É ela que dá a construção de
+     papel dobrado que a face da frente não tem. Não mais que isso: o lacre mora
+     no vértice, e aba mais funda empurra o carimbo para cima do endereçamento
+     quando o nome do cliente ocupa duas linhas. */
+  block-size: 36%;
+  transform-origin: top center;
+  transform: translateZ(3px);
+}
+
+.convite-aba-fora,
+.convite-aba-forro {
+  position: absolute;
+  inset: 0;
+  /* Cantos CHANFRADOS em 14px, e não um triângulo reto: reto, as duas pontas de
+     cima passavam por fora do arredondamento do envelope e apareciam dois
+     biquinhos brancos sobre o fundo escuro. */
+  clip-path: polygon(0 14px, 14px 0, calc(100% - 14px) 0, 100% 14px, 50% 100%);
+}
+
+.convite-aba-fora {
+  background: linear-gradient(176deg, #2b4a6d 0%, #24405f 50%, #1c3350 100%);
+  /* `drop-shadow` e não `box-shadow`: o box ignora o `clip-path` e desenharia a
+     sombra do retângulo inteiro; o filtro segue a silhueta recortada, que é o
+     que faz a aba ler como camada por cima do corpo e não como pintura nele.
+     Dois filtros: sombra funda embaixo e um fio de luz por cima, que é o que
+     recorta a dobra contra o corpo escuro. */
+  filter:
+    drop-shadow(0 8px 14px rgb(0 0 0 / 0.7))
+    drop-shadow(0 -1px 0 rgb(190 214 250 / 0.3));
+}
+
+/* O vinco: fio de luz na dobra, que é o que faz a aba ler como papel dobrado e
+   não como triângulo colado. */
+.convite-aba-fora::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  block-size: 1px;
+  background: rgb(190 214 250 / 0.42);
+}
+
+/* O forro é CLARO agora, e é ele que prepara o olho para a carta branca que vai
+   sair de dentro. Aparece só quando a aba vira. */
+.convite-aba-forro {
+  opacity: 0;
+  background:
+    radial-gradient(120% 90% at 50% 100%, rgb(37 99 235 / 0.14) 0%, transparent 60%),
+    linear-gradient(4deg, #dae5f5 0%, var(--forro) 55%, #ffffff 100%);
+}
+
+/* ── o lacre ──
+   Fica FORA da aba, e por isso não gira com ela: ele rompe, ela abre. Fora
+   também porque tem texto, e texto girando em 3D é re-rasterizado quadro a
+   quadro no WebKit.
+
+   Cera NAVY, não relevo apagado. O relevo seco era coerente e era invisível:
+   claro sobre claro, ele sumia justamente no elemento que precisa ser o ponto
+   de fuga do olho e que a pessoa precisa entender que vai romper. Navy é o
+   único ponto escuro sobre o papel, e continua sendo cor da marca, não festa. */
+.convite-lacre-area {
+  position: absolute;
+  left: 50%;
+  top: 36%;
+  /* Menor que antes: com a aba rasa o lacre passa a ser visto contra bem mais
+     papel, e o mesmo diâmetro virava um botão gigante no meio da peça. */
+  inline-size: clamp(42px, 13%, 56px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  /* A posição é UM transform e a prensa é OUTRO, em elementos diferentes: no
+     mesmo elemento, a animação sobrescreveria a centralização e o lacre sairia
+     do lugar no primeiro quadro.
+
+     E o `translateZ` é 28px, não 4px, por causa do hover: quando a aba tomba
+     para a frente, a PONTA dela sai do plano do papel e avança em direção a
+     quem olha. Com 8 graus numa aba de ~119px isso são uns 17px de profundidade,
+     mais que os 4px em que o lacre estava: o 3D ordenava corretamente e a aba
+     passava POR CIMA do carimbo, cortando ele ao meio. 28px deixa o lacre à
+     frente da ponta em qualquer ângulo do hover, e a ampliação que a perspectiva
+     cobra por isso é de 2%, invisível. */
+  transform: translate(-50%, -50%) translateZ(28px);
+}
+
+.convite-lacre {
+  position: relative;
+  display: grid;
+  place-items: center;
+  inline-size: 100%;
+  block-size: 100%;
+  border-radius: 9999px;
+  /* Cera PEROLADA. Invertida junto com o papel: no envelope escuro ela volta a
+     ser a coisa mais clara da peça, que é onde o olho precisa ir e é o que a
+     pessoa entende que vai romper. Mais clara em cima, onde a luz bate. */
+  /* Cera MATE, não pastilha. O gradiente radial forte mais o anel de luz
+     dura faziam disto um botão de interface: cera de verdade tem a luz espalhada
+     e a borda um pouco irregular, não um brilho especular no canto. */
+  background: linear-gradient(166deg, #eaf1fb 0%, #d3e0f0 46%, #b9cce5 100%);
+  box-shadow:
+    inset 0 1px 1px rgb(255 255 255 / 0.7),
+    inset 0 -3px 8px rgb(24 46 74 / 0.28),
+    0 10px 22px -8px rgb(0 0 0 / 0.75),
+    0 2px 5px -1px rgb(0 0 0 / 0.4);
+}
+
+/* Anel interno afundado: dois anéis é o que separa selo de círculo com letra
+   dentro. */
+.convite-lacre::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border-radius: inherit;
+  border: 1px solid rgb(24 46 74 / 0.12);
+  box-shadow: inset 0 1px 2px rgb(24 46 74 / 0.16);
+}
+
+.convite-lacre-marca {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-variation-settings: "opsz" 48, "SOFT" 0, "WONK" 0;
+  font-size: 0.9375rem;
+  letter-spacing: 0.1em;
+  text-indent: 0.1em;
+  line-height: 1;
+  color: #3a5c88;
+  /* Monograma AFUNDADO na cera: sombra por cima, luz devolvida por baixo. */
+  text-shadow:
+    0 -1px 0 rgb(24 46 74 / 0.35),
+    0 1px 0 rgb(255 255 255 / 0.85);
+}
+
+/* A onda que o papel devolve ao carimbo. Nasce e morre uma vez. */
+.convite-onda {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 1.5px solid rgb(190 214 250 / 0.55);
+  opacity: 0;
+}
+
+/* ── o nome do cliente, que aqui é o ENDEREÇO do envelope ──
+   Peso 300 com `opsz` alto é a serifa de alto contraste dos convites formais:
+   haste grossa, serifa fina. `WONK 0` porque a irregularidade da Fraunces é
+   simpática demais para um documento comercial.
+
+   `fit-content` e não a largura do bloco, e isso é o que faz a luz funcionar:
+   a camada de reflexo é `inset: 0` sobre este elemento, então a viagem dela é
+   medida na largura DELE. Num h1 de largura total, um nome curto ocupa metade e
+   a luz gastava metade do percurso varrendo espaço vazio. */
+.convite-nome {
+  inline-size: fit-content;
+  max-inline-size: 100%;
+  margin-block-start: 0.45rem;
+  font-weight: 300;
+  font-variation-settings: "opsz" 144, "SOFT" 0, "WONK" 0;
+  font-size: clamp(1.4375rem, 6.4vw, 2rem);
+  line-height: 1.06;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+  /* A cor vem de `.tipo-display` via `--ctx-titulo`, que aqui é navy: em papel
+     escuro isso seria tinta invisível. */
+  color: var(--tinta);
+}
+
+/* Folga lateral no recorte da palavra.
+   `.palavra-clip` compensa só o eixo vertical (descendente de "g" e "p"). Na
+   serifa display, com `letter-spacing` negativo, a serifa da última letra
+   encosta e o recorte come um fio dela. */
+.convite-caixa {
+  padding-inline: 0.09em;
+  margin-inline: -0.09em;
+}
+
+/* Régua fina, com as pontas se apagando: linha chapada de ponta a ponta lê como
+   borda de tabela; esta lê como filete de papelaria. */
+/* Filete curto e ALINHADO À ESQUERDA, começando cheio e se apagando: régua
+   centralizada com as duas pontas apagadas era enfeite simétrico; esta sai do
+   texto e some, como traço de caneta. */
+.convite-regua {
+  display: block;
+  inline-size: 3rem;
+  block-size: 1px;
+  margin: 0.8rem 0 0;
+  transform-origin: left center;
+  background: linear-gradient(
+    90deg,
+    var(--color-acento-noite) 0%,
+    color-mix(in oklab, var(--color-acento-noite) 25%, transparent) 70%,
+    transparent 100%
+  );
+}
+
+/* Recorte de LINHA inteira, irmão do `.palavra-clip`: a mesma compensação de
+   descida, no eixo do bloco. */
+.linha-clip {
+  display: block;
+  overflow: hidden;
+  padding-block-end: 0.16em;
+  margin-block-end: -0.16em;
+}
+
+.convite-linha {
+  margin-block-start: 0.7rem;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--tinta-fraca);
+}
+.convite-linha span {
+  display: block;
+}
+.convite-linha-fraca {
+  margin-block-start: 0.2rem;
+  color: var(--tinta-tenue);
+}
+
+/* A camada de luz: em repouso ela não existe. */
+.convite-foil {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  /* A camada é uma SEGUNDA cópia do nome. Sem isto, arrastar a seleção pelo
+     título copia "Barba LogBarba Log". `aria-hidden` resolve o leitor de tela,
+     não a área de transferência. */
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* O texto refletido ocupa exatamente a mesma caixa do nome. A largura idêntica
+   é o que faz os dois translates se cancelarem na conta. */
+.convite-foil-texto {
+  position: absolute;
+  inset: 0;
+  /* O pico do reflexo é azul PÁLIDO, não branco. Branco puro sobre papel branco
+     some: a fatia de letra sob o pico ficava invisível, e a luz passava
+     parecendo uma borracha apagando o nome em vez de um brilho atravessando. */
+  background: linear-gradient(
+    100deg,
+    var(--color-acento) 0%,
+    #7ea9ff 34%,
+    #dbe7ff 50%,
+    #7ea9ff 66%,
+    var(--color-acento) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  /* Os DOIS. No Safari, `color: transparent` sozinho com
+     `-webkit-background-clip: text` continua pintando o texto na cor herdada, e
+     a camada aparece como um bloco navy sólido em cima do nome. */
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ── o botão ──
+   Ele NÃO é uma pastilha lisa. A borda é metal girando (a mesma
+   `--brilho` interpolável de `.borda-metal`, que o aceite já usa no CTA que
+   fecha negócio), o miolo é escuro e a seta anda no hover. Sobre a mesa escura,
+   é a única coisa além do lacre com direito a movimento próprio. */
+.convite-acao {
+  margin-block-start: 2.25rem;
+  text-align: center;
+}
+
+.convite-botao {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  inline-size: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  overflow: hidden;
+  border-radius: 9999px;
+  padding: 1.05rem 2.25rem;
+  font-size: 0.8125rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-noite-texto);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.06) 0%, transparent 60%),
+    var(--color-noite-elevada);
+  transition:
+    background-color 260ms ease,
+    color 260ms ease;
+}
+
+/* O anel de metal. Mesma técnica de `.borda-metal`, com o raio do botão: o
+   `mask-composite` recorta só o anel, sem pintar o miolo. */
+.convite-botao::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(
+    from var(--brilho),
+    color-mix(in oklab, var(--color-acento) 30%, transparent),
+    #ffffff,
+    color-mix(in oklab, var(--color-acento) 90%, transparent),
+    color-mix(in oklab, var(--color-acento) 15%, transparent),
+    #ffffff,
+    color-mix(in oklab, var(--color-acento) 30%, transparent)
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.convite-seta {
+  inline-size: 1.05rem;
+  block-size: 1.05rem;
+  flex: none;
+}
+
+.convite-nota {
+  margin-block-start: 1.15rem;
+  font-size: 0.625rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--color-noite-neblina) 82%, transparent);
+}
+
+/* ─────────────────────── os quadros da chegada ─────────────────────── */
+
+@keyframes convite-surgir {
   from {
     opacity: 0;
-    transform: translateY(48px) scale(0.92);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -479,19 +1105,11 @@ select:focus-visible {
   }
 }
 
-@keyframes aba-abrir {
-  from {
-    transform: rotateX(0deg);
-  }
-  to {
-    transform: rotateX(-174deg);
-  }
-}
-
-@keyframes conteudo-subir {
+/* Papel POUSA, não materializa: chega girado e de baixo, e assenta. */
+@keyframes convite-pousar {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(46px) scale(0.94) rotate(-1.6deg);
   }
   to {
     opacity: 1;
@@ -499,17 +1117,209 @@ select:focus-visible {
   }
 }
 
-@keyframes convite-sair {
+@keyframes convite-folha {
+  from {
+    opacity: 0;
+    transform: translateY(0) rotate(0deg) scaleX(1);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(var(--dy)) rotate(var(--rot)) scaleX(var(--sx));
+  }
+}
+
+/* A aba chega ABERTA e se FECHA: é o gesto que faz o envelope se montar na
+   frente de quem olha, em vez de aparecer pronto. E é o mesmo movimento da
+   abertura ao contrário, o que dá simetria à peça: ela se fecha para você, você
+   a abre.
+
+   A curva ACELERA no começo e passa de leve de 1 no fim: a aba cai, encosta e
+   ultrapassa o zero uns poucos graus antes de assentar, que é o que papel
+   dobrado faz. Com curva de saída pura ela despencava os primeiros 150 graus em
+   300ms e depois rastejava os últimos quinze, que lê como travamento. */
+@keyframes convite-fechar-aba {
+  from {
+    transform: translateZ(3px) rotateX(-166deg);
+  }
+  to {
+    transform: translateZ(3px) rotateX(0deg);
+  }
+}
+
+/* Qual face da aba está à mostra. A troca acontece no quadro em que a aba passa
+   dos 90 graus, onde ela está de perfil e tem largura zero: invisível, e sem
+   depender de `backface-visibility`, que o `clip-path` das faces desarma. */
+@keyframes convite-forro-fechando {
+  0%,
+  46% {
+    opacity: 1;
+  }
+  47%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Na ABERTURA o forro faz duas coisas no mesmo keyframe, e por isso ele é
+   `linear` e mais longo que a rotação: aparece quando a aba passa dos 90 graus
+   (39% desta linha do tempo) e se apaga junto com o resto do envelope (67% em
+   diante). Sem a segunda metade, a aba continuava pintada NA FRENTE da carta
+   durante o avanço da câmera, e sobrava uma faixa navy atravessada no alto da
+   tela justo no quadro em que o papel deveria ter tomado tudo. */
+@keyframes convite-forro-abrindo {
+  0%,
+  38% {
+    opacity: 0;
+  }
+  39%,
+  66% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* O envelope RESPIRA. Sem isto, depois que a cena termina a tela vira imagem
+   parada, e a peça perde a qualidade de objeto justo no momento em que a pessoa
+   está decidindo se clica. */
+@keyframes convite-respirar {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-7px);
+  }
+}
+
+/* A letra é BATIDA, não some para dentro: ela cai de cima, curtinho, como tecla
+   de máquina. É o registro de carimbo de correio, e é o que dá à etiqueta a
+   textura que uma linha de mono espaçado não tem sozinha. */
+@keyframes convite-bater {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(1.12);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* A prensa: escala grande até 1 com desaceleração longa. A desaceleração É a
+   prensa; com curva simétrica vira "ícone aparecendo". */
+@keyframes convite-prensar {
+  from {
+    opacity: 0;
+    transform: scale(1.75);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes convite-ondear {
+  from {
+    opacity: 0.5;
+    transform: scale(0.72);
+  }
   to {
     opacity: 0;
-    transform: scale(1.15);
+    transform: scale(2.05);
+  }
+}
+
+/* A palavra sobe de dentro do recorte, como tipo sendo composto. 105% e não
+   100%: descendente de "g" e "p" ficava aparecendo por baixo da máscara. */
+@keyframes convite-compor {
+  from {
+    transform: translateY(105%);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes convite-riscar-x {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* 70% e não 100%. A faixa clara da máscara mora no meio da janela, então o
+   centro dela viaja meia largura à frente da janela: indo de -100% a 100%, a luz
+   só encostava no nome entre 40% e 60% do tempo e o resto era percurso vazio.
+   Com 70% de cada lado, a viagem inteira acontece EM CIMA das letras. */
+@keyframes convite-foil-janela {
+  from {
+    transform: translateX(-70%);
+  }
+  to {
+    transform: translateX(70%);
+  }
+}
+
+@keyframes convite-foil-texto {
+  from {
+    transform: translateX(70%);
+  }
+  to {
+    transform: translateX(-70%);
+  }
+}
+
+/* ─────────────────────── os quadros da ABERTURA ─────────────────────── */
+
+/* O lacre não some: ele ROMPE. Cresce um tanto, gira e sai. */
+@keyframes convite-romper {
+  to {
+    opacity: 0;
+    transform: scale(1.5) rotate(14deg);
+  }
+}
+
+/* A aba dobra na aresta de cima e vai para TRÁS (rotação negativa), não para a
+   frente: indo para a frente ela cobriria justamente a carta que está saindo. */
+@keyframes convite-abrir-aba {
+  to {
+    transform: translateZ(3px) rotateX(-166deg);
+  }
+}
+
+@keyframes convite-tirar-carta {
+  to {
+    transform: translateY(-58%);
+  }
+}
+
+/* A câmera entra na carta. Curva ACELERANDO (o contrário de tudo o mais nesta
+   folha), porque aproximação que desacelera lê como zoom de software, e
+   aproximação que acelera lê como movimento.
+
+   7, e não um número redondo qualquer: é a escala medida em que a carta termina
+   de cobrir a viewport ANTES de a camada começar a se apagar. Menos que isso e
+   sobra uma faixa escura embaixo do papel no exato quadro em que ele deveria ter
+   tomado a tela. */
+@keyframes convite-entrar-na-carta {
+  to {
+    transform: scale(7);
+  }
+}
+
+@keyframes convite-sumir {
+  to {
+    opacity: 0;
   }
 }
 
 @keyframes proposta-entrar {
   from {
     opacity: 0;
-    transform: scale(0.96);
+    transform: scale(0.988);
   }
   to {
     opacity: 1;
@@ -517,40 +1327,241 @@ select:focus-visible {
   }
 }
 
-@keyframes brilho-pulsar {
-  0%,
-  100% {
-    opacity: 0.45;
-    transform: scale(1);
+@media (prefers-reduced-motion: no-preference) {
+  .convite-pilha span {
+    animation: convite-folha 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
   }
-  50% {
-    opacity: 0.85;
-    transform: scale(1.14);
+
+  .convite-envelope {
+    animation: convite-pousar 720ms cubic-bezier(0.16, 1, 0.3, 1) 140ms both;
+  }
+
+  /* `backwards` e não `both`, e isso é o que permite o hover mais abaixo: com
+     `both` o estado final da animação fica cravado para sempre e nenhuma
+     declaração de `transform` volta a valer, então a aba nunca mais se mexeria.
+     Com `backwards`, no fim a animação solta o elemento de volta para o CSS, e
+     como o `to` do keyframe é idêntico ao repouso, não há salto nenhum. */
+  .convite-aba {
+    animation: convite-fechar-aba 700ms cubic-bezier(0.55, 0, 0.28, 1.08) 620ms backwards;
+  }
+
+  /* Mesma duração, mesmo atraso e mesma curva da rotação: é o que garante que a
+     troca de face caia no quadro dos 90 graus. Mexer numa sem mexer na outra
+     mostra a face errada por alguns quadros. */
+  .convite-aba-forro {
+    animation: convite-forro-fechando 700ms cubic-bezier(0.55, 0, 0.28, 1.08) 620ms backwards;
+  }
+
+  /* Começa depois de a cena inteira assentar, e alterna, então não há emenda
+     visível no laço. */
+  .convite-peca {
+    animation: convite-respirar 7s ease-in-out 2900ms infinite alternate;
+  }
+
+  /* O atraso de cada letra vem do `style` no TSX (420ms + 26ms por letra). */
+  .convite-letra {
+    animation: convite-bater 260ms cubic-bezier(0.2, 0.9, 0.3, 1) both;
+  }
+
+  /* O atraso de cada palavra vem do `style` no TSX (560ms + 70ms por palavra):
+     é o índice do array, e recalcular isso no CSS exigiria uma regra por
+     posição. A curva é a `expo.out` das referências premiadas. */
+  .convite-palavra {
+    display: inline-block;
+    animation: convite-compor 540ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .convite-regua {
+    animation: convite-riscar-x 520ms cubic-bezier(0.65, 0, 0.35, 1) 820ms both;
+  }
+
+  /* Mesma história: o atraso de cada linha vem do TSX. */
+  .convite-linha span {
+    animation: convite-compor 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .convite-canto {
+    animation: convite-surgir 320ms cubic-bezier(0.2, 0.8, 0.2, 1) 1040ms both;
+  }
+
+  .convite-acao {
+    animation: convite-surgir 340ms cubic-bezier(0.2, 0.8, 0.2, 1) 1000ms both;
+  }
+
+  /* 1340ms: DEPOIS de a aba terminar de baixar. Prensar um lacre no ar, antes
+     de existir aba embaixo dele, era o que fazia o carimbo parecer um ícone
+     aparecendo em vez de um selo sendo aplicado. */
+  .convite-lacre {
+    animation: convite-prensar 440ms cubic-bezier(0.16, 1, 0.3, 1) 1340ms both;
+  }
+
+  /* `forwards`, JAMAIS `both`: o primeiro quadro desta animação é
+     `opacity: 0.5`, e com `both` o navegador segura esse quadro durante todo o
+     atraso. O efeito era um anel azul parado em volta do lacre pelo primeiro
+     segundo e meio da cena, que ninguém pega olhando o estado final. Com
+     `forwards` o repouso (`opacity: 0`) vale até a animação começar. */
+  .convite-onda {
+    animation: convite-ondear 700ms cubic-bezier(0.22, 1, 0.36, 1) 1480ms forwards;
+  }
+  .convite-onda-tardia {
+    animation-delay: 1610ms;
+  }
+
+  /* O metal do botão gira devagar e para sempre: é o que faz o botão ler como
+     peça e não como retângulo. `@property --brilho` já está declarado lá em
+     cima, e é ele que torna o ângulo interpolável. */
+  .convite-botao::before {
+    animation: girar-brilho 7s linear infinite;
+  }
+
+  /* 1820ms: depois de o botão já estar pronto (1100ms) e do lacre. A máscara é
+     ESTÁTICA e viaja junto com a janela, é ela que transforma um corte reto numa
+     luz de borda macia. `mask-image` não interpola (é propriedade discrete),
+     então animá-la nunca foi opção: quem anda é a caixa, com `transform`.
+
+     O prefixo fica: sem `-webkit-` a máscara não existe em iOS 15, e o piso real
+     de quem recebe proposta por WhatsApp é mais baixo que o nosso. */
+  .convite-foil {
+    opacity: 1;
+    -webkit-mask-image: linear-gradient(
+      100deg,
+      transparent 28%,
+      #000 46%,
+      #000 54%,
+      transparent 72%
+    );
+    mask-image: linear-gradient(100deg, transparent 28%, #000 46%, #000 54%, transparent 72%);
+    animation: convite-foil-janela 900ms cubic-bezier(0.4, 0, 0.6, 1) 1820ms both;
+  }
+
+  .convite-foil-texto {
+    animation: convite-foil-texto 900ms cubic-bezier(0.4, 0, 0.6, 1) 1820ms both;
+  }
+
+  /* ── a abertura ──
+     Cinco animações encadeadas, cada uma num elemento diferente, porque duas no
+     mesmo elemento fazem a segunda apagar a primeira. Os tempos precisam casar
+     com `SAIDA_MS` em AberturaProposta.tsx, que é quem desmonta a peça. */
+  .convite-saindo .convite-lacre {
+    animation: convite-romper 240ms cubic-bezier(0.4, 0, 0.9, 0.3) both;
+  }
+
+  .convite-saindo .convite-aba {
+    animation: convite-abrir-aba 560ms cubic-bezier(0.55, 0, 0.2, 1) 40ms both;
+  }
+
+  .convite-saindo .convite-aba-forro {
+    /* `linear` de propósito: as porcentagens do keyframe são tempo, e é o que
+       permite casar a troca de face com a rotação (que roda em outra curva) e a
+       dissolução com a da frente. */
+    animation: convite-forro-abrindo 720ms linear 40ms both;
+  }
+
+  /* A face de papel se apaga junto com a frente e a pilha: o envelope inteiro
+     sai de cena, e o que a câmera atravessa é só a carta. */
+  .convite-saindo .convite-aba-fora {
+    animation: convite-sumir 240ms cubic-bezier(0.4, 0, 0.9, 0.3) 520ms both;
+  }
+
+  .convite-saindo .convite-carta {
+    animation: convite-tirar-carta 440ms cubic-bezier(0.3, 0, 0.15, 1) 320ms both;
+  }
+
+  /* A frente e a pilha só se apagam DEPOIS de a carta já estar meio caminho fora
+     (520ms), e não junto com a subida dela: apagando cedo, a frente ficava
+     translúcida e a carta parecia atravessar o endereçamento em vez de sair de
+     dentro do envelope. Elas precisam sumir em algum momento, porém, senão o
+     nome da empresa cresce em corpo gigante bem na hora em que a proposta, por
+     baixo, mostra o mesmo nome no herói, e a passagem vira visão dupla. */
+  .convite-saindo .convite-frente,
+  .convite-saindo .convite-pilha {
+    animation: convite-sumir 240ms cubic-bezier(0.4, 0, 0.9, 0.3) 520ms both;
+  }
+
+  /* O botão sai na frente de tudo: ele não viaja para dentro do envelope. */
+  .convite-saindo .convite-acao {
+    animation: convite-sumir 200ms linear both;
+  }
+
+  .convite-saindo .convite-3d {
+    animation: convite-entrar-na-carta 420ms cubic-bezier(0.55, 0, 0.85, 0.6) 440ms both;
+  }
+
+  /* A ORDEM aqui é o truque inteiro: a carta cresce até COBRIR a tela, e só
+     então a camada se apaga. Fazendo as duas coisas ao mesmo tempo, o papel fica
+     meio transparente no meio do caminho, a aresta de baixo dele corta a tela na
+     horizontal, e o que era "entrar na carta" vira "painel cinza passando".
+
+     Curva de SAÍDA (queda rápida no começo) e não de entrada: com curva lenta no
+     começo, a tela ficava parada em branco chapado por uns 120ms e a revelação
+     virava um corte seco no fim. */
+  .convite-saindo {
+    animation: convite-sumir 280ms cubic-bezier(0.33, 1, 0.68, 1) 820ms both;
+  }
+
+  /* A proposta entra ANTES de o envelope terminar de sair: as duas se
+     sobrepõem, e é isso que tira o quadro morto de tela vazia no meio. */
+  .proposta-entrando {
+    animation: proposta-entrar 700ms cubic-bezier(0.16, 1, 0.3, 1) 660ms both;
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .convite-cartao {
-    animation: convite-entrar 900ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+/* ── ponteiro fino: paralaxe, aba que levanta, seta que anda ──
+   Só em ponteiro fino: no toque quem conduz é o dedo, e um objeto que persegue
+   o dedo atrapalha o alvo de 44px. */
+@media (hover: hover) and (pointer: fine) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* O foco de luz anda ao CONTRÁRIO da peça, e é essa oposição que cria
+       profundidade, não a distância percorrida. Quem amortece é a `transition`,
+       não uma mola em JS: o TSX só escreve dois números. */
+    .convite-palco {
+      transform: translate3d(calc(var(--px) * 7px), calc(var(--py) * 6px), 0);
+      transition: transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .convite-foco {
+      transform: translate3d(calc(var(--px) * -18px), calc(var(--py) * -14px), 0);
+      transition: transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* O ponteiro chega no botão e a aba SE LEVANTA, como quem já vai abrir. É a
+       promessa do clique feita pela própria peça, em vez de por uma mudança de
+       cor no botão. `:has()` porque o botão não é irmão da aba nem filho dela:
+       os dois só se encontram no palco.
+
+       Rotação POSITIVA, ou seja, a ponta da aba vem PARA A FRENTE, e não é
+       gosto: negativa (para trás, o mesmo sentido da abertura de verdade) joga a
+       ponta para z negativo, atrás do corpo do envelope, e o 3D ordena
+       corretamente escondendo a aba inteira. O hover fazia a aba SUMIR em vez de
+       levantar. Para a frente ela fica na frente, e ainda é o gesto certo:
+       envelope na mão se abre levantando a ponta na sua direção. */
+    .convite-palco:has(button:hover) .convite-aba,
+    .convite-palco:has(button:focus-visible) .convite-aba {
+      transform: translateZ(3px) rotateX(8deg);
+    }
+
+    .convite-aba {
+      transition: transform 460ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .convite-seta,
+    .convite-botao-texto {
+      transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .convite-botao:hover .convite-seta {
+      transform: translateX(5px);
+    }
+    .convite-botao:hover .convite-botao-texto {
+      transform: translateX(-2px);
+    }
   }
-  /* a aba abre SOZINHA, logo depois do cartão entrar */
-  .convite-aba-auto {
-    transform-origin: top center;
-    animation: aba-abrir 1100ms cubic-bezier(0.6, 0, 0.2, 1) 700ms both;
-  }
-  .convite-conteudo {
-    animation: conteudo-subir 700ms cubic-bezier(0.2, 0.8, 0.2, 1) 1500ms both;
-  }
-  .convite-brilho {
-    animation: brilho-pulsar 4s ease-in-out infinite;
-  }
-  .convite-saindo {
-    animation: convite-sair 620ms cubic-bezier(0.6, 0, 0.3, 1) both;
-  }
-  .proposta-entrando {
-    animation: proposta-entrar 760ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+
+  .convite-botao:hover {
+    background: var(--color-acento);
+    color: var(--color-osso);
   }
 }
+
 
 /* ── reduced-motion: mata TUDO ── */
 @media (prefers-reduced-motion: reduce) {
@@ -569,9 +1580,7 @@ select:focus-visible {
      (.etapa-luz, .aspas-grande, .filete-*, .palavra-sobe, .corda) foram
      removidos: eram nomes sem contraparte no TSX, e faziam a lista parecer
      mais protetora do que era. */
-  .ponto-fase,
-  .convite-cartao,
-  .convite-conteudo {
+  .ponto-fase {
     opacity: 1 !important;
     transform: none !important;
   }
@@ -583,12 +1592,11 @@ select:focus-visible {
     transform: none !important;
     opacity: 1 !important;
   }
-  /* sem movimento, a aba do envelope não comunica nada: some.
-     O nome tem que casar com o do TSX (.convite-aba-auto), quando não casava,
-     a aba ficava visível e PARADA cobrindo o topo do cartão. */
-  .convite-aba-auto {
-    display: none !important;
-  }
+  /* O convite não aparece nesta lista, e é de propósito: as animações dele
+     vivem TODAS dentro do `no-preference`, então o repouso já é o estado
+     final e não há o que desfazer. A camada de luz nasce com `opacity: 0` lá
+     em cima e continua assim aqui, parada seria uma faixa metálica cobrindo
+     metade do nome. */
 }
 
 /* ═════════════ luz do mouse: só em ponteiro fino ═════════════ */

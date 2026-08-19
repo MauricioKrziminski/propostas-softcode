@@ -193,6 +193,9 @@ export default async function PaginaProposta({ params, searchParams }: Props) {
     <AberturaProposta
       empresa={cliente.empresa}
       projeto={proposta.tituloProjeto}
+      contato={cliente.nome}
+      validaAte={proposta.validaAte}
+      caminho={caminhoPublico(proposta)}
       /* `?previa=1` pula o cartão-convite. É o que o espelho do painel usa: sem
          isso a prévia mostraria o envelope fechado e nunca a proposta. O
          parâmetro não afeta autorização nenhuma, só a abertura. */
