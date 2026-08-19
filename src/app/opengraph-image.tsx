@@ -1,45 +1,26 @@
 import { ImageResponse } from "next/og";
 
-import { buscarPropostaPorCaminho } from "@/lib/proposta/repositorio";
 import { COR_OG, FONTES_OG, SIMBOLO_OG, TAMANHO_OG } from "@/lib/og";
 
 /**
- * O card do WhatsApp é a primeira impressão da proposta: ele chega antes de
- * qualquer scroll, e muitas vezes decide se o link vai ser aberto na hora ou
- * "depois".
+ * O card de qualquer endereço que NÃO seja uma proposta: a raiz, o 404, e o que
+ * mais aparecer depois.
  *
- * Por isso ele imita o HERO da proposta em vez de inventar um layout próprio:
- * fundo noite, nome do cliente enorme em Fraunces, filete de acento. Quem abre o
- * link reconhece a peça que acabou de ver na conversa.
- *
- * Cuidado herdado: `noindex` NÃO atrapalha isto. Robô de busca obedece ao
- * `robots.txt`; o WhatsApp e o LinkedIn buscam a imagem assim mesmo, e o
- * `robots.ts` libera os buscadores de prévia de propósito.
+ * Ele existe porque link sem imagem, no WhatsApp, chega como uma linha cinza de
+ * texto e passa por golpe. Como aqui não há proposta para mostrar, o card fala
+ * do que este endereço é, sem revelar nada: mesma paleta noite, mesma tipografia
+ * e a frase que a portaria usa.
  */
 /* As fontes e a marca são LIDAS DO DISCO (ver `src/lib/og.ts`), e rota de imagem
    roda em Edge por padrão, onde `node:fs` não existe: sem esta linha a rota
    morre sem resposta, e o link chega sem card nenhum. */
 export const runtime = "nodejs";
 
-export const alt = "Proposta comercial da SoftCode";
+export const alt = "Propostas comerciais da SoftCode";
 export const size = TAMANHO_OG;
 export const contentType = "image/png";
 
-export default async function Imagem({
-  params,
-}: {
-  params: Promise<{ proposta: string }>;
-}) {
-  const { proposta: caminho } = await params;
-  const proposta = await buscarPropostaPorCaminho(caminho);
-
-  const empresa = proposta?.cliente.empresa ?? "SoftCode";
-  const projeto = proposta?.tituloProjeto ?? "Proposta comercial";
-
-  /* Nome de empresa longo não pode vazar da borda nem virar duas linhas
-     apertadas: a escala cai em degraus, como no hero. */
-  const tamanhoDoNome = empresa.length > 22 ? 76 : empresa.length > 14 ? 100 : 128;
-
+export default function Imagem() {
   return new ImageResponse(
     (
       <div
@@ -66,30 +47,30 @@ export default async function Imagem({
           <span style={{ fontSize: 22, letterSpacing: 6, color: COR_OG.neblina }}>
             SOFTCODE
           </span>
-          <span style={{ marginLeft: "auto", fontSize: 22, letterSpacing: 6, color: COR_OG.neblina }}>
-            PROPOSTA COMERCIAL
-          </span>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column" }}>
           <span style={{ fontSize: 24, letterSpacing: 6, color: COR_OG.acento }}>
-            PROPOSTA PARA
+            PROPOSTAS COMERCIAIS
           </span>
           <span
             style={{
               fontFamily: "Fraunces",
-              fontSize: tamanhoDoNome,
+              fontSize: 78,
               lineHeight: 1.05,
-              marginTop: 14,
+              marginTop: 16,
+              maxWidth: 860,
             }}
           >
-            {empresa}
+            Cada proposta tem um endereço só dela
           </span>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column" }}>
           <div style={{ display: "flex", width: 96, height: 3, backgroundColor: COR_OG.acento }} />
-          <span style={{ fontSize: 32, marginTop: 22, color: COR_OG.neblina }}>{projeto}</span>
+          <span style={{ fontSize: 30, marginTop: 22, color: COR_OG.neblina }}>
+            propostas.softcodedev.com.br
+          </span>
         </div>
       </div>
     ),

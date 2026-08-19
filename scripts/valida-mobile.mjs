@@ -526,6 +526,45 @@ checar(
 
 await api.dispose();
 
+/* ───────────── marca e compartilhamento ───────────── */
+/* O card e o favicon so quebram em EXECUCAO, nunca no build: foi assim que a
+   fonte variavel derrubou a rota de imagem inteira, com o link chegando sem
+   card e ninguem percebendo. Por isso eles viram teste. */
+console.log("\n▸ marca e compartilhamento");
+const apiMarca = await request.newContext();
+
+for (const [rota, nome] of [
+  ["/icon.png", "favicon"],
+  ["/apple-icon.png", "ícone do iOS"],
+]) {
+  const r = await apiMarca.get(`${BASE}${rota}`);
+  checar(
+    r.status() === 200 && r.headers()["content-type"]?.startsWith("image/"),
+    `${nome} responde imagem`,
+    `${nome} devolveu ${r.status()} (${r.headers()["content-type"]})`,
+  );
+}
+
+for (const [rota, nome] of [
+  ["/opengraph-image", "card da raiz"],
+  [`${CAMINHO}/opengraph-image`, "card da proposta"],
+]) {
+  const r = await apiMarca.get(`${BASE}${rota}`);
+  const corpo = await r.body();
+  checar(
+    r.status() === 200 && corpo.subarray(1, 4).toString() === "PNG",
+    `${nome} gera PNG`,
+    `${nome} devolveu ${r.status()} e ${corpo.length} bytes: fonte variável na rota de imagem?`,
+  );
+  /* Card vazio tambem sai como PNG valido; o peso e o que denuncia. */
+  checar(
+    corpo.length > 20_000,
+    `${nome} tem conteúdo (${Math.round(corpo.length / 1024)} KB)`,
+    `${nome} saiu com apenas ${Math.round(corpo.length / 1024)} KB, provavelmente vazio`,
+  );
+}
+await apiMarca.dispose();
+
 /* ───────────── 5. foco de teclado ───────────── */
 console.log("\n▸ foco de teclado");
 const ctxK = await navegador.newContext({ viewport: { width: 390, height: 844 } });
