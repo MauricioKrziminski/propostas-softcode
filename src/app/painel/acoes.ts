@@ -59,12 +59,12 @@ export async function entrar(
 
   limparTentativas(quem);
   await abrirSessao();
-  redirect("/admin");
+  redirect("/painel");
 }
 
 export async function sair(): Promise<void> {
   await fecharSessao();
-  redirect("/admin/entrar");
+  redirect("/painel");
 }
 
 /* ─────────────────────────── propostas ─────────────────────────── */
@@ -103,15 +103,15 @@ export async function novaProposta(
     return { erro: erro instanceof Error ? erro.message : "Não consegui criar a proposta." };
   }
 
-  revalidatePath("/admin");
-  redirect(`/admin/${id}`);
+  revalidatePath("/painel");
+  redirect(`/painel/${id}`);
 }
 
 export async function duplicar(dados: FormData): Promise<void> {
   await exigirAdminOuErro();
   const novo = await duplicarProposta(String(dados.get("id")));
-  revalidatePath("/admin");
-  if (novo) redirect(`/admin/${novo}`);
+  revalidatePath("/painel");
+  if (novo) redirect(`/painel/${novo}`);
 }
 
 
@@ -130,16 +130,16 @@ export async function definirStatus(id: string, status: string): Promise<EstadoF
   }
 
   await alterarStatus(id, status);
-  revalidatePath("/admin");
-  revalidatePath(`/admin/${id}`);
+  revalidatePath("/painel");
+  revalidatePath(`/painel/${id}`);
   return { ok: true };
 }
 
 export async function excluir(dados: FormData): Promise<void> {
   await exigirAdminOuErro();
   await excluirProposta(String(dados.get("id")));
-  revalidatePath("/admin");
-  redirect("/admin");
+  revalidatePath("/painel");
+  redirect("/painel");
 }
 
 /* ─────────────────────────── edição ─────────────────────────── */
@@ -154,7 +154,7 @@ export async function salvarSecaoDaProposta(
   const resultado = await salvarSecao(id, chave, valor);
   if (!resultado.ok) return { erros: resultado.erros };
 
-  revalidatePath(`/admin/${id}`);
+  revalidatePath(`/painel/${id}`);
   return { ok: true };
 }
 
@@ -167,7 +167,7 @@ export async function salvarOrdemDasSecoes(
   const resultado = await salvarOrdem(id, ordem);
   if (!resultado.ok) return { erros: resultado.erros };
 
-  revalidatePath(`/admin/${id}`);
+  revalidatePath(`/painel/${id}`);
   return { ok: true };
 }
 
@@ -189,7 +189,7 @@ export async function salvarCabecalhoDaProposta(
   const resultado = await salvarCabecalho(id, dados);
   if (!resultado.ok) return { erros: resultado.erros };
 
-  revalidatePath(`/admin/${id}`);
-  revalidatePath("/admin");
+  revalidatePath(`/painel/${id}`);
+  revalidatePath("/painel");
   return { ok: true };
 }

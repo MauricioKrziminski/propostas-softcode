@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { sair } from "@/app/admin/acoes";
+import { sair } from "@/app/painel/acoes";
 
 /**
  * A barra do topo: onde estou, o que dá para fazer, e a saída.
@@ -21,7 +21,7 @@ export function BarraDaMesa({
     <header className="sticky top-0 z-30 border-b border-[var(--mesa-fio)] bg-[color-mix(in_srgb,var(--mesa-fundo)_88%,transparent)] backdrop-blur-[6px]">
       <div className="mx-auto flex w-full max-w-[1600px] flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3 sm:px-6">
         <Link
-          href="/admin"
+          href="/painel"
           className="flex min-h-11 items-center gap-2 text-[var(--mesa-tinta)]"
         >
           <span

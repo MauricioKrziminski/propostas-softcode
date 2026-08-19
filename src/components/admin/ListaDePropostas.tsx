@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import { duplicar } from "@/app/admin/acoes";
+import { duplicar } from "@/app/painel/acoes";
 import type { ResumoProposta } from "@/lib/proposta/repositorio";
 import { BotaoCopiar } from "./BotaoCopiar";
 import { BotaoExcluir } from "./BotaoExcluir";
@@ -51,13 +51,13 @@ export function ListaDePropostas({
       id: "nova",
       grupo: "ação",
       rotulo: "Nova proposta",
-      executar: () => navegador.push("/admin/nova"),
+      executar: () => navegador.push("/painel/nova"),
     },
     ...propostas.map((p) => ({
       id: `abrir-${p.id}`,
       grupo: "editar",
       rotulo: `${p.empresa} · ${p.tituloProjeto}`,
-      executar: () => navegador.push(`/admin/${p.id}`),
+      executar: () => navegador.push(`/painel/${p.id}`),
     })),
     ...propostas.map((p) => ({
       id: `link-${p.id}`,
@@ -117,7 +117,7 @@ export function ListaDePropostas({
 
               <div className="min-w-0 flex-1">
                 <Link
-                  href={`/admin/${p.id}`}
+                  href={`/painel/${p.id}`}
                   /* `min-h-11`: no celular este é o alvo principal da linha, e alvo de
                      toque menor que 44px é o defeito que mais irrita em lista. */
                   className="titulo-mesa flex min-h-11 items-center truncate text-[clamp(1.5rem,4vw,2rem)] text-[var(--mesa-tinta)] hover:text-[var(--mesa-acento)]"
@@ -139,7 +139,7 @@ export function ListaDePropostas({
               </div>
 
               <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
-                <Link href={`/admin/${p.id}`} className="botao-mesa botao-mesa-forte">
+                <Link href={`/painel/${p.id}`} className="botao-mesa botao-mesa-forte">
                   Editar
                 </Link>
                 <a

@@ -2,24 +2,35 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 /**
- * Checagem OTIMISTA do painel. No Next 16 o antigo middleware se chama proxy.
+ * Duas coisas simples, e nenhuma delas é autorização.
  *
- * Só olha se o cookie de sessão existe, para mandar quem não tem para a tela de
- * entrada sem renderizar nada. Ele NÃO verifica a assinatura e NÃO é a
- * autorização: isso é `exigirAdmin()`, em `src/lib/admin/guarda.ts`, chamado
- * dentro de cada página e cada action. Cookie forjado passa por aqui e morre lá.
+ * 1. `/admin` continua respondendo, redirecionando para `/painel`. O endereço
+ *    mudou depois que o painel virou português como o resto do produto, e link
+ *    salvo no navegador não pode morrer por causa disso.
  *
- * O matcher deixa `/admin/entrar` de fora, senão quem não está logado ficaria
- * preso num redirecionamento para a própria tela de entrada.
+ * 2. Checagem OTIMISTA: quem não tem o cookie de sessão vai para `/painel`, que
+ *    é onde mora a tela de entrada. Isso evita renderizar uma página inteira
+ *    para depois descobrir que não há sessão.
+ *
+ * O que ela NÃO faz é verificar a assinatura do cookie. Autorização é
+ * `exigirAdmin()`, em `src/lib/admin/guarda.ts`, chamado dentro de cada página e
+ * de cada action: cookie forjado passa por aqui e morre lá. No Next 16 o antigo
+ * middleware se chama proxy, e roda em Node por padrão.
  */
 export function proxy(request: NextRequest) {
-  const temCookie = request.cookies.has("sessao_admin");
-  if (temCookie) return NextResponse.next();
+  const { pathname } = request.nextUrl;
 
-  const destino = new URL("/admin/entrar", request.url);
-  return NextResponse.redirect(destino);
+  if (pathname === "/admin" || pathname.startsWith("/admin/")) {
+    return NextResponse.redirect(new URL("/painel", request.url));
+  }
+
+  if (request.cookies.has("sessao_admin")) return NextResponse.next();
+
+  return NextResponse.redirect(new URL("/painel", request.url));
 }
 
 export const config = {
-  matcher: ["/admin", "/admin/((?!entrar).*)"],
+  /* `/painel` fica de fora: é a própria tela de entrada, e mandá-la para si
+     mesma seria um laço de redirecionamento. */
+  matcher: ["/admin", "/admin/:path*", "/painel/:path+"],
 };

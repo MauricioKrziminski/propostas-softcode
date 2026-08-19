@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 
-import { excluir } from "@/app/admin/acoes";
+import { excluir } from "@/app/painel/acoes";
 
 /**
  * Excluir, com modal de confirmação.

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
-import { salvarOrdemDasSecoes, salvarSecaoDaProposta } from "@/app/admin/acoes";
+import { salvarOrdemDasSecoes, salvarSecaoDaProposta } from "@/app/painel/acoes";
 import { CHAVES_SECAO, type ChaveSecao, type Conteudo } from "@/lib/proposta/schema";
 import type { Prontidao as Avaliacao } from "@/lib/proposta/prontidao";
 import { Comando, type ItemDeComando } from "./Comando";
@@ -188,7 +188,7 @@ export function Mesa({
       id: "lista",
       grupo: "ir para",
       rotulo: "Todas as propostas",
-      executar: () => navegador.push("/admin"),
+      executar: () => navegador.push("/painel"),
     },
   ];
 

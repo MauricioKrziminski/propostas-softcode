@@ -124,7 +124,10 @@ proposta**, o seed atual é a proposta real da Barba Log, não um exemplo.
 - **Leitura de proposta é TOLERANTE:** seção fora do formato é registrada no log
   e omitida, nunca derruba a página. Campo novo entra sempre opcional. O cliente
   abriu o link do WhatsApp; ele não pode receber 500.
-- **`/admin`: toda página e toda action chamam `exigirAdmin()` na primeira
+- **O painel é `/painel`** (`/admin` só redireciona, para não quebrar link
+  salvo). A rota `/painel` é a porta E a sala: sem sessão mostra a entrada, com
+  sessão mostra a lista. Não existe rota separada de login.
+- **No painel, toda página e toda action chamam `exigirAdmin()` na primeira
   linha.** O `proxy.ts` só faz checagem otimista de cookie; Server Action é
   endpoint HTTP e pode ser chamada sem passar por rota nenhuma.
 - **Slug e token nunca mudam depois de criados.** Os dois formam o link que já

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 
-import { salvarCabecalhoDaProposta } from "@/app/admin/acoes";
+import { salvarCabecalhoDaProposta } from "@/app/painel/acoes";
 import { BotaoExcluir } from "./BotaoExcluir";
 import { CampoData, CampoSelecao, CampoTexto } from "./campos";
 import { STATUS_PROPOSTA } from "@/lib/proposta/schema";

@@ -17,7 +17,7 @@ import { sessaoValida } from "./sessao";
  * `exigirAdmin()` na primeira linha.
  */
 export async function exigirAdmin(): Promise<void> {
-  if (!(await sessaoValida())) redirect("/admin/entrar");
+  if (!(await sessaoValida())) redirect("/painel");
 }
 
 /** Para Server Actions: falha explícita em vez de redirecionar. */

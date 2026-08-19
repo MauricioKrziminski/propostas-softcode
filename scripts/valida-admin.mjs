@@ -87,12 +87,14 @@ try {
   /* O Next recarrega o .env sozinho, mas leva alguns segundos. Em vez de dormir
      um tempo arbitrário, tenta entrar até conseguir. */
   for (let tentativa = 0; tentativa < 15 && !entrou; tentativa++) {
-    await paginaSenha.goto(`${BASE}/admin/entrar`, { waitUntil: "networkidle" });
+    await paginaSenha.goto(`${BASE}/painel`, { waitUntil: "networkidle" });
 
     /* Com sessão aberta, /admin/entrar redireciona para /admin e não existe
        campo de senha nenhum para preencher. Isso é o login tendo funcionado na
        tentativa anterior, não falha. */
-    if (new URL(paginaSenha.url()).pathname === "/admin") {
+    /* Sem campo de senha na tela: a sessão já está aberta e o painel mostrou a
+       lista. É o login tendo funcionado, não falha. */
+    if ((await paginaSenha.locator("#senha").count()) === 0) {
       entrou = true;
       break;
     }
@@ -100,7 +102,7 @@ try {
     await paginaSenha.fill("#senha", senhaDeTeste);
     await paginaSenha.click('button[type="submit"]');
     await paginaSenha.waitForTimeout(2000);
-    entrou = new URL(paginaSenha.url()).pathname === "/admin";
+    entrou = (await paginaSenha.locator("#senha").count()) === 0;
   }
   checar(
     entrou,
@@ -110,7 +112,7 @@ try {
 
   if (entrou) {
     await paginaSenha.context().clearCookies();
-    await paginaSenha.goto(`${BASE}/admin/entrar`, { waitUntil: "networkidle" });
+    await paginaSenha.goto(`${BASE}/painel`, { waitUntil: "networkidle" });
     await paginaSenha.fill("#senha", "senha-obviamente-errada");
     await paginaSenha.click('button[type="submit"]');
     await paginaSenha.waitForTimeout(1200);
@@ -149,9 +151,9 @@ await ctxCelular.addCookies([cookieSessao]);
 const cel = await ctxCelular.newPage();
 cel.on("pageerror", (e) => errosDeConsole.push(String(e)));
 
-await cel.goto(`${BASE}/admin`, { waitUntil: "networkidle" });
+await cel.goto(`${BASE}/painel`, { waitUntil: "networkidle" });
 checar(
-  cel.url().endsWith("/admin"),
+  cel.url().endsWith("/painel"),
   "sessão assinada entra no painel",
   `caiu em ${cel.url()}: o cookie assinado deveria ser aceito`,
 );
@@ -184,12 +186,12 @@ checar(
 );
 
 console.log("\n▸ criar proposta");
-await cel.goto(`${BASE}/admin/nova`, { waitUntil: "networkidle" });
+await cel.goto(`${BASE}/painel/nova`, { waitUntil: "networkidle" });
 await cel.fill("#empresa", EMPRESA);
 await cel.fill("#contato", "Fulano de Teste");
 await cel.fill("#tituloProjeto", "Site institucional");
 await cel.click('main button[type="submit"]');
-await cel.waitForURL(/\/admin\/[0-9a-f-]{36}$/, { timeout: 20000 });
+await cel.waitForURL(/\/painel\/[0-9a-f-]{36}$/, { timeout: 20000 });
 const idNovo = cel.url().split("/").pop();
 checar(Boolean(idNovo), "proposta criada e mesa aberta", "não chegou na mesa depois de criar");
 await ctxCelular.close();
@@ -200,7 +202,7 @@ const ctx = await navegador.newContext({ viewport: { width: 1440, height: 950 } 
 await ctx.addCookies([cookieSessao]);
 const pg = await ctx.newPage();
 pg.on("pageerror", (e) => errosDeConsole.push(String(e)));
-await pg.goto(`${BASE}/admin/${idNovo}`, { waitUntil: "networkidle" });
+await pg.goto(`${BASE}/painel/${idNovo}`, { waitUntil: "networkidle" });
 await pg.waitForTimeout(1500);
 
 const trilho = await pg.evaluate(() =>
@@ -328,7 +330,7 @@ await anonimo.dispose();
 
 /* ───────────── 4. publicar pela capa ───────────── */
 console.log("\n▸ publicar");
-await pg.goto(`${BASE}/admin/${idNovo}`, { waitUntil: "networkidle" });
+await pg.goto(`${BASE}/painel/${idNovo}`, { waitUntil: "networkidle" });
 await pg.waitForTimeout(800);
 await pg.evaluate(() => {
   const capa = [...document.querySelectorAll('nav[aria-label="Seções da proposta"] button')].find(
@@ -379,10 +381,10 @@ checar(
   errosDeConsole.slice(0, 2).join("\n"),
 );
 
-await pg.goto(`${BASE}/admin/${idNovo}`, { waitUntil: "networkidle" });
+await pg.goto(`${BASE}/painel/${idNovo}`, { waitUntil: "networkidle" });
 await pg.waitForTimeout(1500);
 await pg.screenshot({ path: ".playwright/admin-mesa.png" });
-await pg.goto(`${BASE}/admin`, { waitUntil: "networkidle" });
+await pg.goto(`${BASE}/painel`, { waitUntil: "networkidle" });
 await pg.screenshot({ path: ".playwright/admin-lista.png" });
 
 /* ───────────── 6. excluir ───────────── */

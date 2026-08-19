@@ -495,11 +495,11 @@ checar(pdfSemToken.status() === 404, "token errado no PDF dá 404", `token errad
    aberta, cookie forjado aceito, e tela de entrada quebrada. */
 console.log("\n▸ admin fechado");
 
-const admSemCookie = await api.get(`${BASE}/admin`, { maxRedirects: 0 });
+const admSemCookie = await api.get(`${BASE}/painel/nova`, { maxRedirects: 0 });
 checar(
   [307, 302, 303].includes(admSemCookie.status()),
-  `/admin sem sessão redireciona (${admSemCookie.status()})`,
-  `/admin sem sessão devolveu ${admSemCookie.status()}, deveria redirecionar`,
+  `/painel sem sessão redireciona (${admSemCookie.status()})`,
+  `/painel sem sessão devolveu ${admSemCookie.status()}, deveria redirecionar`,
 );
 
 /* Cookie inventado passa pelo proxy (que só olha se existe) e precisa morrer no
@@ -508,7 +508,7 @@ checar(
 const apiForjada = await request.newContext({
   extraHTTPHeaders: { cookie: "sessao_admin=99999999999999.assinaturafalsa" },
 });
-const admForjado = await apiForjada.get(`${BASE}/admin`, { maxRedirects: 0 });
+const admForjado = await apiForjada.get(`${BASE}/painel/nova`, { maxRedirects: 0 });
 checar(
   [307, 302, 303].includes(admForjado.status()),
   "cookie forjado é recusado pela assinatura",
@@ -516,7 +516,7 @@ checar(
 );
 await apiForjada.dispose();
 
-const entrada = await api.get(`${BASE}/admin/entrar`);
+const entrada = await api.get(`${BASE}/painel`);
 const htmlEntrada = await entrada.text();
 checar(
   entrada.status() === 200 && htmlEntrada.includes('type="password"'),

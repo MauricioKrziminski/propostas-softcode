@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 
-import { entrar, type EstadoFormulario } from "@/app/admin/acoes";
+import { entrar, type EstadoFormulario } from "@/app/painel/acoes";
 
 /**
  * O campo de senha e o erro.

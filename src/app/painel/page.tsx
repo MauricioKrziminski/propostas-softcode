@@ -2,15 +2,25 @@ import Link from "next/link";
 import { headers } from "next/headers";
 
 import { BarraDaMesa } from "@/components/admin/BarraDaMesa";
+import { FormularioDeEntrada } from "@/components/admin/FormularioDeEntrada";
 import { ListaDePropostas } from "@/components/admin/ListaDePropostas";
-import { exigirAdmin } from "@/lib/admin/guarda";
+import { sessaoValida } from "@/lib/admin/sessao";
 import { listarPropostas } from "@/lib/proposta/repositorio";
 
 /** A lista é sempre fresca: proposta salva agora precisa aparecer agora. */
 export const dynamic = "force-dynamic";
 
-export default async function PaginaLista() {
-  await exigirAdmin();
+/**
+ * `/painel` é a porta E a sala.
+ *
+ * Antes existia `/painel/entrar` só para o campo de senha, com um
+ * redirecionamento para lá e outro de volta. Uma rota inteira para uma
+ * pergunta, e um endereço a mais para lembrar. Agora é a MESMA página: sem
+ * sessão ela mostra a entrada, com sessão mostra as propostas. Quem entra
+ * continua no endereço em que estava, e quem sai também.
+ */
+export default async function PaginaPainel() {
+  if (!(await sessaoValida())) return <Entrada />;
 
   const [propostas, cabecalhos] = await Promise.all([listarPropostas(), headers()]);
   const base = `${cabecalhos.get("x-forwarded-proto") ?? "http"}://${cabecalhos.get("host")}`;
@@ -25,7 +35,7 @@ export default async function PaginaLista() {
       <BarraDaMesa
         caminho={[{ rotulo: "propostas" }]}
         acoes={
-          <Link href="/admin/nova" className="botao-mesa botao-mesa-forte">
+          <Link href="/painel/nova" className="botao-mesa botao-mesa-forte">
             Nova proposta
           </Link>
         }
@@ -63,5 +73,31 @@ export default async function PaginaLista() {
         </div>
       </main>
     </>
+  );
+}
+
+/**
+ * A porta. O texto diz o que é isto sem dizer o que tem dentro: quem chegou por
+ * engano entende que errou o endereço, e quem chegou procurando não descobre
+ * nada.
+ */
+function Entrada() {
+  return (
+    <main className="mx-auto flex min-h-[100dvh] w-full max-w-md flex-col justify-center px-6 py-16">
+      <p className="etiqueta-mesa">SoftCode</p>
+
+      <h1 className="titulo-mesa mt-4 text-[clamp(2.5rem,9vw,3.5rem)] text-[var(--mesa-tinta)]">
+        Mesa de propostas
+      </h1>
+
+      <p className="mt-4 max-w-sm leading-relaxed text-[var(--mesa-tinta-suave)]">
+        Aqui as propostas são montadas, revistas e enviadas. Área interna: se você chegou
+        por engano, não há nada nesta página para você.
+      </p>
+
+      <FormularioDeEntrada />
+
+      <p className="etiqueta-mesa mt-12">propostas.softcodedev.com.br</p>
+    </main>
   );
 }

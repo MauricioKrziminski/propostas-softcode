@@ -3,7 +3,7 @@
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 
-import { definirStatus } from "@/app/admin/acoes";
+import { definirStatus } from "@/app/painel/acoes";
 import { STATUS_PROPOSTA } from "@/lib/proposta/schema";
 
 /**

@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 
-import { novaProposta, type EstadoFormulario } from "@/app/admin/acoes";
+import { novaProposta, type EstadoFormulario } from "@/app/painel/acoes";
 
 /**
  * Cinco campos, e nada além.
