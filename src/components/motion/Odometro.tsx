@@ -15,6 +15,9 @@ import { formatarValor } from "@/lib/proposta/formatar";
  * coluna de preços dança enquanto conta, que é o defeito que mais denuncia
  * amadorismo numa proposta.
  */
+/** Altura da caixa de cada caractere, em `em`. Vale para dígito e separador. */
+const ALTURA_EM = 1.1;
+
 export function Odometro({
   valorCentavos,
   className = "",
@@ -45,7 +48,11 @@ export function Odometro({
   }, [menosMovimento]);
 
   if (menosMovimento) {
-    return <span className={`tipo-mono ${className}`}>{texto}</span>;
+    return (
+      <span className={`tipo-mono ${className}`} style={{ lineHeight: ALTURA_EM }}>
+        {texto}
+      </span>
+    );
   }
 
   return (
@@ -57,7 +64,7 @@ export function Odometro({
   );
 }
 
-const ALTURA_EM = 1.1;
+
 
 function Digito({
   caractere,
@@ -70,10 +77,23 @@ function Digito({
 }) {
   const ehDigito = /\d/.test(caractere);
 
-  // Separadores e o "R$" não rolam, só os algarismos.
+  /**
+   * Separadores e o "R$" não rolam, só os algarismos. Mas eles PRECISAM ter a
+   * mesma caixa dos dígitos.
+   *
+   * Sem a altura e a entrelinha abaixo, o separador herdava a entrelinha da
+   * seção (1.65) enquanto o dígito usava a sua (1.1). Como todos são itens de
+   * um flex alinhados pelo topo, o glifo do "." ficava centrado numa caixa mais
+   * alta e aparecia ~12px abaixo dos números: o preço saía com o ponto caído e
+   * os algarismos flutuando.
+   */
   if (!ehDigito) {
     return (
-      <span aria-hidden className={caractere === " " ? "w-[0.28em]" : undefined}>
+      <span
+        aria-hidden
+        className={caractere === " " ? "w-[0.28em]" : undefined}
+        style={{ height: `${ALTURA_EM}em`, lineHeight: `${ALTURA_EM}em` }}
+      >
         {caractere === " " ? "" : caractere}
       </span>
     );
