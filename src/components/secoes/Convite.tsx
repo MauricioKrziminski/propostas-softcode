@@ -1,9 +1,33 @@
 "use client";
 
 import { Fragment, useEffect, useRef } from "react";
+import { Bodoni_Moda } from "next/font/google";
 
 import { GRAO } from "@/components/motion/Textura";
 import { formatarDataCurta } from "@/lib/proposta/formatar";
+
+/**
+ * A face do CONVITE, e só dele: a proposta continua em Fraunces.
+ *
+ * Didone é literalmente a letra do convite gravado e da papelaria em relevo, e
+ * ela só é possível AQUI porque o envelope virou papel claro: hairline de
+ * didone morre em texto claro sobre fundo escuro, o anti-aliasing come o traço
+ * fino. Direção e tipografia se justificam uma à outra.
+ *
+ * O eixo `opsz` (6 a 96) é ÓPTICO de verdade: em 6 as hastes engrossam e o
+ * contraste cai, em 96 as hairlines afinam e o contraste explode. É o que
+ * permite duas letras visivelmente diferentes saindo de um arquivo só.
+ *
+ * Declarada no escopo deste módulo e não no `layout.tsx` de propósito: assim as
+ * rotas do painel não pagam o preload de uma fonte que só a capa usa.
+ */
+const bodoni = Bodoni_Moda({
+  subsets: ["latin"],
+  axes: ["opsz"],
+  display: "swap",
+  variable: "--fonte-convite",
+  preload: true,
+});
 
 const ETIQUETA = "Proposta comercial";
 
@@ -183,7 +207,7 @@ export function Convite({
            `--ctx-titulo` virar quase branco para tudo que está dentro. O nome
            do cliente saía branco sobre papel branco, invisível. Aqui cada cor é
            explícita. */
-        className={`so-tela fixed inset-0 z-[100] flex min-h-[100dvh] items-center justify-center overflow-x-hidden overflow-y-auto bg-noite px-5 py-9 outline-none sm:px-8 sm:py-14 ${
+        className={`${bodoni.variable} so-tela fixed inset-0 z-[100] flex min-h-[100dvh] items-center justify-center overflow-x-hidden overflow-y-auto bg-noite px-5 py-9 outline-none sm:px-8 sm:py-14 ${
           saindo ? "convite-saindo pointer-events-none" : ""
         }`}
       >
