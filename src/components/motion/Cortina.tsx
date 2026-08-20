@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { motion, useReducedMotion, useTransform } from "motion/react";
+import { cubicBezier, motion, useReducedMotion, useTransform } from "motion/react";
 
 import { usePercurso } from "./percurso";
 import { useAlturaDaJanela } from "./midia";
@@ -83,7 +83,14 @@ export function Cortina({
      quando a aresta encosta no alto da tela, e chegar lá ainda arredondado
      deixaria dois cantinhos do bloco anterior aparecendo no topo. Ao endurecer
      antes, a folha se assenta e vira página. */
-  const raio = useTransform(entrada, [0, 0.72], ["2.75rem", "0rem"], { clamp: true });
+  const raio = useTransform(entrada, [0, 0.72], ["2.75rem", "0rem"], {
+    clamp: true,
+    /* Curva de entrada, e não linear: a folha SEGURA o arredondado durante quase
+       toda a subida e só endurece no fim, quando encosta no alto. Linear, o
+       raio já estava quase reto no meio do caminho e o gesto lia como um wipe
+       que por acaso começou torto. */
+    ease: cubicBezier(0.7, 0, 0.84, 0),
+  });
 
   /* Os dois `useScroll` precisam do MESMO nó. `usePercurso` devolve uma ref
      cada, e um `ref` de React só aceita uma: a função abaixo entrega o nó para
