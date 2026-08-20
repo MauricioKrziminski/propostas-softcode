@@ -100,6 +100,12 @@ proposta**, o seed atual é a proposta real da Barba Log, não um exemplo.
   contexto (as faixas), objeto (o envelope, o único nítido) e ação (o botão). A
   luz que se move é o que mantém a silhueta recortada continuamente, e não só no
   primeiro quadro.
+- **Toda camada de ambiente mora dentro de `.convite-cena`, que RECORTA.** O
+  `#convite` é `overflow-y: auto` de propósito, para o botão continuar
+  alcançável em tela baixa, e por isso qualquer filho absoluto que passe da
+  borda de baixo vira ÁREA ROLÁVEL: o `inset` negativo da mesa deixava uma faixa
+  vazia de uns 200px abaixo do botão, e quem rolava achava que existia mais uma
+  seção ali. O mesmo recorte segura a pista das faixas, que é `max-content`.
 - **As faixas são DUAS, em sentidos opostos, e ocluídas pelo envelope.** A
   oclusão é a profundidade que o toque não pode ter por paralaxe de ponteiro. A
   pista carrega o conteúdo duas vezes e anda meia pista: é o laço perfeito. Ela

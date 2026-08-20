@@ -814,6 +814,22 @@ checar(
 checar(ambiente.brasa === "convite-brasa", "a brasa do botão respira", "a brasa do CTA parou");
 checar(!ambiente.estoura, "a capa não rola de lado", `a faixa estourou a tela (${ambiente.largura}px)`);
 
+/* E também não pode rolar PARA BAIXO quando o convite cabe na tela.
+   `#convite` é `overflow-y: auto` de propósito (em tela baixa o botão precisa
+   continuar alcançável), e por isso qualquer filho absoluto que passe da borda
+   de baixo vira área rolável: com o `inset` negativo da mesa sobrava uma faixa
+   vazia de uns 200px abaixo do botão, e quem rolava achava que existia mais uma
+   seção ali. */
+const rolagemDaCapa = await pgConvite.evaluate(() => {
+  const c = document.querySelector("#convite");
+  return { sobra: c.scrollHeight - c.clientHeight, cabe: c.clientHeight > 560 };
+});
+checar(
+  !rolagemDaCapa.cabe || rolagemDaCapa.sobra <= 1,
+  "o convite não tem nada rolável abaixo do botão",
+  `sobram ${rolagemDaCapa.sobra}px de rolagem no convite: parece que existe outra seção embaixo`,
+);
+
 /* ───────── o orçamento de propriedades animadas ─────────
 
    Só `transform` e `opacity` animam nesta tela, mais duas exceções nomeadas:

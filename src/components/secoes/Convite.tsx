@@ -244,43 +244,53 @@ export function Convite({
           saindo ? "convite-saindo pointer-events-none" : ""
         }`}
       >
-        {/* A mesa: foco frio de cima, vinheta nas bordas e o grão que tira o
-            chapado do escuro. Tudo pintura estática, nada aqui anima. */}
-        <div aria-hidden className="convite-foco pointer-events-none absolute inset-0" />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-[0.05]"
-          style={{ backgroundImage: `url("${GRAO}")`, backgroundRepeat: "repeat" }}
-        />
+        {/* AS CAMADAS DE AMBIENTE, todas dentro de um recorte.
 
-        {/* CAMADA 1: as faixas. Correm ATRÁS do envelope e são ocluídas por ele,
-            e é a oclusão, e não a velocidade, que cria a profundidade no toque.
-            A pista carrega o conteúdo DUAS vezes: andar meia pista é o laço
-            perfeito, sem emenda. */}
-        <div aria-hidden className="convite-faixa convite-faixa-alta">
-          <div className="convite-faixa-pista">
-            {[0, 1].map((copia) => (
-              <span key={copia}>
-                Proposta comercial
-                <i className="convite-pastilha" />
-                Preparada para você
-                <i className="convite-pastilha" />
-              </span>
-            ))}
+            O recorte não é zelo: `.convite-foco` tem `inset` NEGATIVO (a
+            paralaxe o desloca, e sem folga a borda dele apareceria), e filho
+            absoluto que passa da borda de baixo vira área ROLÁVEL do pai. Como
+            o `#convite` é `overflow-y: auto` (para o convite continuar
+            alcançável em tela baixa), sobrava uma faixa vazia de uns 200px
+            abaixo do botão, e quem rolava achava que existia uma seção ali. O
+            mesmo recorte também garante que a pista das faixas, que é
+            `max-content`, nunca empurre a página de lado. */}
+        <div aria-hidden className="convite-cena">
+          {/* A mesa: aurora derivando, halo e vinheta fechando as bordas. */}
+          <div className="convite-foco" />
+          <div
+            className="absolute inset-0 opacity-[0.05]"
+            style={{ backgroundImage: `url("${GRAO}")`, backgroundRepeat: "repeat" }}
+          />
+
+          {/* CAMADA 1: as faixas. Correm ATRÁS do envelope e são ocluídas por
+              ele, e é a oclusão, e não a velocidade, que cria a profundidade no
+              toque. A pista carrega o conteúdo DUAS vezes: andar meia pista é o
+              laço perfeito, sem emenda. */}
+          <div className="convite-faixa convite-faixa-alta">
+            <div className="convite-faixa-pista">
+              {[0, 1].map((copia) => (
+                <span key={copia}>
+                  Proposta comercial
+                  <i className="convite-pastilha" />
+                  Preparada para você
+                  <i className="convite-pastilha" />
+                </span>
+              ))}
+            </div>
           </div>
-        </div>
-        <div aria-hidden className="convite-faixa convite-faixa-baixa">
-          <div className="convite-faixa-pista">
-            {[0, 1].map((copia) => (
-              <span key={copia}>
-                Confidencial
-                <i className="convite-pastilha" />
-                SoftCode
-                <i className="convite-pastilha" />
-                Documento único
-                <i className="convite-pastilha" />
-              </span>
-            ))}
+          <div className="convite-faixa convite-faixa-baixa">
+            <div className="convite-faixa-pista">
+              {[0, 1].map((copia) => (
+                <span key={copia}>
+                  Confidencial
+                  <i className="convite-pastilha" />
+                  SoftCode
+                  <i className="convite-pastilha" />
+                  Documento único
+                  <i className="convite-pastilha" />
+                </span>
+              ))}
+            </div>
           </div>
         </div>
 

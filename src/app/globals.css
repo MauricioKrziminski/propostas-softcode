@@ -547,6 +547,21 @@ select:focus-visible {
   --aurora-c: #c98b4b;
 }
 
+/* O recorte de todas as camadas de ambiente.
+
+   Ele existe por uma razão de encanamento, não de estilo: `.convite-foco` tem
+   `inset` negativo, e filho absoluto que passa da borda de baixo vira ÁREA
+   ROLÁVEL do pai. Como o `#convite` é `overflow-y: auto`, sobrava uma faixa
+   vazia de uns 200px abaixo do botão, e quem rolava achava que existia mais uma
+   seção ali. De quebra, ele também segura a pista das faixas, que é
+   `max-content` e sem isso empurraria a página de lado. */
+.convite-cena {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
 /* ── camada 0: a mesa ──
    A vinheta mora no elemento, e as duas manchas de luz vivem nos
    pseudo-elementos, cada uma com deriva própria. É a luz que se move que mantém
