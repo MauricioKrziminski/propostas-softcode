@@ -1225,8 +1225,14 @@ await api.dispose();
 console.log("\n▸ marca e compartilhamento");
 const apiMarca = await request.newContext();
 
+/* `/favicon.ico` na RAIZ é obrigatório, e por muito tempo não existia: a página
+   declarava só `<link rel="icon" href="/icon.png">`, que serve para o navegador
+   mas não para quem busca o ícone do site no caminho fixo. A Vercel é um desses:
+   ela puxa `/favicon.ico` do deploy para usar como avatar do projeto, não achava,
+   e o projeto ficava com o triângulo padrão. Vale para vários leitores de link. */
 for (const [rota, nome] of [
-  ["/icon.png", "favicon"],
+  ["/favicon.ico", "favicon.ico na raiz"],
+  ["/icon.png", "ícone do navegador"],
   ["/apple-icon.png", "ícone do iOS"],
 ]) {
   const r = await apiMarca.get(`${BASE}${rota}`);
