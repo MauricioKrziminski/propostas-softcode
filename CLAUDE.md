@@ -356,6 +356,11 @@ proposta**, o seed atual é a proposta real da Barba Log, não um exemplo.
   porcentagem dos insets resolve contra o SCROLLPORT, e computou 664px em TODAS
   as seções, da de 926px à de 4010px. Falta a altura própria do bloco, que o CSS
   não sabe dizer e o motion sabe.
+- **O rodapé precisa de fundo OPACO e de LARGURA INTEIRA.** Ele é o único bloco
+  posicionado que não é capítulo, então pinta por cima do último capítulo
+  congelado. Transparente, o escuro congelado aparece atrás dele e todo o texto
+  de tema claro do rodapé some. E o fundo mora na casca, não na faixa de leitura
+  (`max-w-6xl`): na faixa, sobram duas tiras escuras nas laterais.
 - **A cortina exige `min-h-[100dvh]` e `relative z-0` em TODO capítulo.** Sem o
   piso, capítulo curto congelado deixa aparecer uma faixa do capítulo anterior
   por cima da cortina subindo. Sem o `z-0`, o bloco ainda não transformado pinta

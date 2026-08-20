@@ -308,6 +308,27 @@ checar(
   "a barriga do arco mostrando fundo do body: falta piso de uma tela no capítulo de baixo",
   cortina.quinas.join(", "),
 );
+/* O rodapé é o único bloco que a cortina deixou POSICIONADO sem ser capítulo, e
+   por isso ele pinta por cima do último capítulo congelado. Transparente, o
+   escuro congelado aparecia atrás dele e todo o texto de tema claro do rodapé
+   sumia. Precisa ser opaco E de largura inteira: com o fundo só na faixa de
+   leitura, sobram duas tiras escuras nas laterais. */
+const rodape = await pg.evaluate(async () => {
+  window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "instant" });
+  await new Promise((r) => setTimeout(r, 300));
+  const f = document.querySelector("footer");
+  const r = f.getBoundingClientRect();
+  const cor = getComputedStyle(f).backgroundColor;
+  const alfa = cor.startsWith("rgba") ? parseFloat(cor.split(",")[3]) : 1;
+  const pontos = [8, Math.round(innerWidth / 2), innerWidth - 8].map(
+    (x) => !!document.elementFromPoint(x, Math.round(r.top + 30))?.closest("footer"),
+  );
+  window.scrollTo({ top: 0, behavior: "instant" });
+  return { opaco: cor !== "rgba(0, 0, 0, 0)" && alfa > 0.99, cor, cobreTudo: pontos.every(Boolean) };
+});
+checar(rodape.opaco, "o rodapé tem fundo opaco", `rodapé transparente (${rodape.cor}): o capítulo escuro congelado aparece atrás e o texto some`);
+checar(rodape.cobreTudo, "e o fundo dele vai de ponta a ponta", "sobram tiras do capítulo escuro nas laterais do rodapé");
+
 checar(
   cortina.buracos.length === 0,
   `nenhum buraco na cortina (${cortina.pontos} pontos medidos de ponta a ponta)`,
