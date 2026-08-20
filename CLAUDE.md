@@ -356,12 +356,22 @@ proposta**, o seed atual é a proposta real da Barba Log, não um exemplo.
   porcentagem dos insets resolve contra o SCROLLPORT, e computou 664px em TODAS
   as seções, da de 926px à de 4010px. Falta a altura própria do bloco, que o CSS
   não sabe dizer e o motion sabe.
-- **O rodapé é FIXO, e não participa da cortina.** Ele ocupa a faixa de baixo da
-  janela o tempo todo, por cima dos capítulos (`z-40`, abaixo do cabeçalho em
-  `z-50`). Não sobe, não é descoberto, não faz gesto nenhum. Precisa de fundo
-  OPACO e de LARGURA INTEIRA: transparente, o capítulo escuro aparece atrás e o
-  texto de tema claro some; com o fundo na faixa de leitura (`max-w-6xl`),
-  sobram duas tiras escuras nas laterais.
+- **O rodapé é a ÚLTIMA SEÇÃO, e mais nada.** Fluxo normal, depois do aceite,
+  sem cortina, sem grudar e sem gesto nenhum. Ele não sobe por cima do último
+  capítulo, não é descoberto por ele e não fica preso na tela. Foram tentadas as
+  três coisas antes de chegar aqui, e o `valida:mobile` guarda o resultado: ele
+  mede a posição computada (nunca `fixed` nem `sticky`) e exige que o topo ANDE
+  com o scroll.
+- **Como o rodapé não é cortina, o ÚLTIMO capítulo não congela.** O congelamento
+  existe para o capítulo seguinte subir por cima; depois do último não vem
+  capítulo nenhum. Congelando, ele cravaria a base no rodapé da tela e o rodapé
+  nunca chegaria.
+- **Mesmo em fluxo, o rodapé mantém fundo OPACO e de LARGURA INTEIRA.** É seguro
+  barato: os capítulos são posicionados em `z-0`, então um rodapé em fluxo puro
+  pintaria atrás deles se um dia voltassem a se sobrepor, e transparente ele
+  deixaria o escuro aparecer por trás do texto de tema claro. O fundo mora na
+  casca, e não na faixa de leitura (`max-w-6xl`): na faixa sobram duas tiras nas
+  laterais.
 - **NENHUM ancestral da proposta pode reter `transform`, nem a identidade.**
   Ancestral com transform vira bloco contêiner de todo `position: fixed`
   descendente, e o "fixo" passa a rolar junto com a página. Foi o que aconteceu
@@ -369,21 +379,6 @@ proposta**, o seed atual é a proposta real da Barba Log, não um exemplo.
   scroll 6000 o topo do cabeçalho estava em -6000, e nada acusava. A animação
   usa `backwards`, que solta o elemento no fim. O `valida:mobile` mede o topo do
   cabeçalho e do rodapé em três posições de scroll.
-- **A cortina crava a base do capítulo no TOPO DO RODAPÉ, não no rodapé da
-  janela.** O rodapé fixo cobre a faixa de baixo, então ela deixa de ser área de
-  leitura: cravando na janela, a última fatia de cada capítulo ficaria escondida
-  atrás dele para sempre. A altura vem de `useAlturaDoRodape`, que usa
-  `ResizeObserver` no próprio rodapé e não só `resize` de janela, porque a
-  altura muda quando o texto reflui (inclusive quando a fonte termina de
-  carregar, sem resize nenhum).
-- **Só o ÚLTIMO capítulo reserva o respiro do rodapé.** Ele é o único que não
-  congela, então a base dele para no fim do documento. Nos outros o congelamento
-  já resolve, e o respiro viraria um buraco entre capítulos.
-- **O texto legal do rodapé mora num `<details>`.** Aberto, ele tomava 216px num
-  telefone de 664, um terço da tela ocupado por texto legal durante a leitura
-  inteira. Fechado, a barra cai para uns 154px e o texto continua presente, a um
-  toque e no DOM. A impressão abre todo `<details>`, então no PDF ele sai
-  inteiro.
 - **A cortina exige `min-h-[100dvh]` e `relative z-0` em TODO capítulo.** Sem o
   piso, capítulo curto congelado deixa aparecer uma faixa do capítulo anterior
   por cima da cortina subindo. Sem o `z-0`, o bloco ainda não transformado pinta
