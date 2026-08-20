@@ -36,10 +36,9 @@
   --font-display: var(--fonte-display), Georgia, serif;
   --font-texto: var(--fonte-texto), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--fonte-mono), ui-monospace, monospace;
-  /* A face do convite, declarada dentro do proprio Convite.tsx. Fallback em
-     didones de sistema: se a variavel nao chegar, ainda cai numa serifa de alto
-     contraste em vez de Georgia. */
-  --font-convite: var(--fonte-convite), Didot, "Bodoni MT", Georgia, serif;
+  /* A face do convite NÃO mora aqui, e o comentário existe para ninguém tentar
+     trazê-la: ela é declarada em `#convite`, que é onde o next/font escreve a
+     `--fonte-convite`. Ver o porquê lá. */
 
   /* Escala ampliada: quatro degraus não davam hierarquia suficiente. */
   --text-nome: clamp(3rem, 15vw, 11rem);
