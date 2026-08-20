@@ -230,6 +230,9 @@ export default async function PaginaProposta({ params, searchParams }: Props) {
             key={chave}
             tom={tomDe(chave, i)}
             capitulo={CAPITULOS_NOITE.has(chave) ? "noite" : "dia"}
+            /* O último não congela: embaixo dele quem está é o rodapé, e o
+               rodapé não sobe, ele é DESCOBERTO. */
+            congela={i < blocos.length - 1}
           >
             {montar(chave, i + 1)}
           </Cortina>

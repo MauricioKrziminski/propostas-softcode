@@ -21,18 +21,24 @@ export function RodapeLegal({
   emitidaEm: string;
 }) {
   return (
-    /* Duas coisas nesta casca, e as duas por causa da cortina:
+    /* O rodapé NÃO participa da cortina: ele não sobe por cima de ninguém, ele
+       fica PARADO e é descoberto quando o último capítulo termina de rolar. É
+       outro gesto de propósito, e é o que fecha a leitura: a proposta acaba e
+       embaixo dela sempre esteve o rodapé.
 
-       `relative z-0`, senão o último capítulo, congelado, pinta POR CIMA do
-       rodapé (ele é posicionado e o rodapé em fluxo não).
+       `sticky bottom-0` e não `fixed`: assim ele continua no fluxo, a altura
+       dele entra na altura do documento e não é preciso reservar espaço na mão.
+       Grudado embaixo, ele fica encostado no rodapé da tela desde o começo,
+       escondido atrás dos capítulos, e aparece sem se mexer um pixel.
 
-       `bg-fundo`, e essa é a que faltava: pintando por cima, um rodapé
-       TRANSPARENTE deixa o capítulo escuro congelado aparecer atrás dele, e
-       todo o texto do rodapé, que é de tema claro, some no escuro. O fundo
-       precisa ser de LARGURA INTEIRA, por isso ele mora aqui e a faixa de
-       leitura (`max-w-6xl`) virou um filho: com o fundo na caixa de 6xl,
-       sobrariam duas faixas escuras nas laterais. */
-    <footer className="relative z-0 bg-fundo">
+       `-z-10` é o que o deixa ATRÁS: os capítulos são posicionados em `z-0`, e
+       z negativo pinta abaixo deles (e abaixo do `<main>` em fluxo) sem sair do
+       contexto de empilhamento da proposta.
+
+       `bg-fundo` na casca, e de LARGURA INTEIRA: com o fundo na faixa de
+       leitura (`max-w-6xl`) sobrariam duas tiras do capítulo escuro nas
+       laterais. */
+    <footer className="sticky bottom-0 -z-10 bg-fundo">
       <div className="mx-auto w-full max-w-6xl border-t border-linha px-6 py-12 sm:px-8">
         <div className="print-only mb-8 text-sm">
           <p className="numero">

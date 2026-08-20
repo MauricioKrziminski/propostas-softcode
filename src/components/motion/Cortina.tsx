@@ -64,11 +64,19 @@ const ARCO_MAX = 56;
 export function Cortina({
   tom,
   capitulo,
+  congela = true,
   children,
 }: {
   /** Um dos três tons decididos pela página: claro, azul claro ou noite. */
   tom: string;
   capitulo: "dia" | "noite";
+  /**
+   * O congelamento existe para o capítulo SEGUINTE poder subir por cima. No
+   * último não sobe ninguém: quem aparece embaixo dele é o rodapé, que fica
+   * PARADO. Congelando, o último capítulo cravaria a base dele no rodapé da
+   * tela e o rodapé nunca seria descoberto.
+   */
+  congela?: boolean;
   children: ReactNode;
 }) {
   const menosMovimento = useReducedMotion();
@@ -79,7 +87,7 @@ export function Cortina({
      chega ao topo. Entre os dois o dedo anda exatamente uma tela, que é a
      duração do congelamento. */
   const { alvo: congelaRef, progresso } = usePercurso(["end end", "end start"]);
-  const y = useTransform(progresso, [0, 1], [0, altura]);
+  const y = useTransform(progresso, [0, 1], [0, congela ? altura : 0]);
 
   /* A ENTRADA do mesmo bloco: 0 quando o topo dele encosta na base da tela, 1
      quando esse topo chega ao alto. É a janela em que ele está SUBINDO por cima
