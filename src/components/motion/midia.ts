@@ -49,3 +49,21 @@ export function useAlturaDaJanela(): number {
     () => 0,
   );
 }
+
+/**
+ * Largura da janela em px. Serve para medidas que precisam ser PROPORCIONAIS à
+ * tela e não dá para escrever em `vw`, porque quem as consome é um valor de
+ * movimento em JS (a barriga do arco da cortina, por exemplo).
+ *
+ * No servidor devolve 0, pelo mesmo motivo da altura.
+ */
+export function useLarguraDaJanela(): number {
+  return useSyncExternalStore(
+    (aoMudar) => {
+      window.addEventListener("resize", aoMudar);
+      return () => window.removeEventListener("resize", aoMudar);
+    },
+    () => document.documentElement.clientWidth,
+    () => 0,
+  );
+}

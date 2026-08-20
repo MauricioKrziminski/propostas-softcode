@@ -253,8 +253,8 @@ const cortina = await pg.evaluate(async () => {
     const pts = [dono(70), dono(Math.round(vh / 2)), dono(vh - 3)];
     if (pts.some((p) => p.startsWith("BURACO") || p === "NADA")) buracos.push(`${y}: ${pts.join(" | ")}`);
   }
-  /* 3. os CANTOS da folha que sobe. A borda de cima nasce redonda, e canto
-        redondo mostra o que está atrás dele: precisa ser o capítulo anterior, e
+  /* 3. as PONTAS da folha que sobe. A aresta estufa no meio, então nas pontas
+        ela desce e mostra o que está atrás: precisa ser o capítulo anterior, e
         nunca o branco do body. Medido a 6px da quina, que é dentro do raio. */
   const subindo = blocos[2];
   window.scrollTo({ top: fins[1] - vh + 240, behavior: "instant" });
@@ -264,10 +264,15 @@ const cortina = await pg.evaluate(async () => {
     const e = document.elementFromPoint(x, Math.round(r.top) + 6);
     return e?.closest("main > div") || e?.closest("header") ? "capitulo" : `NU:${e?.tagName}`;
   });
-  const raio = parseFloat(getComputedStyle(subindo).borderTopLeftRadius);
+  /* O raio de cima é ELÍPTICO: 50% na horizontal (as duas metades se encontram
+     no centro e viram UM arco) e a barriga na vertical. O que interessa medir é
+     a barriga, que é o segundo número. */
+  const cantoCima = getComputedStyle(subindo).borderTopLeftRadius;
+  const raio = parseFloat(cantoCima.split(" ")[1] ?? "0");
+  const arcoInteiro = cantoCima.includes("50%");
 
   window.scrollTo({ top: 0, behavior: "instant" });
-  return { vh, baixos, medidas, buracos: buracos.slice(0, 5), pontos: Math.ceil((alt - vh) / 120) * 3, quinas, raio };
+  return { vh, baixos, medidas, buracos: buracos.slice(0, 5), pontos: Math.ceil((alt - vh) / 120) * 3, quinas, raio, arcoInteiro };
 });
 checar(
   cortina.baixos.length === 0,
@@ -288,14 +293,19 @@ checar(
   JSON.stringify(cortina.medidas),
 );
 checar(
-  cortina.raio > 8,
-  `a folha sobe com a borda de cima ARREDONDADA (${Math.round(cortina.raio)}px no meio da subida)`,
-  "a borda de cima subiu reta: o olho lê um wipe, não uma folha passando por cima da outra",
+  cortina.raio > 6,
+  `a folha sobe com a aresta ESTUFADA (${Math.round(cortina.raio)}px de barriga no meio da subida)`,
+  "a aresta subiu reta: o olho lê um wipe, não uma folha de líquido passando por cima da outra",
+);
+checar(
+  cortina.arcoInteiro,
+  "e a curva atravessa a linha INTEIRA (raio horizontal de 50%)",
+  "o raio horizontal deixou de ser 50%: viram dois cantinhos redondos e o meio da aresta volta a ser reto",
 );
 checar(
   cortina.quinas.every((q) => q === "capitulo"),
-  "e atrás dos cantos redondos está o capítulo anterior, não o fundo do body",
-  "canto redondo mostrando fundo do body: falta piso de uma tela no capítulo de baixo",
+  "e atrás da barriga do arco está o capítulo anterior, não o fundo do body",
+  "a barriga do arco mostrando fundo do body: falta piso de uma tela no capítulo de baixo",
   cortina.quinas.join(", "),
 );
 checar(

@@ -302,18 +302,31 @@ proposta**, o seed atual é a proposta real da Barba Log, não um exemplo.
 - **A divisória entre seções é a própria diferença de cor**, e continua SECA:
   sem gradiente, sem blur, sem sombra na emenda. Os tons alternados são
   decididos pela página, nunca pela seção.
-- **A aresta que sobe é ARREDONDADA, e essa é a única curva permitida.** A regra
-  antiga dizia "sem curva" e foi derrubada de propósito, olhando a referência
-  quadro a quadro: reto, o olho lê um WIPE, uma máscara passando; curvo, ele lê
-  uma FOLHA subindo por cima da outra, que é o gesto que a peça quer. O raio
-  nasce em 2.75rem e endurece até 0 conforme o bloco toma a tela, e fecha em
-  0.72 do percurso e não em 1: a última fração da subida é quando a aresta
-  encosta no alto da tela, e chegar lá ainda redondo deixaria dois cantinhos do
-  capítulo anterior aparecendo no topo.
-- **Canto redondo MOSTRA o que está atrás dele.** Por isso o piso de uma tela
-  por capítulo não é opcional: sem ele, quem aparece na quina é o branco do
-  body. O `valida:mobile` mede `elementFromPoint` a 6px das duas quinas no meio
-  da subida e exige que ali esteja o capítulo anterior.
+- **A aresta que sobe é UM ARCO de ponta a ponta, e essa é a única curva
+  permitida.** Não são cantos arredondados: é uma curva só, atravessando a linha
+  inteira e estufando no meio, que achata conforme o bloco toma a tela. A regra
+  antiga dizia "sem curva" e foi derrubada de propósito, medindo a referência:
+  ajuste quadrático sobre a aresta bate melhor que reta (RMS 5,96px contra
+  9,48px) e a flecha do arco no meio fica entre 2% e 3% da largura. Reto, o olho
+  lê um WIPE, uma máscara passando; estufado, ele lê uma folha de líquido
+  escorrendo por cima da outra, que é o gesto que a peça quer.
+- **A mecânica é `border-radius` com raio ELÍPTICO, e os 50% são o truque
+  inteiro:** `50% 50% 0 0 / <barriga> <barriga> 0 0`. Raio horizontal de 50% em
+  cada canto de cima faz as duas meias elipses se encontrarem exatamente no
+  centro, e o que sobra é uma curva contínua de uma ponta à outra. Trocar os 50%
+  por um valor em px vira dois cantinhos redondos com o meio reto, que é outro
+  gesto. Quem anima é o raio VERTICAL, de `--arco` até 0.
+- **A barriga é FRAÇÃO da largura (2,6%), nunca px fixo,** com piso de 16px e
+  teto de 56px. É proporção porque o gesto tem de ler igual num telefone de
+  390px e num monitor de 1920: abaixo do piso a curva vira imperfeição de
+  renderização, acima do teto ela deixa de ser aresta e vira cúpula. Como quem
+  consome é um valor de movimento em JS, não dá para escrever em `vw`: a largura
+  vem de `useLarguraDaJanela`.
+- **A barriga do arco MOSTRA o que está atrás dela.** Nas pontas a aresta desce,
+  e ali aparece o capítulo anterior. Por isso o piso de uma tela por capítulo não
+  é opcional: sem ele quem aparece na ponta é o branco do body. O `valida:mobile`
+  mede `elementFromPoint` a 6px das duas pontas no meio da subida e exige que ali
+  esteja o capítulo anterior.
 - **São DOIS `useScroll` por capítulo, e eles medem coisas diferentes.** O do
   congelamento olha o FIM do bloco (`["end end", "end start"]`); o da borda
   redonda olha o COMEÇO dele (`["start end", "start start"]`), que é quando ele

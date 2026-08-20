@@ -1,10 +1,10 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { cubicBezier, motion, useReducedMotion, useTransform } from "motion/react";
+import { cubicBezier, motion, useMotionTemplate, useReducedMotion, useTransform } from "motion/react";
 
 import { usePercurso } from "./percurso";
-import { useAlturaDaJanela } from "./midia";
+import { useAlturaDaJanela, useLarguraDaJanela } from "./midia";
 
 /**
  * A CORTINA: o capítulo seguinte sobe POR CIMA do anterior, que fica parado
@@ -49,6 +49,18 @@ import { useAlturaDaJanela } from "./midia";
  * A divisão continua SECA: só a troca de cor, sem gradiente, sem blur, sem
  * sombra na emenda. Os tons continuam sendo decididos pela PÁGINA.
  */
+/**
+ * A barriga do arco, como FRAÇÃO da largura da tela. 2,6% é o que a referência
+ * mede (ajuste quadrático sobre a aresta, flecha de 2% a 3% da largura), e é
+ * proporção e não px fixo porque o gesto tem de ler igual num telefone de 390px
+ * e num monitor de 1920. Os limites existem para os dois extremos: abaixo de
+ * 16px a curva vira imperfeição de renderização, acima de 56px ela deixa de ser
+ * uma aresta e vira uma cúpula.
+ */
+const ARCO_FRACAO = 0.026;
+const ARCO_MIN = 16;
+const ARCO_MAX = 56;
+
 export function Cortina({
   tom,
   capitulo,
@@ -61,6 +73,7 @@ export function Cortina({
 }) {
   const menosMovimento = useReducedMotion();
   const altura = useAlturaDaJanela();
+  const largura = useLarguraDaJanela();
 
   /* 0 quando o FIM do bloco encosta no fim da tela, 1 quando esse mesmo fim
      chega ao topo. Entre os dois o dedo anda exatamente uma tela, que é a
@@ -75,22 +88,27 @@ export function Cortina({
      bloco primeiro sobe por cima do anterior e só muito depois congela. */
   const { alvo: entradaRef, progresso: entrada } = usePercurso(["start end", "start start"]);
 
-  /* A borda de cima nasce BEM redonda e endurece conforme o bloco toma a tela.
-     É o que faz a leitura de FOLHA subindo por cima da outra em vez de corte
-     reto passando: reto, o olho lê um wipe; curvo, ele lê papel.
+  /* A aresta de cima não é reta e não são cantos arredondados: é UM arco só,
+     atravessando a linha inteira e estufando no meio, que achata conforme o
+     bloco toma a tela. Medido na referência quadro a quadro: ajuste quadrático
+     bate melhor que reta (RMS 5.96px contra 9.48px) e a flecha do arco no meio
+     fica em torno de 2% a 3% da largura.
 
-     A curva fecha em 0.72 e não em 1: a última fração da subida é justamente
-     quando a aresta encosta no alto da tela, e chegar lá ainda arredondado
-     deixaria dois cantinhos do bloco anterior aparecendo no topo. Ao endurecer
-     antes, a folha se assenta e vira página. */
-  const raio = useTransform(entrada, [0, 0.72], ["2.75rem", "0rem"], {
+     A mecânica é `border-radius` com raio ELÍPTICO: raio horizontal de 50% em
+     cada canto de cima faz as duas meias elipses se encontrarem exatamente no
+     centro, e o que sobra é uma curva contínua de uma ponta à outra. Raio
+     vertical animado de `--arco` até 0 é o que faz a curva "escorrer" e
+     assentar. Sem os 50%, viram dois cantinhos redondos e o meio volta a ser
+     reto, que é outro gesto. */
+  const barriga = Math.min(ARCO_MAX, Math.max(ARCO_MIN, largura * ARCO_FRACAO));
+  const arco = useTransform(entrada, [0, 0.88], [barriga, 0], {
     clamp: true,
-    /* Curva de entrada, e não linear: a folha SEGURA o arredondado durante quase
-       toda a subida e só endurece no fim, quando encosta no alto. Linear, o
-       raio já estava quase reto no meio do caminho e o gesto lia como um wipe
-       que por acaso começou torto. */
-    ease: cubicBezier(0.7, 0, 0.84, 0),
+    /* Curva de entrada, e não linear: o arco SEGURA a barriga durante quase
+       toda a subida e só assenta no fim. Linear, ele já estava quase reto no
+       meio do caminho e o gesto lia como um corte que por acaso começou torto. */
+    ease: cubicBezier(0.65, 0, 0.85, 0),
   });
+  const raio = useMotionTemplate`50% 50% 0 0 / ${arco}px ${arco}px 0 0`;
 
   /* Os dois `useScroll` precisam do MESMO nó. `usePercurso` devolve uma ref
      cada, e um `ref` de React só aceita uma: a função abaixo entrega o nó para
@@ -116,8 +134,7 @@ export function Cortina({
             {
               backgroundColor: tom,
               y,
-              borderTopLeftRadius: raio,
-              borderTopRightRadius: raio,
+              borderRadius: raio,
               willChange: "auto",
             }
       }
