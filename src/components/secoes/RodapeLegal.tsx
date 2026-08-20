@@ -16,9 +16,8 @@ const ROTULO =
    com `items-center` é o que faz o texto ficar no meio desses 44px em vez de
    grudado no topo. */
 const LINK =
-  "alvo-toque inline-flex items-center text-sm text-texto underline decoration-linha-azul " +
-  "underline-offset-4 transition-colors duration-200 hover:text-acento " +
-  "hover:decoration-acento motion-reduce:transition-none";
+  "link-rodape alvo-toque inline-flex items-center text-sm text-texto " +
+  "transition-colors duration-200 hover:text-acento motion-reduce:transition-none";
 
 const CONVERSA =
   "Olá! Estou vendo a proposta da SoftCode e queria falar com vocês.";
@@ -137,12 +136,6 @@ export function RodapeLegal({
               <div>
                 <dt className="text-neblina">Validade</dt>
                 <dd className="numero mt-0.5 text-texto">{formatarDataLonga(validaAte)}</dd>
-              </div>
-              <div>
-                <dt className="text-neblina">Endereço</dt>
-                <dd className="numero mt-0.5 break-words text-texto">
-                  {DOMINIO}/{caminho}
-                </dd>
               </div>
             </dl>
           </div>

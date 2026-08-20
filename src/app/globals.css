@@ -397,6 +397,61 @@ select:focus-visible {
   }
 }
 
+/* ── link de rodapé ──
+   O sublinhado não troca de cor: ele ENTRA. São dois fios na MESMA altura, um
+   de repouso (fraco, sempre visível, porque link precisa parecer link antes de
+   qualquer hover) e um de acento por cima, que cresce da esquerda quando o
+   ponteiro chega e se recolhe PELA DIREITA quando ele sai. É a troca de
+   `transform-origin` entre os dois estados que dá essa leitura de passagem, e é
+   o que separa isto de um fade.
+
+   Pseudo-elementos e não `text-decoration`, e o motivo é milimétrico: fio
+   desenhado à mão é o único jeito de os dois baterem no mesmo pixel. Com
+   `text-decoration` embaixo e um fio por cima, a diferença de linha de base
+   aparece como sublinhado duplo borrado.
+
+   Só em ponteiro fino: no toque não existe hover, e estado de hover que gruda
+   depois do toque é pior do que não ter efeito nenhum. */
+.link-rodape {
+  position: relative;
+  text-decoration: none;
+}
+
+.link-rodape::before,
+.link-rodape::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  /* O alvo tem 44px e o texto fica centralizado neles: a conta desce da metade
+     do alvo até logo abaixo da linha de base. */
+  bottom: calc(50% - 0.85em);
+  block-size: 1px;
+  pointer-events: none;
+}
+
+.link-rodape::before {
+  background: var(--color-linha-azul);
+}
+
+.link-rodape::after {
+  background: var(--color-acento);
+  transform: scaleX(0);
+  transform-origin: right center;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .link-rodape:hover::after {
+    transform: scaleX(1);
+    transform-origin: left center;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .link-rodape::after {
+      transition: transform 340ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+  }
+}
+
 @supports ((animation-timeline: view()) and (animation-range: 0% 100%)) {
   @media (prefers-reduced-motion: no-preference) {
     .linha-tempo {
