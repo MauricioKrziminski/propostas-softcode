@@ -216,7 +216,7 @@ function Rodape({ caminho }: { caminho: string }) {
       style={e.rodape}
       fixed
       render={({ pageNumber, totalPages }) =>
-        `proposta.softcodedev.com.br/${caminho}    ·    ${pageNumber} de ${totalPages}`
+        `propostas.softcodedev.com.br/${caminho}    ·    ${pageNumber} de ${totalPages}`
       }
     />
   );
@@ -746,7 +746,7 @@ export function DocumentoProposta({ proposta }: { proposta: Proposta }) {
           <Text style={[e.neblina, { fontSize: 8, marginTop: 20 }]}>
             Esta proposta é válida até {formatarDataLonga(proposta.validaAte)}. Também é
             possível aceitar pela versão on-line, em
-            proposta.softcodedev.com.br/{caminho}, onde o aceite fica registrado com data,
+            propostas.softcodedev.com.br/{caminho}, onde o aceite fica registrado com data,
             hora, IP e navegador. Dúvidas sobre seus dados: {CONTATO.emailDados}.
           </Text>
         </View>

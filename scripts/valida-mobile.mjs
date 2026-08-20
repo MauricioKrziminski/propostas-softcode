@@ -331,8 +331,13 @@ const rodape = await pg.evaluate(async () => {
   const r = f.getBoundingClientRect();
   const cor = getComputedStyle(f).backgroundColor;
   const alfa = cor.startsWith("rgba") ? parseFloat(cor.split(",")[3]) : 1;
+  /* O ponto de medida é o MEIO da parte visível do rodapé, e não `top + 30`:
+     empilhado no celular ele passa de uma tela de altura, o topo dele fica
+     acima da janela e `elementFromPoint` devolvia null. O piso de 72px desvia
+     do cabeçalho fixo, que responderia no lugar dele. */
+  const meio = Math.round((Math.max(r.top, 72) + Math.min(r.bottom, innerHeight)) / 2);
   const pontos = [8, Math.round(innerWidth / 2), innerWidth - 8].map(
-    (x) => !!document.elementFromPoint(x, Math.round(r.top + 30))?.closest("footer"),
+    (x) => !!document.elementFromPoint(x, meio)?.closest("footer"),
   );
   window.scrollTo({ top: 0, behavior: "instant" });
   return {
