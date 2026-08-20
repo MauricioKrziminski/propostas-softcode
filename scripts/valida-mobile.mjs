@@ -196,6 +196,91 @@ const separacao = await pg.evaluate(() => {
 checar(separacao.blocos > 0 && separacao.distintas === 3, `${separacao.blocos} seções em 3 tons (claro, azul claro e noite)`, `esperava 3 tons, encontrei ${separacao.distintas}`);
 checar(separacao.comGradiente === 0 && separacao.comBlur === 0, "divisão seca (sem gradiente e sem blur)", `${separacao.comGradiente} com gradiente, ${separacao.comBlur} com blur`);
 
+/* ───────── a cortina entre capítulos ─────────
+
+   O capítulo seguinte sobe POR CIMA do anterior, que fica parado embaixo. Três
+   perguntas, e as três já quebraram nas tentativas de fazer isto em CSS puro:
+   o anterior congela mesmo? sobra buraco em alguma altura da página? e o piso
+   de uma tela por capítulo continua de pé?
+
+   `behavior: "instant"` não é detalhe: com o `scroll-behavior: smooth` do
+   projeto a medição lê uma posição que o navegador ainda não alcançou, e o
+   teste passa no vácuo. */
+const cortina = await pg.evaluate(async () => {
+  const espera = (ms) => new Promise((r) => setTimeout(r, ms));
+  const vh = innerHeight;
+
+  window.scrollTo({ top: 0, behavior: "instant" });
+  await espera(200);
+  const blocos = [...document.querySelectorAll("main > div")];
+  /* Medidos com a página no topo: nenhum bloco está deslocado aqui. */
+  const fins = blocos.map((b) => b.getBoundingClientRect().bottom + scrollY);
+  const baixos = blocos
+    .filter((b) => b.getBoundingClientRect().height < vh - 1)
+    .map((b) => b.querySelector("section")?.id ?? "?");
+
+  /* 1. congelamento: a base do bloco fica cravada no fim da tela enquanto o
+        seguinte sobe. */
+  const alvo = blocos[1];
+  const seguinte = blocos[2];
+  const medidas = [];
+  for (const d of [0, 200, 400]) {
+    window.scrollTo({ top: fins[1] - vh + d, behavior: "instant" });
+    await espera(140);
+    medidas.push({
+      d,
+      base: Math.round(alvo.getBoundingClientRect().bottom),
+      topoSeguinte: Math.round(seguinte.getBoundingClientRect().top),
+    });
+  }
+
+  /* 2. nenhum buraco: em toda a altura da página, os três pontos da tela
+        pertencem sempre a um capítulo, ao hero ou ao rodapé. */
+  const alt = document.documentElement.scrollHeight;
+  const buracos = [];
+  const dono = (y) => {
+    const e = document.elementFromPoint(Math.round(innerWidth / 2), y);
+    if (!e) return "NADA";
+    if (e.closest(".cabecalho-fixo")) return "cabecalho";
+    if (e.closest("main > div")) return "capitulo";
+    if (e.closest("footer")) return "rodape";
+    if (e.closest("header")) return "hero";
+    return `BURACO:${e.tagName.toLowerCase()}`;
+  };
+  for (let y = 0; y <= alt - vh; y += 120) {
+    window.scrollTo({ top: y, behavior: "instant" });
+    await espera(16);
+    const pts = [dono(70), dono(Math.round(vh / 2)), dono(vh - 3)];
+    if (pts.some((p) => p.startsWith("BURACO") || p === "NADA")) buracos.push(`${y}: ${pts.join(" | ")}`);
+  }
+  window.scrollTo({ top: 0, behavior: "instant" });
+  return { vh, baixos, medidas, buracos: buracos.slice(0, 5), pontos: Math.ceil((alt - vh) / 120) * 3 };
+});
+checar(
+  cortina.baixos.length === 0,
+  "todo capítulo tem ao menos uma tela de altura (piso de 100dvh)",
+  `${cortina.baixos.length} capítulo(s) mais baixos que a tela: aparece faixa do capítulo anterior por cima da cortina`,
+  cortina.baixos.join(", "),
+);
+checar(
+  cortina.medidas.every((m) => Math.abs(m.base - cortina.vh) <= 2),
+  `o capítulo anterior CONGELA (base em ${cortina.medidas.map((m) => m.base).join(", ")} com a tela em ${cortina.vh})`,
+  "o capítulo anterior continua subindo: não há cortina, só scroll",
+  JSON.stringify(cortina.medidas),
+);
+checar(
+  cortina.medidas.every((m) => Math.abs(m.topoSeguinte - (cortina.vh - m.d)) <= 3),
+  "e o capítulo seguinte sobe por cima dele, na medida do dedo",
+  "o capítulo seguinte não acompanha o scroll durante a cortina",
+  JSON.stringify(cortina.medidas),
+);
+checar(
+  cortina.buracos.length === 0,
+  `nenhum buraco na cortina (${cortina.pontos} pontos medidos de ponta a ponta)`,
+  `${cortina.buracos.length} altura(s) com fundo aparecendo entre capítulos`,
+  cortina.buracos.join("\n        "),
+);
+
 /* Os capítulos escuros são o que fazem o vidro existir: sobre branco chapado o
    backdrop-filter cobra GPU e não entrega nada. */
 const capitulos = await pg.evaluate(() => ({
@@ -314,6 +399,17 @@ checar(reveals.invisiveis.length === 0, "nenhum reveal travado invisível após 
    useScroll da seção travada, e a opacidade é função da posição, não do tempo. */
 const repete = await pg.evaluate(async () => {
   const espera = (ms) => new Promise((r) => setTimeout(r, ms));
+  /* Medir do TOPO, e não de onde a varredura anterior parou: `getBoundingClientRect`
+     inclui o transform da cortina, e no meio da página o capítulo que está
+     congelado devolve uma posição até uma tela abaixo da real. Com a página no
+     topo todo capítulo está em progresso 0, ou seja, sem transform nenhum, e aí
+     `top + scrollY` volta a ser o offset de layout.
+
+     `behavior: "instant"` é obrigatório: a página rola SUAVE, e vindo de 4800px
+     o navegador ainda estaria no meio do caminho depois da espera. A medição
+     saía de um ponto que nunca existiu e o alvo ia parar fora da tela. */
+  window.scrollTo({ top: 0, behavior: "instant" });
+  await espera(300);
   const alvo = [...document.querySelectorAll("[style*='opacity']")]
     .filter((e) => !e.closest('[aria-hidden="true"]') && !e.closest("#processo"))
     .map((e) => ({ e, topo: e.getBoundingClientRect().top + window.scrollY }))
@@ -381,6 +477,25 @@ const pgRm = await ctxRm.newPage();
 await pgRm.goto(BASE + CAMINHO, { waitUntil: "networkidle" });
 await abrirProposta(pgRm);
 await pgRm.waitForTimeout(600);
+
+/* A cortina é `useScroll`, então ela some por inteiro com reduced-motion: o `y`
+   nunca chega ao `style` e o transform computado fica `none`. O piso de uma
+   tela fica, mas isso é só espaço em branco a mais, com tudo visível. */
+const cortinaParada = await pgRm.evaluate(async () => {
+  window.scrollTo({ top: innerHeight * 3, behavior: "instant" });
+  await new Promise((r) => setTimeout(r, 300));
+  const fora = [...document.querySelectorAll("main > div")]
+    .filter((d) => !["none", "matrix(1, 0, 0, 1, 0, 0)"].includes(getComputedStyle(d).transform))
+    .map((d) => d.querySelector("section")?.id ?? "?");
+  window.scrollTo({ top: 0, behavior: "instant" });
+  return fora;
+});
+checar(
+  cortinaParada.length === 0,
+  "cortina desligada com reduced-motion",
+  `${cortinaParada.length} capítulo(s) ainda deslocados`,
+  cortinaParada.join(", "),
+);
 
 const movimento = await pgRm.evaluate(() => {
   const animando = [];

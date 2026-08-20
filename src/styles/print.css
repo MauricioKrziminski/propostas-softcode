@@ -58,6 +58,14 @@
     overflow: visible !important;
   }
 
+  /* 2b. A cortina dá piso de uma tela a todo capítulo; no papel isso viraria
+         página em branco depois das seções curtas. O transform que congela o
+         capítulo anterior já morre na regra 1. Seletor por CLASSE e não
+         `main > div`: o hero também é uma cortina e mora fora do <main>. */
+  .cortina {
+    min-height: 0 !important;
+  }
+
   /* 3. Nada fixo ou grudado: no papel isso vira elemento repetido ou sobreposto.
         Inclui o fundo em movimento e o grão, no papel o fundo é branco. */
   .cabecalho-fixo,

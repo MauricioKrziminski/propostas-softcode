@@ -27,3 +27,25 @@ export function useMidia(consulta: string): boolean {
 
 /** Desktop com ponteiro fino, o único lugar onde enfeite pesado é aceitável. */
 export const DESKTOP_FINO = "(min-width: 1024px) and (pointer: fine)";
+
+/**
+ * Altura da JANELA em px, e o MESMO número que o motion usa como denominador do
+ * progresso de scroll (`container.clientHeight`).
+ *
+ * Traduzir por `100dvh` erraria: no iOS o viewport de layout e o dinâmico
+ * diferem pela barra do Safari, e a seção "congelada" da cortina derraparia até
+ * uns 100px no meio do congelamento, que é um defeito bem no meio do efeito.
+ *
+ * No servidor devolve 0, então nenhum transform é escrito antes da hidratação:
+ * é o estado certo para quem abre com JS lento.
+ */
+export function useAlturaDaJanela(): number {
+  return useSyncExternalStore(
+    (aoMudar) => {
+      window.addEventListener("resize", aoMudar);
+      return () => window.removeEventListener("resize", aoMudar);
+    },
+    () => document.documentElement.clientHeight,
+    () => 0,
+  );
+}

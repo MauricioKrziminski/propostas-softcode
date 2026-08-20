@@ -21,7 +21,10 @@ export function RodapeLegal({
   emitidaEm: string;
 }) {
   return (
-    <footer className="mx-auto w-full max-w-6xl border-t border-linha px-6 py-12 sm:px-8">
+    /* `relative z-0`: sem isso o último capítulo, congelado pela cortina, pinta
+       POR CIMA do rodapé (ele é posicionado, o rodapé em fluxo não). Com isso o
+       rodapé vira a última cortina e sobe por cima do aceite. */
+    <footer className="relative z-0 mx-auto w-full max-w-6xl border-t border-linha px-6 py-12 sm:px-8">
       <div className="print-only mb-8 text-sm">
         <p className="numero">
           Proposta emitida em {formatarDataCurta(emitidaEm)} · válida até{" "}

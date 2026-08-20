@@ -1,4 +1,3 @@
-import { Fragment } from "react";
 import { notFound } from "next/navigation";
 import dynamic from "next/dynamic";
 import type { Metadata } from "next";
@@ -28,6 +27,7 @@ import { Aceite } from "@/components/secoes/Aceite";
 import { Expirada } from "@/components/secoes/Expirada";
 import { RodapeLegal } from "@/components/secoes/RodapeLegal";
 import { AberturaProposta } from "@/components/secoes/AberturaProposta";
+import { Cortina } from "@/components/motion/Cortina";
 import { Textura } from "@/components/motion/Textura";
 
 /** JS de enfeite entra por dynamic import, não pesa no carregamento inicial. */
@@ -211,25 +211,28 @@ export default async function PaginaProposta({ params, searchParams }: Props) {
       <Textura />
       <CabecalhoFixo empresa={cliente.empresa} logoCliente={cliente.logoUrl} />
 
-      <Hero
-        empresa={cliente.empresa}
-        cliente={cliente.nome}
-        projeto={proposta.tituloProjeto}
-        emitidaEm={proposta.emitidaEm}
-        validaAte={proposta.validaAte}
-        expirada={expirada}
-      />
+      {/* O hero também é um capítulo: a primeira seção sobe POR CIMA dele, e o
+          gesto dele (o nome encolhendo) acontece na mesma janela. */}
+      <Cortina tom={NOITE} capitulo="noite">
+        <Hero
+          empresa={cliente.empresa}
+          cliente={cliente.nome}
+          projeto={proposta.tituloProjeto}
+          emitidaEm={proposta.emitidaEm}
+          validaAte={proposta.validaAte}
+          expirada={expirada}
+        />
+      </Cortina>
 
       <main>
         {blocos.map((chave, i) => (
-          <Fragment key={chave}>
-            <div
-              data-capitulo={CAPITULOS_NOITE.has(chave) ? "noite" : "dia"}
-              style={{ backgroundColor: tomDe(chave, i) }}
-            >
-              {montar(chave, i + 1)}
-            </div>
-          </Fragment>
+          <Cortina
+            key={chave}
+            tom={tomDe(chave, i)}
+            capitulo={CAPITULOS_NOITE.has(chave) ? "noite" : "dia"}
+          >
+            {montar(chave, i + 1)}
+          </Cortina>
         ))}
       </main>
 

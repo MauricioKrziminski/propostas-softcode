@@ -214,6 +214,37 @@ proposta**, o seed atual é a proposta real da Barba Log, não um exemplo.
 - **A divisória entre seções é a própria diferença de cor**, e é SECA: sem
   gradiente, sem blur, sem curva. Os tons alternados são decididos pela página,
   nunca pela seção.
+- **A passagem de um capítulo para o outro é uma CORTINA:** o capítulo seguinte
+  sobe POR CIMA do anterior, que fica parado embaixo. Quando o FIM do bloco
+  encosta no fim da tela, ele é empurrado para baixo na mesma medida em que a
+  página sobe, então a base dele fica cravada no rodapé da viewport e a tela
+  dele congela. Uma tela de scroll depois o seguinte já cobre tudo e o
+  congelamento se solta sozinho. Nada de conteúdo se perde: o bloco rola INTEIRO
+  antes de congelar.
+- **A cortina NÃO é `position: sticky`, e as três tentativas foram medidas:**
+  `top: 0` prende o TOPO, e 11 das 15 seções são mais altas que a tela (a do
+  processo tem 6), então elas grudam e o miolo nunca chega; `bottom: 0` puxa o
+  bloco para cima cedo demais, e o `aceite` chegou a cobrir a página inteira a
+  partir do scroll 0; `top: calc(100dvh - 100%)` não existe, porque em sticky a
+  porcentagem dos insets resolve contra o SCROLLPORT, e computou 664px em TODAS
+  as seções, da de 926px à de 4010px. Falta a altura própria do bloco, que o CSS
+  não sabe dizer e o motion sabe.
+- **A cortina exige `min-h-[100dvh]` e `relative z-0` em TODO capítulo.** Sem o
+  piso, capítulo curto congelado deixa aparecer uma faixa do capítulo anterior
+  por cima da cortina subindo. Sem o `z-0`, o bloco ainda não transformado pinta
+  em fluxo, ou seja, POR BAIXO do bloco congelado, e a cortina sai invertida: o
+  transform cria contexto de empilhamento e um irmão sem transform não. O rodapé
+  também precisa dele, senão o último capítulo pinta por cima dele.
+- **A altura da cortina vem de `document.documentElement.clientHeight`, nunca de
+  `100dvh`.** É o mesmo número que o motion usa como denominador do progresso;
+  no iOS o viewport de layout e o dinâmico diferem pela barra do Safari, e a
+  seção congelada derraparia até uns 100px bem no meio do congelamento.
+- **Medição de posição em teste precisa de `behavior: "instant"` e da página no
+  TOPO.** A página rola suave, então um `scrollTo` medido logo depois lê uma
+  posição que o navegador ainda não alcançou. E `getBoundingClientRect` inclui o
+  transform da cortina: no meio da página o capítulo congelado devolve uma
+  posição até uma tela abaixo da real. No topo, todo capítulo está em progresso
+  0, sem transform nenhum. Os dois já fizeram uma verificação passar no vácuo.
 - **A etiqueta numérica da seção vem da POSIÇÃO**, via `rotulo(numero)`, nunca
   fixa no componente. Fixa, duas seções acabaram ambas com "08".
 - **Vidro só pelas classes `.vidro`/`.vidro-sutil`.** Nunca `backdrop-blur-*` do
