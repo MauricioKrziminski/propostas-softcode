@@ -13,9 +13,11 @@
  *   3. caminho inexistente responde 204 e não grava (um 404 aqui diria "este
  *      slug existe", que é o que a página se recusa a dizer);
  *   4. tipo desconhecido é descartado;
- *   5. acesso humano gera UMA linha;
- *   6. o MESMO evento repetido no mesmo dia NÃO gera segunda linha;
- *   7. o aceite gera linha a cada clique, com opção, valor, IP e navegador.
+ *   5. acesso humano gera linha;
+ *   6. o MESMO evento repetido gera OUTRA linha (nada deduplica: abrir duas
+ *      vezes tem de avisar duas vezes);
+ *   7. o teto diário existe e segura o repique;
+ *   8. o aceite gera linha a cada clique, com opção, valor, IP e navegador.
  *
  * Ele limpa as próprias linhas no fim, inclusive se falhar no meio.
  */
@@ -92,16 +94,31 @@ try {
     select count(*)::int as total from proposta_eventos where tipo = 'inventado'`;
   checar(inventados === 0, "tipo desconhecido é descartado");
 
-  console.log("\n▸ quem conta, e uma vez só");
+  console.log("\n▸ quem conta, e toda vez");
 
   await avisar({ caminho: CAMINHO, tipo: "convite_aberto" });
   checar((await contar("convite_aberto")) === 1, "acesso humano gera evento");
 
+  /* NADA deduplica: abrir de novo é aviso de novo. A frequência é a informação
+     de venda, e é decisão explícita do Gabriel. Quem segura o repique é o teto
+     diário, não a chave. */
+  await avisar({ caminho: CAMINHO, tipo: "convite_aberto" });
   await avisar({ caminho: CAMINHO, tipo: "convite_aberto" });
   checar(
-    (await contar("convite_aberto")) === 1,
-    "o mesmo evento no mesmo dia não repete",
-    "deduplicação falhou: cada recarga viraria um e-mail",
+    (await contar("convite_aberto")) === 3,
+    "abrir três vezes gera três avisos",
+    "algo deduplicou: uma reabertura foi engolida e o aviso não sai",
+  );
+
+  console.log("\n▸ o teto diário, que é o único freio agora");
+
+  /* O teto de `convite_aberto` é 40. Já foram 3, então mais 40 tentativas
+     precisam parar exatamente em 40, e não em 43. */
+  for (let i = 0; i < 40; i++) await avisar({ caminho: CAMINHO, tipo: "convite_aberto" });
+  checar(
+    (await contar("convite_aberto")) === 40,
+    "o teto diário segura em 40 e não deixa a caixa virar despejo",
+    `o teto não segurou: ${await contar("convite_aberto")} linhas`,
   );
 
   console.log("\n▸ o aceite");

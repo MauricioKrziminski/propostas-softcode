@@ -314,9 +314,18 @@ checar(
    sumia. Precisa ser opaco E de largura inteira: com o fundo só na faixa de
    leitura, sobram duas tiras escuras nas laterais. */
 const rodape = await pg.evaluate(async () => {
-  window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "instant" });
-  await new Promise((r) => setTimeout(r, 300));
+  const espera = (ms) => new Promise((r) => setTimeout(r, ms));
   const f = document.querySelector("footer");
+  const max = document.documentElement.scrollHeight - innerHeight;
+  /* O rodapé NÃO sobe: ele fica parado e é DESCOBERTO quando o último capítulo
+     termina de rolar. Medido em três paradas do trecho em que ele já está à
+     vista: se o topo dele andar, ele virou cortina, que é o gesto errado. */
+  const topos = [];
+  for (const y of [max - 200, max - 80, max]) {
+    window.scrollTo({ top: y, behavior: "instant" });
+    await espera(260);
+    topos.push(Math.round(f.getBoundingClientRect().top));
+  }
   const r = f.getBoundingClientRect();
   const cor = getComputedStyle(f).backgroundColor;
   const alfa = cor.startsWith("rgba") ? parseFloat(cor.split(",")[3]) : 1;
@@ -324,10 +333,22 @@ const rodape = await pg.evaluate(async () => {
     (x) => !!document.elementFromPoint(x, Math.round(r.top + 30))?.closest("footer"),
   );
   window.scrollTo({ top: 0, behavior: "instant" });
-  return { opaco: cor !== "rgba(0, 0, 0, 0)" && alfa > 0.99, cor, cobreTudo: pontos.every(Boolean) };
+  return {
+    opaco: cor !== "rgba(0, 0, 0, 0)" && alfa > 0.99,
+    cor,
+    cobreTudo: pontos.every(Boolean),
+    topos,
+    parado: Math.max(...topos) - Math.min(...topos) <= 3,
+  };
 });
 checar(rodape.opaco, "o rodapé tem fundo opaco", `rodapé transparente (${rodape.cor}): o capítulo escuro congelado aparece atrás e o texto some`);
 checar(rodape.cobreTudo, "e o fundo dele vai de ponta a ponta", "sobram tiras do capítulo escuro nas laterais do rodapé");
+checar(
+  rodape.parado,
+  `o rodapé fica PARADO e é descoberto (topo em ${rodape.topos.join(", ")})`,
+  "o rodapé subiu junto com o scroll: ele virou cortina, e o gesto dele é outro",
+  rodape.topos.join(", "),
+);
 
 checar(
   cortina.buracos.length === 0,

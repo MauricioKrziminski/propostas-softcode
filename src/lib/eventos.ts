@@ -4,7 +4,7 @@ import { and, count, eq, gte, sql } from "drizzle-orm";
 
 import { bd } from "@/lib/banco/cliente";
 import { propostaEventos } from "@/lib/banco/esquema";
-import { formatarValor, hojeISO } from "@/lib/proposta/formatar";
+import { formatarValor } from "@/lib/proposta/formatar";
 import type { PropostaComId } from "@/lib/proposta/repositorio";
 
 /**
@@ -44,18 +44,38 @@ export type DetalheEvento = {
 };
 
 /**
- * A janela de repetição de cada tipo, expressa como chave de deduplicação.
+ * NADA deduplica: cada abertura é um e-mail.
  *
- * Abrir, entrar e baixar repetem no DIA seguinte: um cliente que volta amanhã é
- * notícia, o mesmo cliente recarregando a página não é.
+ * A versão anterior usava a DATA como chave para abrir, entrar e baixar, com o
+ * argumento de que "o mesmo cliente recarregando a página não é notícia". Na
+ * prática a informação de venda é justamente a frequência: cliente que volta
+ * três vezes no mesmo dia está decidindo, e isso é o momento de ligar para ele.
+ * Decisão do Gabriel, e ela troca uma caixa de entrada mais cheia por não
+ * perder esse sinal.
  *
- * O aceite nunca deduplica, e essa exceção é o ponto: perder um "abriu" não
- * custa nada, engolir um "fechou negócio" custa a venda. Chave aleatória por
- * clique garante que toda confirmação vira e-mail.
+ * Chave aleatória por evento, então o índice único `(proposta_id, tipo, chave)`
+ * nunca colide e toda linha nasce. O que impede a caixa de virar despejo passa
+ * a ser SÓ o teto diário, que antes existia apenas para o aceite.
  */
-function chaveDe(tipo: TipoEvento): string {
-  return tipo === "aceite" ? crypto.randomUUID() : hojeISO();
+function chaveDe(_tipo: TipoEvento): string {
+  return crypto.randomUUID();
 }
+
+/**
+ * O teto diário por proposta e por tipo. Ele não é meta, é freio: existe para o
+ * caso de uma aba presa recarregando sozinha, não para o cliente que abre
+ * bastante.
+ *
+ * O aceite continua em 8, e mais apertado de propósito: quem tem o link tem o
+ * botão, e ali cada clique é uma confirmação, não uma visita.
+ */
+const TETO_DIARIO: Record<TipoEvento, number> = {
+  convite_aberto: 40,
+  proposta_aberta: 40,
+  pdf_baixado: 40,
+  contato: 40,
+  aceite: 8,
+};
 
 /* ───────────────────────────── gravação ───────────────────────────── */
 
@@ -65,8 +85,9 @@ export async function registrarEvento(
   extras: { detalhe?: DetalheEvento; ip?: string | null; userAgent?: string | null } = {},
 ): Promise<void> {
   try {
-    if (tipo === "aceite" && (await aceitesDeHoje(proposta.id)) >= 8) {
-      console.warn(`[eventos] teto diário de aceites atingido em ${proposta.caminho}`);
+    const teto = TETO_DIARIO[tipo];
+    if ((await eventosDeHoje(proposta.id, tipo)) >= teto) {
+      console.warn(`[eventos] teto diário de "${tipo}" (${teto}) atingido em ${proposta.caminho}`);
       return;
     }
 
@@ -86,7 +107,10 @@ export async function registrarEvento(
       .onConflictDoNothing()
       .returning({ id: propostaEventos.id });
 
-    if (!linha) return; /* já houve aviso igual na janela: nada a enviar */
+    /* Nada deduplica mais, então a linha sempre nasce. A guarda fica porque
+       `onConflictDoNothing` continua no caminho: se um dia voltar a existir
+       chave determinística, o e-mail volta a depender do banco sozinho. */
+    if (!linha) return;
 
     await enviarAviso(proposta, tipo, extras.detalhe, extras.ip, extras.userAgent);
   } catch (erro) {
@@ -95,21 +119,19 @@ export async function registrarEvento(
 }
 
 /**
- * O aceite não deduplica, e é justamente por isso que ele precisa de um teto.
+ * Quantos eventos deste tipo já saíram hoje nesta proposta.
  *
- * Quem tem o link tem o botão, e um clique repetido em sequência viraria um
- * e-mail por clique. Oito por dia é folgado para um aceite de verdade (que
- * acontece uma vez) e fecha a porta para a caixa de entrada ser inundada pelo
- * endereço que a gente mesmo mandou por WhatsApp.
+ * Como nada mais deduplica, este contador é o ÚNICO freio da caixa de entrada:
+ * antes ele valia só para o aceite, agora vale para todos os tipos.
  */
-async function aceitesDeHoje(propostaId: string): Promise<number> {
+async function eventosDeHoje(propostaId: string, tipo: TipoEvento): Promise<number> {
   const [linha] = await bd()
     .select({ total: count() })
     .from(propostaEventos)
     .where(
       and(
         eq(propostaEventos.propostaId, propostaId),
-        eq(propostaEventos.tipo, "aceite"),
+        eq(propostaEventos.tipo, tipo),
         gte(propostaEventos.criadoEm, sql`current_date`),
       ),
     );

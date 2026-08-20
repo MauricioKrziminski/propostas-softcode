@@ -423,11 +423,22 @@ proposta**, o seed atual é a proposta real da Barba Log, não um exemplo.
 - **Quem decide se o e-mail sai é o BANCO, não a aplicação.** A inserção em
   `proposta_eventos` é `on conflict do nothing` contra o índice único
   `(proposta_id, tipo, chave)`, e o aviso só é enviado se uma linha nasceu. Uma
-  verificação, não duas. A `chave` define a janela: abrir, entrar e baixar usam
-  a DATA (repetem no dia seguinte, não a cada F5), e o **aceite nunca
-  deduplica**, porque perder um "abriu" não custa nada e engolir um "fechou
-  negócio" custa a venda. O teto de 8 aceites por dia existe só para o botão
-  não virar amplificador de e-mail para quem tem o link.
+  verificação, não duas.
+- **NADA deduplica: abrir duas vezes manda dois e-mails.** A `chave` é aleatória
+  por evento, então toda linha nasce. A versão anterior usava a DATA para abrir,
+  entrar e baixar, com o argumento de que "o mesmo cliente recarregando não é
+  notícia". Decisão do Gabriel derrubou isso, e o motivo é de venda: a
+  FREQUÊNCIA é a informação. Cliente que volta três vezes no mesmo dia está
+  decidindo, e é a hora de ligar para ele. Troca uma caixa de entrada mais cheia
+  por não perder esse sinal.
+- **O único freio passou a ser o TETO DIÁRIO por proposta e por tipo:** 40 para
+  abrir, entrar, baixar e conversar; 8 para o aceite. Ele não é meta, é freio,
+  e existe para o caso de uma aba presa recarregando sozinha, não para o cliente
+  que abre bastante. O aceite é mais apertado de propósito: quem tem o link tem
+  o botão, e ali cada clique é confirmação, não visita.
+- **Cuidado ao testar:** local e produção usam o MESMO banco, e o teto é diário
+  por proposta. Gastar o teto de um tipo em local significa não receber aviso
+  daquele tipo em produção no mesmo dia.
 - **Evento nunca derruba a página.** Toda gravação e todo envio ficam dentro de
   `try`, e a rota `/api/eventos` responde 204 SEMPRE, achando a proposta ou não:
   um 404 ali diria "este slug existe", que é o que a página se recusa a dizer.
