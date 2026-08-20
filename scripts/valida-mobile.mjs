@@ -253,8 +253,21 @@ const cortina = await pg.evaluate(async () => {
     const pts = [dono(70), dono(Math.round(vh / 2)), dono(vh - 3)];
     if (pts.some((p) => p.startsWith("BURACO") || p === "NADA")) buracos.push(`${y}: ${pts.join(" | ")}`);
   }
+  /* 3. os CANTOS da folha que sobe. A borda de cima nasce redonda, e canto
+        redondo mostra o que está atrás dele: precisa ser o capítulo anterior, e
+        nunca o branco do body. Medido a 6px da quina, que é dentro do raio. */
+  const subindo = blocos[2];
+  window.scrollTo({ top: fins[1] - vh + 240, behavior: "instant" });
+  await espera(200);
+  const r = subindo.getBoundingClientRect();
+  const quinas = [6, innerWidth - 6].map((x) => {
+    const e = document.elementFromPoint(x, Math.round(r.top) + 6);
+    return e?.closest("main > div") || e?.closest("header") ? "capitulo" : `NU:${e?.tagName}`;
+  });
+  const raio = parseFloat(getComputedStyle(subindo).borderTopLeftRadius);
+
   window.scrollTo({ top: 0, behavior: "instant" });
-  return { vh, baixos, medidas, buracos: buracos.slice(0, 5), pontos: Math.ceil((alt - vh) / 120) * 3 };
+  return { vh, baixos, medidas, buracos: buracos.slice(0, 5), pontos: Math.ceil((alt - vh) / 120) * 3, quinas, raio };
 });
 checar(
   cortina.baixos.length === 0,
@@ -273,6 +286,17 @@ checar(
   "e o capítulo seguinte sobe por cima dele, na medida do dedo",
   "o capítulo seguinte não acompanha o scroll durante a cortina",
   JSON.stringify(cortina.medidas),
+);
+checar(
+  cortina.raio > 8,
+  `a folha sobe com a borda de cima ARREDONDADA (${Math.round(cortina.raio)}px no meio da subida)`,
+  "a borda de cima subiu reta: o olho lê um wipe, não uma folha passando por cima da outra",
+);
+checar(
+  cortina.quinas.every((q) => q === "capitulo"),
+  "e atrás dos cantos redondos está o capítulo anterior, não o fundo do body",
+  "canto redondo mostrando fundo do body: falta piso de uma tela no capítulo de baixo",
+  cortina.quinas.join(", "),
 );
 checar(
   cortina.buracos.length === 0,

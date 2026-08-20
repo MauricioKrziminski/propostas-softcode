@@ -240,7 +240,7 @@ export function Convite({
            `--ctx-titulo` virar quase branco para tudo que está dentro. O nome
            do cliente saía branco sobre papel branco, invisível. Aqui cada cor é
            explícita. */
-        className={`${bodoni.variable} so-tela fixed inset-0 z-[100] flex min-h-[100dvh] items-center justify-center overflow-x-hidden overflow-y-auto bg-noite px-5 py-9 outline-none sm:px-8 sm:py-14 ${
+        className={`${bodoni.variable} so-tela fixed inset-0 z-[100] flex min-h-[100dvh] items-center justify-center overflow-x-hidden overflow-y-auto bg-noite px-4 py-8 outline-none sm:px-8 sm:py-14 ${
           saindo ? "convite-saindo pointer-events-none" : ""
         }`}
       >
@@ -287,7 +287,7 @@ export function Convite({
         {/* O palco carrega a PARALAXE, o envelope dentro dele carrega a CHEGADA.
             São dois `transform` em dois elementos porque um só sobrescreveria o
             outro, e a paralaxe mataria a animação de entrada. */}
-        <div className="convite-palco relative w-full max-w-md">
+        <div className="convite-palco relative w-full max-w-lg">
           <div className="convite-peca">
             {/* Espessura: duas folhas por baixo, afinando e levemente tortas. */}
             <div aria-hidden className="convite-pilha">

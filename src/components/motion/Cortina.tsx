@@ -65,12 +65,38 @@ export function Cortina({
   /* 0 quando o FIM do bloco encosta no fim da tela, 1 quando esse mesmo fim
      chega ao topo. Entre os dois o dedo anda exatamente uma tela, que é a
      duração do congelamento. */
-  const { alvo, progresso } = usePercurso(["end end", "end start"]);
+  const { alvo: congelaRef, progresso } = usePercurso(["end end", "end start"]);
   const y = useTransform(progresso, [0, 1], [0, altura]);
+
+  /* A ENTRADA do mesmo bloco: 0 quando o topo dele encosta na base da tela, 1
+     quando esse topo chega ao alto. É a janela em que ele está SUBINDO por cima
+     do anterior, e é outra medida que a do congelamento (aquela olha o fim do
+     bloco, esta olha o começo). Duas medidas porque são dois momentos: todo
+     bloco primeiro sobe por cima do anterior e só muito depois congela. */
+  const { alvo: entradaRef, progresso: entrada } = usePercurso(["start end", "start start"]);
+
+  /* A borda de cima nasce BEM redonda e endurece conforme o bloco toma a tela.
+     É o que faz a leitura de FOLHA subindo por cima da outra em vez de corte
+     reto passando: reto, o olho lê um wipe; curvo, ele lê papel.
+
+     A curva fecha em 0.72 e não em 1: a última fração da subida é justamente
+     quando a aresta encosta no alto da tela, e chegar lá ainda arredondado
+     deixaria dois cantinhos do bloco anterior aparecendo no topo. Ao endurecer
+     antes, a folha se assenta e vira página. */
+  const raio = useTransform(entrada, [0, 0.72], ["2.75rem", "0rem"], { clamp: true });
+
+  /* Os dois `useScroll` precisam do MESMO nó. `usePercurso` devolve uma ref
+     cada, e um `ref` de React só aceita uma: a função abaixo entrega o nó para
+     as duas. Sem isso a segunda medida nunca teria alvo e o raio ficaria
+     cravado no valor inicial, com a página inteira de cantos redondos. */
+  const prender = (no: HTMLDivElement | null) => {
+    congelaRef.current = no;
+    entradaRef.current = no;
+  };
 
   return (
     <motion.div
-      ref={alvo}
+      ref={prender}
       data-capitulo={capitulo}
       className="cortina relative z-0 min-h-[100dvh]"
       style={
@@ -80,7 +106,13 @@ export function Cortina({
                `will-change: transform` cravado, e quinze camadas compostas
                permanentes é exatamente o custo que este desenho existe para
                evitar. O transform ainda promove a camada quando está em uso. */
-            { backgroundColor: tom, y, willChange: "auto" }
+            {
+              backgroundColor: tom,
+              y,
+              borderTopLeftRadius: raio,
+              borderTopRightRadius: raio,
+              willChange: "auto",
+            }
       }
     >
       {children}

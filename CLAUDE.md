@@ -128,14 +128,24 @@ proposta**, o seed atual é a proposta real da Barba Log, não um exemplo.
   retângulo é composição de cartão de visita; envelope endereçado tem o bloco do
   destinatário à esquerda e o lacre no eixo do papel. São dois eixos diferentes,
   e é essa tensão que faz a peça parecer desenhada em vez de empilhada.
-- **`aspect-ratio: 1.16`, aba de 34%, e o bloco ANCORADO abaixo do lacre.** 1.06
-  é quase quadrado e lê como cartão; 1.24 lê como envelope mas tira 48px de
-  altura útil, e com nome de cliente longo o endereçamento sobe e o lacre cai em
-  cima da etiqueta (medido). E o bloco é `justify-content: flex-start`, não
-  `center`: centralizado ele cresce para os DOIS lados e a colisão volta.
-  Ancorado no topo ela deixa de ser possível. Mexer no `aspect-ratio` obriga a
-  re-medir o quadro de 820ms da saída, porque a cobertura da tela depende do
-  `scale` de `convite-entrar-na-carta`.
+- **`aspect-ratio: 1.32`, aba de 31%, e o bloco ANCORADO abaixo do lacre.** 1.06
+  é quase quadrado e lê como cartão; envelope de verdade é bem mais largo que
+  alto. Cada ponto a mais aqui TIRA altura útil, e é a altura que aperta: com
+  nome de cliente longo o endereçamento sobe e o lacre cai em cima da etiqueta.
+  Por isso a peça também ficou mais LARGA (`max-w-lg` e menos respiro lateral no
+  celular), senão a proporção nova só teria encolhido o envelope. Em 390px sobram
+  7px de folga de cada lado, medidos: mexer em `aspect-ratio`, na aba, no corpo
+  do nome ou no ritmo das linhas obriga a rodar de novo o caso de nome longo.
+  E o bloco é `justify-content: flex-start`, não `center`: centralizado ele
+  cresce para os DOIS lados e a colisão volta. Mexer no `aspect-ratio` obriga a
+  re-medir também o quadro de 820ms da saída, porque a cobertura da tela depende
+  do `scale` de `convite-entrar-na-carta`.
+- **A ABA precisa ser visivelmente mais clara que o corpo.** Ela está por cima e
+  virada para a luz. Com os dois quase no mesmo tom o V da dobra desaparecia e o
+  envelope lia como um retângulo liso: o corpo escurece no alto, a aba clareia, e
+  a dobra ganha `drop-shadow` funda mais um fio de luz de 1px. `drop-shadow` e
+  não `box-shadow`, porque o box ignora o `clip-path` e desenharia a sombra do
+  retângulo inteiro.
 - **O caso que aperta é NOME LONGO, e a proposta semeada tem nome curto.** O
   `valida:mobile` troca o nome no DOM por um de 41 caracteres e mede de novo,
   senão a checagem passa no vácuo. Ele solta o `white-space: nowrap` antes de
@@ -289,9 +299,29 @@ proposta**, o seed atual é a proposta real da Barba Log, não um exemplo.
   anel azul grosso desenhado sozinho em cima da peça principal, num aparelho onde
   ninguém está usando teclado. No contêiner com `role="dialog"` o leitor de tela
   anuncia o convite inteiro, e Enter e Esc já abrem de qualquer lugar.
-- **A divisória entre seções é a própria diferença de cor**, e é SECA: sem
-  gradiente, sem blur, sem curva. Os tons alternados são decididos pela página,
-  nunca pela seção.
+- **A divisória entre seções é a própria diferença de cor**, e continua SECA:
+  sem gradiente, sem blur, sem sombra na emenda. Os tons alternados são
+  decididos pela página, nunca pela seção.
+- **A aresta que sobe é ARREDONDADA, e essa é a única curva permitida.** A regra
+  antiga dizia "sem curva" e foi derrubada de propósito, olhando a referência
+  quadro a quadro: reto, o olho lê um WIPE, uma máscara passando; curvo, ele lê
+  uma FOLHA subindo por cima da outra, que é o gesto que a peça quer. O raio
+  nasce em 2.75rem e endurece até 0 conforme o bloco toma a tela, e fecha em
+  0.72 do percurso e não em 1: a última fração da subida é quando a aresta
+  encosta no alto da tela, e chegar lá ainda redondo deixaria dois cantinhos do
+  capítulo anterior aparecendo no topo.
+- **Canto redondo MOSTRA o que está atrás dele.** Por isso o piso de uma tela
+  por capítulo não é opcional: sem ele, quem aparece na quina é o branco do
+  body. O `valida:mobile` mede `elementFromPoint` a 6px das duas quinas no meio
+  da subida e exige que ali esteja o capítulo anterior.
+- **São DOIS `useScroll` por capítulo, e eles medem coisas diferentes.** O do
+  congelamento olha o FIM do bloco (`["end end", "end start"]`); o da borda
+  redonda olha o COMEÇO dele (`["start end", "start start"]`), que é quando ele
+  está subindo por cima do anterior. São dois momentos distintos da vida do
+  mesmo bloco: ele primeiro sobe por cima do anterior e só muito depois congela.
+  Os dois precisam do MESMO nó, e um `ref` de React só aceita um: quem entrega o
+  nó para as duas refs é uma função. Sem isso a segunda medida nunca teria alvo e
+  o raio ficaria cravado no inicial, com a página inteira de cantos redondos.
 - **A passagem de um capítulo para o outro é uma CORTINA:** o capítulo seguinte
   sobe POR CIMA do anterior, que fica parado embaixo. Quando o FIM do bloco
   encosta no fim da tela, ele é empurrado para baixo na mesma medida em que a
