@@ -66,6 +66,13 @@
     min-height: 0 !important;
   }
 
+  /* O rodapé é fixo na tela e a regra 3 já o devolve ao fluxo; falta o respiro
+     que o último capítulo reserva para ele, que no papel viraria uma página em
+     branco no fim. É estilo inline, então precisa de !important. */
+  .cortina {
+    padding-block-end: 0 !important;
+  }
+
   /* 3. Nada fixo ou grudado: no papel isso vira elemento repetido ou sobreposto.
         Inclui o fundo em movimento e o grão, no papel o fundo é branco. */
   .cabecalho-fixo,

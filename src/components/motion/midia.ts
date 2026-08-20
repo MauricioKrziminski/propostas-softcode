@@ -67,3 +67,32 @@ export function useLarguraDaJanela(): number {
     () => 0,
   );
 }
+
+/**
+ * Altura do rodapé FIXO, em px.
+ *
+ * Ele é `position: fixed` e fica por cima de tudo, então a faixa de baixo da
+ * janela deixa de ser área de leitura: quem precisa saber disso é a cortina,
+ * que crava a base do capítulo que sai. Cravando no rodapé da JANELA, a última
+ * fatia do capítulo ficaria para sempre atrás do rodapé.
+ *
+ * `ResizeObserver` no próprio rodapé, e não só `resize` de janela: a altura
+ * dele muda quando o texto reflui, e isso acontece também quando a fonte
+ * termina de carregar, sem nenhum resize acontecer.
+ */
+export function useAlturaDoRodape(): number {
+  return useSyncExternalStore(
+    (aoMudar) => {
+      const rodape = document.querySelector("footer");
+      const ro = rodape ? new ResizeObserver(aoMudar) : null;
+      if (rodape && ro) ro.observe(rodape);
+      window.addEventListener("resize", aoMudar);
+      return () => {
+        ro?.disconnect();
+        window.removeEventListener("resize", aoMudar);
+      };
+    },
+    () => Math.round(document.querySelector("footer")?.getBoundingClientRect().height ?? 0),
+    () => 0,
+  );
+}

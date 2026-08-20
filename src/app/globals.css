@@ -1918,9 +1918,17 @@ select:focus-visible {
   }
 
   /* A proposta entra ANTES de o envelope terminar de sair: as duas se
-     sobrepõem, e é isso que tira o quadro morto de tela vazia no meio. */
+     sobrepõem, e é isso que tira o quadro morto de tela vazia no meio.
+
+     `backwards`, e NUNCA `both`, e aqui o motivo é diferente do da aba: com
+     `both` o estado final (`scale(1)`) fica cravado, e um `transform`, mesmo
+     sendo a identidade, faz o elemento virar BLOCO CONTÊINER de todo
+     `position: fixed` descendente. O cabeçalho fixo e o grão paravam de ser
+     fixos e rolavam junto com a página, sem nada acusar: no scroll 6000 o topo
+     do cabeçalho estava em -6000. Com `backwards` a animação solta o elemento
+     no fim, e como o `to` do keyframe é o estado natural não há salto. */
   .proposta-entrando {
-    animation: proposta-entrar 700ms cubic-bezier(0.16, 1, 0.3, 1) 660ms both;
+    animation: proposta-entrar 700ms cubic-bezier(0.16, 1, 0.3, 1) 660ms backwards;
   }
 }
 

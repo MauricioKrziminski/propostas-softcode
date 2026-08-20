@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { cubicBezier, motion, useMotionTemplate, useReducedMotion, useTransform } from "motion/react";
 
 import { usePercurso } from "./percurso";
-import { useAlturaDaJanela, useLarguraDaJanela } from "./midia";
+import { useAlturaDaJanela, useAlturaDoRodape, useLarguraDaJanela } from "./midia";
 
 /**
  * A CORTINA: o capítulo seguinte sobe POR CIMA do anterior, que fica parado
@@ -82,12 +82,20 @@ export function Cortina({
   const menosMovimento = useReducedMotion();
   const altura = useAlturaDaJanela();
   const largura = useLarguraDaJanela();
+  /* O rodapé é FIXO e fica por cima de tudo, então a faixa de baixo da janela
+     não é área de leitura. A cortina precisa cravar a base do capítulo no TOPO
+     do rodapé, e não no rodapé da janela: cravando na janela, a última fatia de
+     cada capítulo ficaria para sempre escondida atrás dele. */
+  const rodape = useAlturaDoRodape();
+  const util = Math.max(0, altura - rodape);
 
   /* 0 quando o FIM do bloco encosta no fim da tela, 1 quando esse mesmo fim
      chega ao topo. Entre os dois o dedo anda exatamente uma tela, que é a
      duração do congelamento. */
-  const { alvo: congelaRef, progresso } = usePercurso(["end end", "end start"]);
-  const y = useTransform(progresso, [0, 1], [0, congela ? altura : 0]);
+  /* `end <util>px` e não `end end`: o zero do congelamento é o instante em que o
+     fim do bloco encosta no TOPO DO RODAPÉ, e não no fim da janela. */
+  const { alvo: congelaRef, progresso } = usePercurso([`end ${util}px`, "end start"]);
+  const y = useTransform(progresso, [0, 1], [0, congela ? util : 0]);
 
   /* A ENTRADA do mesmo bloco: 0 quando o topo dele encosta na base da tela, 1
      quando esse topo chega ao alto. É a janela em que ele está SUBINDO por cima
@@ -134,7 +142,7 @@ export function Cortina({
       className="cortina relative z-0 min-h-[100dvh]"
       style={
         menosMovimento
-          ? { backgroundColor: tom }
+          ? { backgroundColor: tom, paddingBottom: congela ? undefined : rodape }
           : /* `willChange: auto` de propósito: o motion deixaria
                `will-change: transform` cravado, e quinze camadas compostas
                permanentes é exatamente o custo que este desenho existe para
@@ -143,6 +151,12 @@ export function Cortina({
               backgroundColor: tom,
               y,
               borderRadius: raio,
+              /* Só o ÚLTIMO reserva o espaço do rodapé fixo. Ele é o único que
+                 não congela, então a base dele para no fim do documento: sem
+                 esse respiro, a última fatia dele ficaria atrás do rodapé para
+                 sempre. Nos outros o congelamento já crava a base no topo do
+                 rodapé e o respiro seria um buraco entre capítulos. */
+              paddingBottom: congela ? undefined : rodape,
               willChange: "auto",
             }
       }

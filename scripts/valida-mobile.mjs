@@ -212,6 +212,11 @@ const cortina = await pg.evaluate(async () => {
 
   window.scrollTo({ top: 0, behavior: "instant" });
   await espera(200);
+  /* O rodapé é FIXO e cobre a faixa de baixo, então a linha de congelamento não
+     é o rodapé da JANELA e sim o topo do rodapé. Cravando na janela, a última
+     fatia de cada capítulo ficaria escondida atrás dele. */
+  const alturaRodape = Math.round(document.querySelector("footer").getBoundingClientRect().height);
+  const linha = vh - alturaRodape;
   const blocos = [...document.querySelectorAll("main > div")];
   /* Medidos com a página no topo: nenhum bloco está deslocado aqui. */
   const fins = blocos.map((b) => b.getBoundingClientRect().bottom + scrollY);
@@ -225,7 +230,7 @@ const cortina = await pg.evaluate(async () => {
   const seguinte = blocos[2];
   const medidas = [];
   for (const d of [0, 200, 400]) {
-    window.scrollTo({ top: fins[1] - vh + d, behavior: "instant" });
+    window.scrollTo({ top: fins[1] - linha + d, behavior: "instant" });
     await espera(140);
     medidas.push({
       d,
@@ -250,14 +255,14 @@ const cortina = await pg.evaluate(async () => {
   for (let y = 0; y <= alt - vh; y += 120) {
     window.scrollTo({ top: y, behavior: "instant" });
     await espera(16);
-    const pts = [dono(70), dono(Math.round(vh / 2)), dono(vh - 3)];
+    const pts = [dono(70), dono(Math.round(linha / 2)), dono(linha - 3)];
     if (pts.some((p) => p.startsWith("BURACO") || p === "NADA")) buracos.push(`${y}: ${pts.join(" | ")}`);
   }
   /* 3. as PONTAS da folha que sobe. A aresta estufa no meio, então nas pontas
         ela desce e mostra o que está atrás: precisa ser o capítulo anterior, e
         nunca o branco do body. Medido a 6px da quina, que é dentro do raio. */
   const subindo = blocos[2];
-  window.scrollTo({ top: fins[1] - vh + 240, behavior: "instant" });
+  window.scrollTo({ top: fins[1] - linha + 240, behavior: "instant" });
   await espera(200);
   const r = subindo.getBoundingClientRect();
   const quinas = [6, innerWidth - 6].map((x) => {
@@ -272,7 +277,7 @@ const cortina = await pg.evaluate(async () => {
   const arcoInteiro = cantoCima.includes("50%");
 
   window.scrollTo({ top: 0, behavior: "instant" });
-  return { vh, baixos, medidas, buracos: buracos.slice(0, 5), pontos: Math.ceil((alt - vh) / 120) * 3, quinas, raio, arcoInteiro };
+  return { vh, linha, alturaRodape, baixos, medidas, buracos: buracos.slice(0, 5), pontos: Math.ceil((alt - vh) / 120) * 3, quinas, raio, arcoInteiro };
 });
 checar(
   cortina.baixos.length === 0,
@@ -281,13 +286,13 @@ checar(
   cortina.baixos.join(", "),
 );
 checar(
-  cortina.medidas.every((m) => Math.abs(m.base - cortina.vh) <= 2),
-  `o capítulo anterior CONGELA (base em ${cortina.medidas.map((m) => m.base).join(", ")} com a tela em ${cortina.vh})`,
-  "o capítulo anterior continua subindo: não há cortina, só scroll",
+  cortina.medidas.every((m) => Math.abs(m.base - cortina.linha) <= 2),
+  `o capítulo anterior CONGELA no topo do rodapé fixo (base em ${cortina.medidas.map((m) => m.base).join(", ")}, linha em ${cortina.linha})`,
+  "o capítulo anterior continua subindo, ou congelou atrás do rodapé fixo",
   JSON.stringify(cortina.medidas),
 );
 checar(
-  cortina.medidas.every((m) => Math.abs(m.topoSeguinte - (cortina.vh - m.d)) <= 3),
+  cortina.medidas.every((m) => Math.abs(m.topoSeguinte - (cortina.linha - m.d)) <= 3),
   "e o capítulo seguinte sobe por cima dele, na medida do dedo",
   "o capítulo seguinte não acompanha o scroll durante a cortina",
   JSON.stringify(cortina.medidas),
@@ -317,11 +322,11 @@ const rodape = await pg.evaluate(async () => {
   const espera = (ms) => new Promise((r) => setTimeout(r, ms));
   const f = document.querySelector("footer");
   const max = document.documentElement.scrollHeight - innerHeight;
-  /* O rodapé NÃO sobe: ele fica parado e é DESCOBERTO quando o último capítulo
-     termina de rolar. Medido em três paradas do trecho em que ele já está à
-     vista: se o topo dele andar, ele virou cortina, que é o gesto errado. */
+  /* O rodapé é FIXO: ele ocupa a faixa de baixo da janela o tempo todo e não se
+     mexe em nenhum scroll. Se o topo dele andar, ou ele voltou a ser cortina, ou
+     algum ancestral voltou a reter `transform` e quebrou o `position: fixed`. */
   const topos = [];
-  for (const y of [max - 200, max - 80, max]) {
+  for (const y of [0, Math.round(max / 2), max]) {
     window.scrollTo({ top: y, behavior: "instant" });
     await espera(260);
     topos.push(Math.round(f.getBoundingClientRect().top));
@@ -341,12 +346,35 @@ const rodape = await pg.evaluate(async () => {
     parado: Math.max(...topos) - Math.min(...topos) <= 3,
   };
 });
+/* O cabeçalho fixo tinha o MESMO defeito e ninguém guardava: `.proposta-entrando`
+   retinha `transform: matrix(1,0,0,1,0,0)` do `fill: both`, e ancestral com
+   transform, mesmo a identidade, vira bloco contêiner de todo `position: fixed`
+   descendente. No scroll 6000 o topo do cabeçalho estava em -6000. */
+const cabecalho = await pg.evaluate(async () => {
+  const espera = (ms) => new Promise((r) => setTimeout(r, ms));
+  const c = document.querySelector(".cabecalho-fixo");
+  const topos = [];
+  for (const y of [0, 1500, 6000]) {
+    window.scrollTo({ top: y, behavior: "instant" });
+    await espera(200);
+    topos.push(Math.round(c.getBoundingClientRect().top));
+  }
+  window.scrollTo({ top: 0, behavior: "instant" });
+  return { topos, fixo: new Set(topos).size === 1 };
+});
+checar(
+  cabecalho.fixo,
+  `o cabeçalho é FIXO de verdade (topo em ${cabecalho.topos.join(", ")})`,
+  "o cabeçalho rolou junto com a página: algum ancestral está retendo transform",
+  cabecalho.topos.join(", "),
+);
+
 checar(rodape.opaco, "o rodapé tem fundo opaco", `rodapé transparente (${rodape.cor}): o capítulo escuro congelado aparece atrás e o texto some`);
 checar(rodape.cobreTudo, "e o fundo dele vai de ponta a ponta", "sobram tiras do capítulo escuro nas laterais do rodapé");
 checar(
   rodape.parado,
-  `o rodapé fica PARADO e é descoberto (topo em ${rodape.topos.join(", ")})`,
-  "o rodapé subiu junto com o scroll: ele virou cortina, e o gesto dele é outro",
+  `o rodapé é FIXO e não se mexe (topo em ${rodape.topos.join(", ")})`,
+  "o rodapé andou com o scroll: virou cortina, ou um ancestral com transform quebrou o position: fixed",
   rodape.topos.join(", "),
 );
 
