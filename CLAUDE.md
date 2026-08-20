@@ -348,14 +348,32 @@ proposta**, o seed atual é a proposta real da Barba Log, não um exemplo.
   dele congela. Uma tela de scroll depois o seguinte já cobre tudo e o
   congelamento se solta sozinho. Nada de conteúdo se perde: o bloco rola INTEIRO
   antes de congelar.
-- **A cortina NÃO é `position: sticky`, e as três tentativas foram medidas:**
-  `top: 0` prende o TOPO, e 11 das 15 seções são mais altas que a tela (a do
-  processo tem 6), então elas grudam e o miolo nunca chega; `bottom: 0` puxa o
-  bloco para cima cedo demais, e o `aceite` chegou a cobrir a página inteira a
-  partir do scroll 0; `top: calc(100dvh - 100%)` não existe, porque em sticky a
-  porcentagem dos insets resolve contra o SCROLLPORT, e computou 664px em TODAS
-  as seções, da de 926px à de 4010px. Falta a altura própria do bloco, que o CSS
-  não sabe dizer e o motion sabe.
+- **O congelamento é `position: sticky`, e ele PRECISA ser.** A primeira versão
+  compensava o scroll com um `transform` calculado em JS a cada quadro. No
+  celular isso TREME: o scroll é resolvido no compositor e o transform na thread
+  principal, os dois saem de sincronia, e quem treme é justamente o capítulo que
+  devia estar parado. No emulador do Chrome o scroll é sintetizado na thread
+  principal, então lá o defeito não aparece nunca. Sticky é resolvido pelo
+  compositor e não treme.
+- **O que destrava o sticky é a ALTURA DO BLOCO em custom property.** `top`
+  precisa ser `100dvh - altura` para o bloco grudar quando o FIM dele encosta no
+  rodapé da tela, e as três tentativas ingênuas foram medidas e falharam:
+  `top: 0` prende o TOPO (11 das 15 seções são mais altas que a tela, a do
+  processo tem 6, e o miolo nunca chega); `bottom: 0` puxa o bloco para cima
+  cedo demais (o `aceite` cobriu a página inteira a partir do scroll 0); e
+  `top: calc(100dvh - 100%)` não existe, porque porcentagem em inset de sticky
+  resolve contra o SCROLLPORT (computou 664px em TODAS as seções, da de 926px à
+  de 4010px). A altura vai em `--altura-bloco`, escrita por `ResizeObserver`
+  e portanto só no RESIZE, nunca por quadro.
+- **O padrão de `--altura-bloco` é 9999px, e isso não é enfeite.** Antes da
+  hidratação a variável não existe, e `calc(100dvh - 0px)` daria um `top`
+  POSITIVO, que gruda o capítulo uma tela ABAIXO do lugar dele. Com 9999px o
+  `top` nasce muito negativo e o bloco simplesmente não gruda até a medida
+  chegar.
+- **A classe `sticky` fica mesmo com reduced-motion; quem liga a cortina é o
+  `top`.** Sticky com `top: auto` não gruda em nada, e manter a classe é o que
+  faz a impressão devolver tudo ao fluxo (`print.css` reseta `[class*="sticky"]`).
+  Verificação que olhasse só `position` reprovaria a página inteira.
 - **O rodapé é a ÚLTIMA SEÇÃO, e mais nada.** Fluxo normal, depois do aceite,
   sem cortina, sem grudar e sem gesto nenhum. Ele não sobe por cima do último
   capítulo, não é descoberto por ele e não fica preso na tela. Foram tentadas as

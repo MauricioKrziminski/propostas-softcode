@@ -1,10 +1,10 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { cubicBezier, motion, useMotionTemplate, useReducedMotion, useTransform } from "motion/react";
 
 import { usePercurso } from "./percurso";
-import { useAlturaDaJanela, useLarguraDaJanela } from "./midia";
+import { useLarguraDaJanela } from "./midia";
 
 /**
  * A CORTINA: o capítulo seguinte sobe POR CIMA do anterior, que fica parado
@@ -80,21 +80,45 @@ export function Cortina({
   children: ReactNode;
 }) {
   const menosMovimento = useReducedMotion();
-  const altura = useAlturaDaJanela();
   const largura = useLarguraDaJanela();
 
-  /* 0 quando o FIM do bloco encosta no fim da tela, 1 quando esse mesmo fim
-     chega ao topo. Entre os dois o dedo anda exatamente uma tela, que é a
-     duração do congelamento. */
-  const { alvo: congelaRef, progresso } = usePercurso(["end end", "end start"]);
-  const y = useTransform(progresso, [0, 1], [0, congela ? altura : 0]);
+  /* O congelamento NÃO é mais um transform em JS, e a troca não foi por gosto:
+     no celular o scroll é resolvido no compositor e o transform era calculado
+     na thread principal a cada quadro. Os dois saíam de sincronia e o capítulo
+     que devia estar PARADO tremia, subindo e descendo alguns pixels. No
+     emulador do Chrome o scroll é sintetizado na thread principal, então lá
+     nunca aparecia.
 
+     `position: sticky` é resolvido pelo compositor, então ele não treme nunca.
+     O que faltava para usá-lo era a altura do próprio bloco: `top` precisa ser
+     `100dvh - altura` para o bloco grudar quando o FIM dele encosta no rodapé
+     da tela, e porcentagem em `top` resolve contra o SCROLLPORT, não contra o
+     elemento. A altura entra por custom property, escrita só no RESIZE (nunca
+     por quadro), e aí o scroll inteiro volta a ser trabalho do navegador.
+
+     O padrão de 9999px não é enfeite: antes da hidratação a variável não
+     existe, e `calc(100dvh - 0px)` daria um `top` POSITIVO, que grudaria o
+     capítulo uma tela abaixo do lugar dele. Com 9999px o `top` nasce muito
+     negativo, ou seja, o bloco simplesmente não gruda até a medida chegar. */
   /* A ENTRADA do mesmo bloco: 0 quando o topo dele encosta na base da tela, 1
      quando esse topo chega ao alto. É a janela em que ele está SUBINDO por cima
      do anterior, e é outra medida que a do congelamento (aquela olha o fim do
      bloco, esta olha o começo). Duas medidas porque são dois momentos: todo
      bloco primeiro sobe por cima do anterior e só muito depois congela. */
   const { alvo: entradaRef, progresso: entrada } = usePercurso(["start end", "start start"]);
+
+  /* A altura do bloco vira custom property, e só muda no resize. `ResizeObserver`
+     e não `resize` de janela: a altura do capítulo muda quando o texto reflui, e
+     isso acontece também quando a fonte termina de carregar, sem resize nenhum. */
+  useEffect(() => {
+    const no = entradaRef.current;
+    if (!no || !congela) return;
+    const medir = () => no.style.setProperty("--altura-bloco", `${no.offsetHeight}px`);
+    medir();
+    const ro = new ResizeObserver(medir);
+    ro.observe(no);
+    return () => ro.disconnect();
+  }, [entradaRef, congela]);
 
   /* A aresta de cima não é reta e não são cantos arredondados: é UM arco só,
      atravessando a linha inteira e estufando no meio, que achata conforme o
@@ -118,32 +142,21 @@ export function Cortina({
   });
   const raio = useMotionTemplate`50% 50% 0 0 / ${arco}px ${arco}px 0 0`;
 
-  /* Os dois `useScroll` precisam do MESMO nó. `usePercurso` devolve uma ref
-     cada, e um `ref` de React só aceita uma: a função abaixo entrega o nó para
-     as duas. Sem isso a segunda medida nunca teria alvo e o raio ficaria
-     cravado no valor inicial, com a página inteira de cantos redondos. */
-  const prender = (no: HTMLDivElement | null) => {
-    congelaRef.current = no;
-    entradaRef.current = no;
-  };
-
   return (
     <motion.div
-      ref={prender}
+      ref={entradaRef}
       data-capitulo={capitulo}
-      className="cortina relative z-0 min-h-[100dvh]"
+      className="cortina sticky z-0 min-h-[100dvh]"
       style={
         menosMovimento
-          ? { backgroundColor: tom }
-          : /* `willChange: auto` de propósito: o motion deixaria
-               `will-change: transform` cravado, e quinze camadas compostas
-               permanentes é exatamente o custo que este desenho existe para
-               evitar. O transform ainda promove a camada quando está em uso. */
-            {
+          ? /* Com reduced-motion a cortina some INTEIRA, e o congelamento vai
+               junto: `sticky` não é animação, mas o gesto é, e quem pediu menos
+               movimento pediu a página em seções comuns, uma embaixo da outra. */
+            { backgroundColor: tom }
+          : {
               backgroundColor: tom,
-              y,
+              top: congela ? "calc(100dvh - var(--altura-bloco, 9999px))" : undefined,
               borderRadius: raio,
-              willChange: "auto",
             }
       }
     >

@@ -272,13 +272,18 @@ const cortina = await pg.evaluate(async () => {
   const arcoInteiro = cantoCima.includes("50%");
 
   window.scrollTo({ top: 0, behavior: "instant" });
-  return { vh, baixos, medidas, buracos: buracos.slice(0, 5), pontos: Math.ceil((alt - vh) / 120) * 3, quinas, raio, arcoInteiro };
+  return { vh, semTransform: ["none", "matrix(1, 0, 0, 1, 0, 0)"].includes(getComputedStyle(blocos[1]).transform) && getComputedStyle(blocos[1]).position === "sticky", baixos, medidas, buracos: buracos.slice(0, 5), pontos: Math.ceil((alt - vh) / 120) * 3, quinas, raio, arcoInteiro };
 });
 checar(
   cortina.baixos.length === 0,
   "todo capítulo tem ao menos uma tela de altura (piso de 100dvh)",
   `${cortina.baixos.length} capítulo(s) mais baixos que a tela: aparece faixa do capítulo anterior por cima da cortina`,
   cortina.baixos.join(", "),
+);
+checar(
+  cortina.semTransform,
+  "o congelamento é do COMPOSITOR (sticky), não um transform por quadro",
+  "o congelamento voltou a ser transform em JS: no celular o capítulo parado treme, porque o scroll é resolvido no compositor e o transform na thread principal",
 );
 checar(
   cortina.medidas.every((m) => Math.abs(m.base - cortina.vh) <= 2),
@@ -592,8 +597,17 @@ await pgRm.waitForTimeout(600);
 const cortinaParada = await pgRm.evaluate(async () => {
   window.scrollTo({ top: innerHeight * 3, behavior: "instant" });
   await new Promise((r) => setTimeout(r, 300));
+  /* O congelamento virou `position: sticky` (compositor, para não tremer no
+     celular), então checar só `transform` deixaria de ver a cortina ligada. */
   const fora = [...document.querySelectorAll("main > div")]
-    .filter((d) => !["none", "matrix(1, 0, 0, 1, 0, 0)"].includes(getComputedStyle(d).transform))
+    .filter((d) => {
+      const e = getComputedStyle(d);
+      /* `position: sticky` com `top: auto` não gruda em nada: a classe fica (é
+         por ela que a impressão devolve tudo ao fluxo), e quem liga a cortina é
+         o `top` calculado. Checar só a posição reprovaria a página inteira. */
+      const grudado = e.position === "sticky" && e.top !== "auto";
+      return !["none", "matrix(1, 0, 0, 1, 0, 0)"].includes(e.transform) || grudado;
+    })
     .map((d) => d.querySelector("section")?.id ?? "?");
   window.scrollTo({ top: 0, behavior: "instant" });
   return fora;
