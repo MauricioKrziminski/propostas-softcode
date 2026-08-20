@@ -32,7 +32,7 @@ const bodoni = Bodoni_Moda({
 const ETIQUETA = "Proposta comercial";
 
 /**
- * O convite: um ENVELOPE lacrado, pousado numa mesa escura.
+ * O convite: um ENVELOPE CLARO pousado numa mesa quase preta e VIVA.
  *
  * O clique não troca de tela, ele ABRE o envelope: o lacre se rompe, a aba gira
  * para trás em 3D, a carta sai de dentro e a câmera entra nela. A proposta não
@@ -40,38 +40,56 @@ const ETIQUETA = "Proposta comercial";
  * mesma história que a URL conta: alguém preparou isto, lacrou e mandou para
  * você.
  *
- * O fundo noite não é gosto: é o que faz o papel claro brilhar e o que dá o
- * contraste da abertura. A portaria do site já descreve este gesto, "uma peça
- * iluminada sobre fundo apagado".
+ * ── quatro camadas, cada uma com TETO de contraste ──────────────────────────
+ * É o teto por camada, e não a quantidade de efeitos, que separa cena rica de
+ * ruído:
+ *   0  ATMOSFERA  aurora fluida sobre quase preto. Contraste muito baixo, duas
+ *      derivas lentas (18s e 24s) que nunca param. É a luz andando que mantém a
+ *      silhueta recortada continuamente, e não só no primeiro quadro;
+ *   1  CONTEXTO   duas faixas de texto correndo em sentidos OPOSTOS atrás do
+ *      envelope, com teto de contraste. A oclusão delas pelo envelope é a
+ *      profundidade que o toque não pode ter por paralaxe de ponteiro;
+ *   2  OBJETO     o envelope. Contraste máximo, e o único nítido da cena;
+ *   3  AÇÃO       o botão, com uma brasa azul por baixo.
  *
  * ── por que ele parece caro ─────────────────────────────────────────────────
- * Três detalhes de papelaria, e nenhum deles é enfeite de tela:
- *   · a aba é FORRADA. Por fora é papel claro, por dentro é azul profundo, que
- *     é o detalhe que uma gráfica cobra caro para fazer. Fechada só se vê o
- *     papel; ao abrir, o forro aparece. É a mesma peça contando que tem um
- *     dentro;
- *   · o LACRE é cera de verdade, não relevo apagado: disco navy com o
- *     monograma afundado. Ele é o único ponto escuro sobre o papel, então é
- *     para onde o olho vai primeiro, e é exatamente o que precisa ser rompido;
- *   · o papel tem GRÃO e tem ARESTA (fio de luz em cima, sombra embaixo). Sem
- *     isso, branco em tela é cor chapada, não material.
+ * A separação vem de VALOR: papel greige sobre mesa quase preta recorta
+ * sozinho. A versão anterior era navy sobre navy e por isso precisava de fio de
+ * luz, grão reforçado e sombra funda só para o objeto não virar mancha: ela
+ * resolvia um problema que ela mesma criava. Fora isso, três detalhes de
+ * papelaria, e nenhum deles é enfeite de tela:
+ *   · a aba é FORRADA. Por fora é papel claro, por dentro é tinta. Fechada só
+ *     se vê o papel; ao abrir, o forro escuro aparece, e é contra ele que a
+ *     carta clara sai;
+ *   · o LACRE é cera escura: o único ponto escuro sobre o papel, então é para
+ *     onde o olho vai primeiro, e é exatamente o que precisa ser rompido;
+ *   · o papel tem GRÃO e tem duas sombras, uma de contato e uma de ambiente.
+ *     Sobre campo quase preto a sombra é a única coisa que diz "flutuando".
  *
  * ── a cena, e por que ela é esta ────────────────────────────────────────────
- *   60ms   as folhas de baixo caem, levemente tortas: o envelope tem ESPESSURA
+ *   0ms    a mesa ACENDE: a aurora sobe do preto. As faixas já correm;
+ *   80ms   as folhas de baixo caem, levemente tortas: o envelope tem ESPESSURA
  *          antes de ter texto;
- *   140ms  o envelope CHEGA, girado e de baixo, e assenta. Não é fade: papel
+ *   220ms  o envelope CHEGA, girado e de baixo, e assenta. Não é fade: papel
  *          pousa, não materializa. E chega ABERTO, mostrando o forro;
- *   420ms  a etiqueta é BATIDA letra por letra, como carimbo de correio;
- *   560ms  o nome do cliente é composto palavra por palavra, subindo de dentro
- *          do papel;
- *   620ms  ao mesmo tempo, a ABA CAI e se fecha, com um quique curto de papel.
- *          As duas coisas acontecem juntas de propósito: em sequência, o
- *          envelope ficava meio segundo em branco esperando a vez do texto;
- *   1100ms o convite recebe o foco e o botão está clicável;
- *   1340ms com a aba já baixada, o LACRE PRENSA e o papel devolve duas ondas;
- *   1820ms a luz de foil atravessa o nome, uma vez;
- *   2900ms daí em diante o envelope RESPIRA. Peça parada em tela cheia lê como
+ *   620ms  a etiqueta é BATIDA letra por letra, como carimbo de correio;
+ *   900ms  a ABA CAI e se fecha, com um quique curto de papel;
+ *   940ms  ao mesmo tempo, o nome do cliente é DATILOGRAFADO, com um cursor que
+ *          viaja com a batida. As duas coisas acontecem juntas de propósito: em
+ *          sequência, o envelope ficava meio segundo em branco esperando o
+ *          texto;
+ *   1150ms o botão está em cena, aceso;
+ *   1250ms o convite recebe o foco;
+ *   1700ms com a aba já baixada, o LACRE PRENSA e o monograma GRAVA junto:
+ *          cera cedendo e letra endurecendo são uma coisa só;
+ *   1980ms o papel devolve duas ondas ao carimbo;
+ *   2500ms a luz de foil atravessa o nome, uma vez. O pico da cena;
+ *   3700ms daí em diante o envelope RESPIRA. Peça parada em tela cheia lê como
  *          imagem; o movimento lento é o que a mantém objeto.
+ *
+ * O botão NUNCA é travado: Enter, Esc e o clique valem desde 0ms. As regras
+ * `.convite-saindo .x` têm especificidade maior e substituem a chegada, então
+ * clicar no meio da montagem corta para o repouso e a abertura parte dali.
  *
  * ── a abertura, no clique ───────────────────────────────────────────────────
  *   0ms    o lacre se rompe (cresce, gira e some);
@@ -124,7 +142,7 @@ export function Convite({
        lugar. */
     const t = window.setTimeout(
       () => cenaRef.current?.focus({ preventScroll: true }),
-      menos ? 0 : 1100,
+      menos ? 0 : 1250,
     );
     const aoTeclar = (e: KeyboardEvent) => {
       if (e.key === "Escape" || e.key === "Enter") aoAbrir();
@@ -183,11 +201,26 @@ export function Convite({
   }, []);
 
   /**
-   * O nome quebrado em palavras, cada uma na sua janela de recorte: a palavra
-   * sobe de dentro do papel, como tipo sendo composto. Palavra, e não
-   * caractere, porque caractere vira máquina de escrever, que é outro registro.
+   * O nome é DATILOGRAFADO, letra a letra, com um cursor que viaja com a
+   * batida. O registro de máquina de escrever é uma escolha, não um descuido:
+   * ele diz que a peça está sendo preparada AGORA, na frente de quem abriu.
+   *
+   * Cada PALAVRA é uma caixa `nowrap`: sem isso o navegador quebra entre dois
+   * `inline-block` quaisquer e "Transportadora" chega partida no meio.
+   *
+   * O passo tem TETO. Com nome longo, `min()` aperta a cadência para a
+   * datilografia terminar ANTES da luz de foil (2500ms), e não depois dela.
    */
   const palavras = empresa.trim().split(/\s+/);
+  const totalLetras = palavras.reduce((n, p) => n + p.length, 0);
+  const passo = Math.min(38, Math.round(860 / Math.max(totalLetras, 1)));
+  /* Quantas letras vieram ANTES de cada palavra: é o que dá a posição de cada
+     batida na fila. Derivado aqui, e não acumulado dentro do `map`, porque
+     mutar durante a renderização é justamente o que o compilador do React
+     recusa. */
+  const antesDe = palavras.map((_, i) =>
+    palavras.slice(0, i).reduce((n, p) => n + p.length, 0),
+  );
 
   return (
     <>
@@ -220,6 +253,37 @@ export function Convite({
           style={{ backgroundImage: `url("${GRAO}")`, backgroundRepeat: "repeat" }}
         />
 
+        {/* CAMADA 1: as faixas. Correm ATRÁS do envelope e são ocluídas por ele,
+            e é a oclusão, e não a velocidade, que cria a profundidade no toque.
+            A pista carrega o conteúdo DUAS vezes: andar meia pista é o laço
+            perfeito, sem emenda. */}
+        <div aria-hidden className="convite-faixa convite-faixa-alta">
+          <div className="convite-faixa-pista">
+            {[0, 1].map((copia) => (
+              <span key={copia}>
+                Proposta comercial
+                <i className="convite-pastilha" />
+                Preparada para você
+                <i className="convite-pastilha" />
+              </span>
+            ))}
+          </div>
+        </div>
+        <div aria-hidden className="convite-faixa convite-faixa-baixa">
+          <div className="convite-faixa-pista">
+            {[0, 1].map((copia) => (
+              <span key={copia}>
+                Confidencial
+                <i className="convite-pastilha" />
+                SoftCode
+                <i className="convite-pastilha" />
+                Documento único
+                <i className="convite-pastilha" />
+              </span>
+            ))}
+          </div>
+        </div>
+
         {/* O palco carrega a PARALAXE, o envelope dentro dele carrega a CHEGADA.
             São dois `transform` em dois elementos porque um só sobrescreveria o
             outro, e a paralaxe mataria a animação de entrada. */}
@@ -227,8 +291,8 @@ export function Convite({
           <div className="convite-peca">
             {/* Espessura: duas folhas por baixo, afinando e levemente tortas. */}
             <div aria-hidden className="convite-pilha">
-              <span style={{ animationDelay: "60ms" }} />
-              <span style={{ animationDelay: "120ms" }} />
+              <span style={{ animationDelay: "80ms" }} />
+              <span style={{ animationDelay: "150ms" }} />
             </div>
 
             {/* `perspective` mora aqui e `preserve-3d` no filho: é o par que faz
@@ -242,7 +306,13 @@ export function Convite({
                 </div>
 
                 {/* A FRENTE do envelope: é ela que leva o endereçamento. */}
-                <article className="convite-frente cartao-luz">
+                <article className="convite-frente">
+                  {/* O verniz: o brilho largo que passeia no papel quando o
+                      mouse anda. Substitui `.cartao-luz`, que pintava um halo
+                      azul em `z-index: -1` e era invisível debaixo de papel
+                      opaco. Em repouso fica parado no centro; quem o faz seguir
+                      o ponteiro é o CSS, em ponteiro fino. */}
+                  <span aria-hidden className="convite-verniz" />
                   <span
                     aria-hidden
                     className="convite-grao"
@@ -265,7 +335,7 @@ export function Convite({
                           <span
                             key={`${letra}-${i}`}
                             className="convite-letra"
-                            style={{ animationDelay: `${420 + i * 26}ms` }}
+                            style={{ animationDelay: `${620 + i * 26}ms` }}
                           >
                             {letra === " " ? " " : letra}
                           </span>
@@ -276,27 +346,52 @@ export function Convite({
                     {/* `relative` é para a camada de luz: ela é absoluta sobre o
                         nome e precisa da MESMA caixa, senão a largura de
                         referência dos dois translates deixa de bater e o
-                        reflexo desalinha. */}
-                    <h1 className="tipo-display convite-nome relative">
-                      {palavras.map((palavra, i) => (
-                        /* O espaço fica FORA da caixa de recorte. Dentro dela
-                           ele é cortado pelo `overflow: hidden` junto com o
-                           resto, e "Barba Log" chega como "BarbaLog". */
-                        <Fragment key={`${palavra}-${i}`}>
-                          <span className="palavra-clip convite-caixa">
-                            <span
-                              className="convite-palavra"
-                              style={{ animationDelay: `${560 + i * 70}ms` }}
-                            >
-                              {palavra}
-                            </span>
-                          </span>
-                          {i < palavras.length - 1 ? " " : null}
-                        </Fragment>
-                      ))}
+                        reflexo desalinha.
 
-                      {/* A cópia iluminada é TEXTO PURO, sem as caixas de
-                          recorte do original, e isso não é descuido:
+                        `tipo-display` NÃO entra aqui: o nome tem face própria
+                        (Bodoni), declarada em `.convite-nome`. A classe traria a
+                        Fraunces de volta e a cor via `--ctx-titulo`. */}
+                    <h1
+                      className="convite-nome relative"
+                      style={{ "--passo": `${passo}ms` } as React.CSSProperties}
+                    >
+                      {/* O texto de verdade vai num `sr-only` e a versão fatiada
+                          é `aria-hidden`: leitor de tela com o nome picado em
+                          spans soletra letra por letra. */}
+                      <span className="sr-only">{empresa}</span>
+
+                      <span aria-hidden>
+                        {palavras.map((palavra, p) => (
+                          /* O espaço fica FORA da caixa `nowrap`: dentro dela
+                             ele participaria do não-quebrar e o nome inteiro
+                             viraria uma linha só. */
+                          <Fragment key={`${palavra}-${p}`}>
+                            <span className="convite-palavra-nome" data-nome>
+                              {[...palavra].map((letra, i) => (
+                                <span
+                                  key={`${letra}-${i}`}
+                                  className="convite-tecla"
+                                  style={{
+                                    animationDelay: `${940 + (antesDe[p] + i) * passo}ms`,
+                                  }}
+                                >
+                                  {letra}
+                                </span>
+                              ))}
+                            </span>
+                            {p < palavras.length - 1 ? " " : null}
+                          </Fragment>
+                        ))}
+
+                        {/* O cursor que sobra no fim: pisca três vezes e morre. */}
+                        <span
+                          className="convite-cursor"
+                          style={{ animationDelay: `${940 + totalLetras * passo}ms` }}
+                        />
+                      </span>
+
+                      {/* A cópia iluminada é TEXTO PURO, sem os spans por letra
+                          do original, e isso não é descuido:
                           `background-clip: text` recorta o gradiente no texto do
                           PRÓPRIO elemento, e texto que mora dentro de um
                           `inline-block` filho não entra nessa conta. Com as
@@ -311,10 +406,10 @@ export function Convite({
                     {/* Linhas inteiras subindo de dentro de um recorte: é o
                         mesmo gesto do nome, num grau abaixo. */}
                     <p className="convite-linha linha-clip">
-                      <span style={{ animationDelay: "900ms" }}>{projeto}</span>
+                      <span style={{ animationDelay: "2240ms" }}>{projeto}</span>
                     </p>
                     <p className="convite-linha convite-linha-fraca linha-clip">
-                      <span style={{ animationDelay: "970ms" }}>Aos cuidados de {contato}</span>
+                      <span style={{ animationDelay: "2320ms" }}>Aos cuidados de {contato}</span>
                     </p>
                   </div>
 

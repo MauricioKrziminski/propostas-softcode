@@ -88,10 +88,35 @@ proposta**, o seed atual é a proposta real da Barba Log, não um exemplo.
   abaixo do bloco anula o `display: flex` de dentro dele e o elemento nunca
   aparece: foi exatamente assim que o cabeçalho fixo ficou invisível por uma
   fase inteira sem ninguém notar.
-- **O convite é um ENVELOPE LACRADO sobre fundo noite.** O fundo escuro não é
-  gosto: é o que faz o papel claro brilhar e o que dá contraste à abertura. O
-  lacre também não é enfeite: aqui a autorização é a posse do token na URL, e
-  lacre diz exatamente "preparado para você, ninguém abriu antes".
+- **O convite é um ENVELOPE CLARO sobre uma mesa quase preta e VIVA.** A
+  separação vem de VALOR (papel greige `#ddd3c4` sobre `#04070c`), e não de fio
+  de luz na aresta. A versão anterior era navy sobre navy e por isso precisava
+  de fio de luz, grão reforçado e sombra funda só para o objeto não virar
+  mancha: ela resolvia um problema que ela mesma criava. E o lacre não é
+  enfeite: aqui a autorização é a posse do token na URL, e lacre diz exatamente
+  "preparado para você, ninguém abriu antes".
+- **Quatro camadas, cada uma com TETO de contraste.** É o teto por camada, e não
+  a quantidade de efeitos, que separa cena rica de ruído: atmosfera (a aurora),
+  contexto (as faixas), objeto (o envelope, o único nítido) e ação (o botão). A
+  luz que se move é o que mantém a silhueta recortada continuamente, e não só no
+  primeiro quadro.
+- **As faixas são DUAS, em sentidos opostos, e ocluídas pelo envelope.** A
+  oclusão é a profundidade que o toque não pode ter por paralaxe de ponteiro. A
+  pista carrega o conteúdo duas vezes e anda meia pista: é o laço perfeito. Ela
+  é `max-content`, ou seja, muito mais larga que a tela, e quem a segura é o
+  `overflow: hidden` da própria faixa. O teto de contraste foi MEDIDO na tela:
+  8% e 6% somem por completo sobre `#04070c`, e o que lê como camada desenhada
+  sem competir com o envelope é 24% e 17%.
+- **Laço ambiente NÃO é gesto.** Aurora, faixas e brasa têm velocidade constante
+  e contraste com teto, então não disputam atenção. O teto é de um GESTO
+  one-shot por elemento, e o pico da cena continua sendo a luz de foil
+  atravessando o nome, uma vez, aos 2500ms.
+- **Os sete laços PARAM em `.convite-saindo`.** Os 1100ms da abertura são o
+  quadro mais caro do produto, e ele não pode dividir a GPU com animações
+  ociosas atrás de uma carta que já cobre a tela.
+- **Nada de `filter: blur()` nas camadas ambientes.** Gradiente radial já nasce
+  macio. Blur numa camada do tamanho da viewport é o único efeito desta cena que
+  não cabe num Android médio em 4G, e é invisível no desktop de quem escreve.
 - **É a face de TRÁS do envelope, não a da frente.** A frente (retângulo com um
   V no topo) é o desenho de "e-mail" de qualquer barra de aplicativo, e não tem
   como fugir disso mantendo a frente: quanto mais o V some, menos parece
@@ -103,27 +128,79 @@ proposta**, o seed atual é a proposta real da Barba Log, não um exemplo.
   retângulo é composição de cartão de visita; envelope endereçado tem o bloco do
   destinatário à esquerda e o lacre no eixo do papel. São dois eixos diferentes,
   e é essa tensão que faz a peça parecer desenhada em vez de empilhada.
-- **A aba de trás não passa de 36% e o bloco começa abaixo do lacre.** O lacre
-  mora no vértice da aba, e com nome de cliente de duas linhas o bloco cresce
-  para cima: aba mais funda empurra o carimbo para cima da etiqueta. O
-  `valida:mobile` troca o nome no DOM por um longo e mede de novo, porque a
-  proposta semeada tem nome curto e a checagem passaria no vácuo.
-- **O papel do envelope é ESCURO e o forro dele é claro.** Papelaria de alto
-  padrão faz exatamente isso, e no produto resolve três coisas de uma vez: o
-  envelope deixa de ser mais um retângulo branco entre outros retângulos brancos
-  e vira objeto; a carta que sai de dentro é BRANCA, então a saída ganha o
-  contraste que faltava (papel claro emergindo de papel escuro, e não branco
-  saindo de branco); e o lacre inverte junto, de cera escura para cera perolada,
-  voltando a ser a coisa mais clara da peça, que é onde o olho precisa ir. A
-  tinta é clara sobre escuro: é impressão em foil, não em preto.
-- **A mesa precisa ser mais ESCURA que o envelope**, senão objeto escuro sobre
-  fundo escuro vira mancha. E o recorte vem da ARESTA: fio de luz na borda de
-  cima e nas laterais, sombra funda embaixo. Sem isso o envelope encosta no
-  fundo e some. Em papel escuro o grão também precisa de mais opacidade: é ele
-  que impede o navy de virar plástico.
+- **`aspect-ratio: 1.16`, aba de 34%, e o bloco ANCORADO abaixo do lacre.** 1.06
+  é quase quadrado e lê como cartão; 1.24 lê como envelope mas tira 48px de
+  altura útil, e com nome de cliente longo o endereçamento sobe e o lacre cai em
+  cima da etiqueta (medido). E o bloco é `justify-content: flex-start`, não
+  `center`: centralizado ele cresce para os DOIS lados e a colisão volta.
+  Ancorado no topo ela deixa de ser possível. Mexer no `aspect-ratio` obriga a
+  re-medir o quadro de 820ms da saída, porque a cobertura da tela depende do
+  `scale` de `convite-entrar-na-carta`.
+- **O caso que aperta é NOME LONGO, e a proposta semeada tem nome curto.** O
+  `valida:mobile` troca o nome no DOM por um de 41 caracteres e mede de novo,
+  senão a checagem passa no vácuo. Ele solta o `white-space: nowrap` antes de
+  trocar (sem isso vira uma linha só e o portão `linhas >= 2` acusa) e mede a
+  ÚLTIMA LINHA, não a caixa: o bloco é `flex-start`, então o conteúdo transborda
+  a caixa e medir a caixa deixava passar texto caindo em cima do rodapé.
+- **O forro da aba é de TINTA e a carta é BRANCA.** Fechada só se vê o papel
+  claro; ao girar, o forro escuro aparece, e é contra ele que a carta clara sai.
+  Papelaria de alto padrão faz exatamente isso, e no produto ele paga uma segunda
+  conta: dá o que ver durante a rotação, que de outro modo seria um triângulo
+  liso girando.
+- **Cera ESCURA sobre papel claro.** É o único ponto escuro da peça, então é
+  para lá que o olho vai primeiro, e é exatamente o que precisa ser rompido. Em
+  papel CLARO o grão é `multiply` a 0.055, nunca `overlay` a 0.09: overlay lava
+  a cor e o greige vira quase branco.
 - **Cera MATE, nunca pastilha.** Gradiente radial forte mais anel de luz dura
   transformam o lacre num botão de interface. Cera de verdade tem a luz
   espalhada e a borda um pouco irregular, não brilho especular no canto.
+- **A face do convite é a Bodoni Moda, e ela só é possível com papel CLARO.**
+  Hairline de didone morre em texto claro sobre fundo escuro: direção e
+  tipografia se justificam uma à outra. `opsz` 44 no nome e não 96, porque em
+  24px num telefone a hairline de 96 some no anti-aliasing. A proposta continua
+  em Fraunces; a Bodoni não sai do convite.
+- **A fonte do convite é declarada no escopo do módulo de `Convite.tsx`,** para
+  as rotas do painel não pagarem o preload. Consequência de encanamento que já
+  custou uma sessão: `--font-convite` PRECISA ser declarada dentro de
+  `#convite`, e não só no `@theme`. Custom property é substituída no computado
+  do elemento onde é declarada, e lá no `:root` do `@theme` a `--fonte-convite`
+  do next/font ainda não existe: o valor inteiro vira inválido e desce inválido
+  por herança. O nome do cliente saía em Satoshi e nada acusava.
+- **O nome do cliente é DATILOGRAFADO, e cada palavra é uma caixa `nowrap`.**
+  Sem o `nowrap` o navegador quebra entre dois `inline-block` quaisquer e o nome
+  chega partido no meio. O texto de verdade fica num `sr-only` e a versão
+  fatiada é `aria-hidden`: leitor de tela com o nome picado em spans soletra
+  letra por letra. O passo tem TETO (`min(38, 860/n)`) para nome longo terminar
+  ANTES da luz de foil, não depois. O cursor nasce em `opacity: 0`: parado, ele
+  é um risco azul cravado no nome, a mesma classe de defeito da onda do carimbo.
+- **O cursor de cada letra precisa de `animation-delay: inherit`.**
+  Pseudo-elemento não herda o `animation-delay` inline do pai por conta própria,
+  e a forma abreviada de `animation` ainda zera o atraso. Sem essa linha todos os
+  cursores piscam juntos em t=0 e o "cursor que viaja" simplesmente não viaja,
+  sem nada acusar.
+- **UM eixo de fonte animado, e só no monograma do lacre.**
+  `font-variation-settings` não é `transform` nem `opacity`, e `opsz` muda a
+  LARGURA de avanço dos glifos: no `<h1>` do nome isso reflui o bloco a cada
+  quadro, com `text-wrap: balance` recalculando junto, num telefone de 390px.
+  Por isso os eixos do nome são ESTÁTICOS. No monograma são dois glifos dentro
+  de um `grid` de tamanho fixo, o refluxo não sai da célula, e a metáfora é
+  exata: cera prensada, letra gravada. O `valida:mobile` varre
+  `document.getAnimations()` do `#convite` e exige que toda propriedade animada
+  seja `transform`, `opacity`, `--brilho` ou este `font-variation-settings`.
+- **O tilt de ponteiro mora no `.convite-palco`, e só ali.** `.convite-peca`
+  carrega a respiração, `.convite-envelope` a chegada e `.convite-3d` a câmera
+  da saída: transform em qualquer um deles cancela uma animação. E NADA de
+  `preserve-3d` no palco: sem ele o subtree é achatado, o 3D interno do envelope
+  continua resolvendo sozinho e o `elementFromPoint` no lacre não muda de
+  resposta. Pegadinha: `perspective()` na lista faz o computado virar
+  `matrix3d`, e quem lê deslocamento casando `matrix(1, 0, 0, 1, tx` passa a
+  receber 0 e falha CALADO. O validador lê m41 dos dois formatos por causa disso.
+- **A cena dura 3,4s e o botão NUNCA é travado.** Enter, Esc e o clique valem
+  desde 0ms: as regras `.convite-saindo .x` têm especificidade maior e
+  substituem a chegada, então clicar no meio da montagem corta para o repouso e
+  a abertura parte dali. O corte é seco (a aba fecha de estalo, o lacre cai de
+  escala) e isso é aceito; o que não pode é geometria quebrada. `SAIDA_MS`
+  continua 1100: a cascata de saída é intocada.
 - **A troca de face da aba é por OPACIDADE dentro dos keyframes da rotação, não
   por `backface-visibility`.** Com as duas faces em `preserve-3d`, uma girada
   180 graus e as duas com `backface-visibility: hidden`, o computado sai
@@ -194,15 +271,16 @@ proposta**, o seed atual é a proposta real da Barba Log, não um exemplo.
   ponteiro fino: nenhum teste em viewport de celular pega essa classe de defeito.
 - **O gesto memorável é UM: a luz de foil atravessando o nome do cliente**, que
   aqui é o endereço do envelope. Uma vez, sem repetir no hover nem no toque, e só
-  DEPOIS de o convite já estar focado (1350ms). Referência premiada gasta de 1,5s
-  a 4,5s porque é portfólio; aqui o cliente veio de um toque no WhatsApp em 4G.
+  DEPOIS de o convite já estar montado e focado (2500ms). Referência premiada
+  gasta de 1,5s a 4,5s porque é portfólio; aqui o cliente veio de um toque no
+  WhatsApp em 4G, e por isso o botão está clicável desde o primeiro quadro.
 - **A luz do nome é recorte de texto com DUAS animações que se cancelam.** A
   janela mascarada anda para um lado e o texto dentro dela anda para o outro,
   mesma largura e mesmo tempo, então só a luz viaja. É o jeito de recortar o
   brilho nos glifos sem animar `background-position` (e `mask-image` nem
   interpola, é propriedade discrete). A cópia iluminada é texto PURO:
   `background-clip: text` não enxerga texto dentro de `inline-block` filho, e com
-  as caixas de recorte do original a camada simplesmente não aparecia. O `<h1>` é
+  os spans por letra da datilografia a camada simplesmente não aparecia. O `<h1>` é
   `fit-content`, senão metade do percurso da luz varre espaço vazio ao lado do
   nome. E `-webkit-text-fill-color` vai junto de `color`: no Safari o segundo
   sozinho não apaga o texto.

@@ -536,7 +536,14 @@ const capa = await pgCapa.evaluate(() => {
   const luz = document.querySelector(".convite-foil");
   const onda = document.querySelector(".convite-onda");
   const lacre = document.querySelector(".convite-lacre");
-  const palavras = [...document.querySelectorAll("#convite .convite-caixa > span")];
+  /* O nome é datilografado, então a unidade é a LETRA. O seletor antigo
+     (`.convite-caixa > span`) não existe mais: deixado como estava, ele
+     devolveria lista vazia e a checagem passaria no vácuo. */
+  const letras = [...document.querySelectorAll("#convite [data-nome] .convite-tecla")];
+  const cursores = [
+    document.querySelector("#convite .convite-cursor"),
+    ...[...document.querySelectorAll("#convite .convite-tecla")].slice(0, 1),
+  ];
   const parado = (e) =>
     ["none", "matrix(1, 0, 0, 1, 0, 0)"].includes(getComputedStyle(e).transform);
   return {
@@ -555,11 +562,23 @@ const capa = await pgCapa.evaluate(() => {
        lacre parado no meio da prensa é um selo gigante estourando o cartão. */
     ondaApagada: onda ? parseFloat(getComputedStyle(onda).opacity) === 0 : false,
     lacreAssentado: lacre ? parado(lacre) : false,
-    palavras: palavras.length,
-    escondidas: palavras.filter((e) => {
+    letras: letras.length,
+    escondidas: letras.filter((e) => {
       const s = getComputedStyle(e);
       return parseFloat(s.opacity) < 0.99 || !["none", "matrix(1, 0, 0, 1, 0, 0)"].includes(s.transform);
     }).length,
+    /* Cursor parado e aceso é um risco azul cravado no meio do nome do cliente:
+       a mesma classe de defeito da onda do carimbo. */
+    cursorApagado:
+      parseFloat(getComputedStyle(cursores[0]).opacity) === 0 &&
+      parseFloat(getComputedStyle(cursores[1], "::after").opacity) === 0,
+    /* As faixas PARAM com reduced-motion, mas continuam visíveis: elas são
+       fundo impresso, não movimento. */
+    faixasVisiveis: [".convite-faixa-alta", ".convite-faixa-baixa"].every(
+      (sel) => parseFloat(getComputedStyle(document.querySelector(sel)).opacity) > 0,
+    ),
+    /* Um `--font-convite` não mapeado degrada para Georgia sem nada acusar. */
+    nomeEmBodoni: /bodoni/i.test(getComputedStyle(document.querySelector(".convite-nome")).fontFamily),
     animando: [...document.querySelectorAll("#convite *")].filter(
       (e) => getComputedStyle(e).animationName !== "none",
     ).length,
@@ -572,7 +591,10 @@ checar(capa.achouLacre, "o lacre e a onda existem no DOM", "seletores do lacre v
 checar(capa.ondaApagada, "onda do carimbo apagada com reduced-motion", "a onda ficou parada como anel azul em volta do lacre");
 checar(capa.lacreAssentado, "lacre assentado com reduced-motion", "o lacre ficou parado no meio da prensa, em escala grande");
 checar(capa.abaFechada, "aba do envelope fechada com reduced-motion", "a aba ficou parada no meio do giro, flutuando fora do envelope");
-checar(capa.palavras > 0 && capa.escondidas === 0, `nome inteiro visível (${capa.palavras} palavra(s))`, "palavra do nome escondida com reduced-motion");
+checar(capa.letras > 0 && capa.escondidas === 0, `nome inteiro visível (${capa.letras} letra(s))`, "letra do nome escondida com reduced-motion");
+checar(capa.cursorApagado, "cursor da datilografia apagado com reduced-motion", "o cursor ficou parado e aceso, como um risco azul dentro do nome");
+checar(capa.faixasVisiveis, "as faixas continuam visíveis com reduced-motion", "as faixas sumiram: elas são fundo impresso, não movimento");
+checar(capa.nomeEmBodoni, "o nome do cliente sai na face do convite (Bodoni)", "o nome caiu no fallback: --font-convite não chegou ao elemento");
 checar(capa.animando === 0, "nada animando na capa", `${capa.animando} elemento(s) da capa ainda animam`);
 checar(capa.botao, "a capa tem botão para dispensar", "sem <button> dentro de #convite: o convite viraria beco sem saída");
 
@@ -614,19 +636,29 @@ checar(composicao.enderecoDentro, "o endereçamento cabe dentro do envelope", "o
    passa mesmo com a geometria errada. Em vez de semear outra proposta só para
    isto, o nome é trocado no DOM e a composição é medida de novo. */
 const comNomeLongo = await pgCapa.evaluate(() => {
-  const caixas = [...document.querySelectorAll("#convite .convite-caixa")];
-  caixas[0].querySelector("span").textContent = "Transportadora Almeida e Filhos Logística";
-  caixas.slice(1).forEach((e) => e.remove());
+  const palavras = [...document.querySelectorAll("#convite [data-nome]")];
+  /* Cada palavra é uma caixa `nowrap`. Sem soltar isso, a frase inteira vira UMA
+     linha, o nome estoura o envelope, e o próprio portão `linhas >= 2` acusa que
+     a checagem parou de exercitar o caso que aperta. */
+  palavras[0].style.whiteSpace = "normal";
+  palavras[0].textContent = "Transportadora Almeida e Filhos Logística";
+  palavras.slice(1).forEach((e) => e.remove());
+  document.querySelector("#convite .convite-cursor")?.remove();
   const cx = (s) => document.querySelector(s).getBoundingClientRect();
   const lacre = cx(".convite-lacre-area");
   const etiqueta = cx(".convite-etiqueta");
   const rodape = cx(".convite-canto-esq");
   const endereco = cx(".convite-endereco");
   const nome = cx("#convite h1");
+  /* A ÚLTIMA LINHA, e não a caixa. O bloco é `flex-start`, então com nome longo
+     o conteúdo transborda a caixa: medir a caixa deixava passar texto de verdade
+     caindo em cima do rodapé. */
+  const ultima = document.querySelector(".convite-endereco").lastElementChild.getBoundingClientRect();
   return {
     linhas: Math.round(nome.height / parseFloat(getComputedStyle(document.querySelector(".convite-nome")).lineHeight)),
     lacreLivre: lacre.bottom <= etiqueta.top + 1,
-    rodapeLivre: endereco.bottom <= rodape.top + 1,
+    rodapeLivre: ultima.bottom <= rodape.top + 1,
+    caixa: Math.round(endereco.height),
   };
 });
 checar(
@@ -670,7 +702,9 @@ const ANIMACOES_DA_ABERTURA = [
 const ctxConvite = await navegador.newContext({ ...iPhone });
 const pgConvite = await ctxConvite.newPage();
 await pgConvite.goto(BASE + CAMINHO, { waitUntil: "networkidle" });
-await pgConvite.waitForTimeout(2400);
+/* 3600ms: a cena vai até 3400ms (a luz de foil fecha em 2500 + 900). Esperar os
+   2400ms de antes fotografava a peça no meio da montagem. */
+await pgConvite.waitForTimeout(3600);
 await pgConvite.screenshot({ path: `${SAIDA}/390-convite.png` });
 
 /* O envelope precisa CHEGAR ABERTO e se fechar: é a animação da peça em si, e
@@ -691,7 +725,8 @@ const grausDaAba = async (pagina) =>
     return m ? Math.round((Math.atan2(+m[2], +m[1]) * 180) / Math.PI) : 0;
   });
 const abaNoComeco = await grausDaAba(pgAba);
-await pgAba.waitForTimeout(1500);
+/* A aba fecha de 900ms a 1660ms. 300 + 2000 lê em 2300ms, com folga. */
+await pgAba.waitForTimeout(2000);
 const abaNoFim = await grausDaAba(pgAba);
 checar(
   abaNoComeco < -90,
@@ -700,6 +735,117 @@ checar(
 );
 checar(Math.abs(abaNoFim) <= 2, "e a aba assenta fechada", `a aba parou em ${abaNoFim}°`);
 await ctxAba.close();
+
+/* ───────── as camadas de AMBIENTE do convite ─────────
+
+   Aurora, faixas e a brasa do botão são camada 0, 1 e 3: elas não pedem
+   atenção, e é justamente por isso que morrem num refactor sem ninguém ver. As
+   quatro checagens abaixo existem porque nenhuma delas falharia sozinha. */
+const ambiente = await pgConvite.evaluate(async () => {
+  const espera = (ms) => new Promise((r) => setTimeout(r, ms));
+  const m41 = (sel) => {
+    const t = getComputedStyle(document.querySelector(sel)).transform;
+    const m = t.match(/^matrix\([-\d.e+]+, [-\d.e+]+, [-\d.e+]+, [-\d.e+]+, (-?[\d.e+]+)/);
+    return m ? Number(m[1]) : 0;
+  };
+  const antesA = m41(".convite-faixa-alta .convite-faixa-pista");
+  const antesB = m41(".convite-faixa-baixa .convite-faixa-pista");
+  await espera(400);
+  const foco = document.querySelector(".convite-foco");
+  const doc = document.documentElement;
+  return {
+    deltaA: m41(".convite-faixa-alta .convite-faixa-pista") - antesA,
+    deltaB: m41(".convite-faixa-baixa .convite-faixa-pista") - antesB,
+    auroraA: getComputedStyle(foco, "::before").animationName,
+    auroraB: getComputedStyle(foco, "::after").animationName,
+    brasa: getComputedStyle(document.querySelector(".convite-acao"), "::before").animationName,
+    /* A pista da faixa é `max-content`, ou seja, muito mais larga que a tela. A
+       checagem de overflow lá em cima roda DEPOIS de dispensar o convite, então
+       ela nunca olhou para esta tela. É a falha clássica de marquee. */
+    estoura: doc.scrollWidth > doc.clientWidth + 1,
+    largura: doc.scrollWidth,
+  };
+});
+checar(
+  ambiente.deltaA * ambiente.deltaB < 0,
+  `as faixas correm em sentidos opostos (${ambiente.deltaA.toFixed(1)} e ${ambiente.deltaB.toFixed(1)})`,
+  "as faixas andam para o mesmo lado, ou pararam: a contra-esteira é a profundidade da cena",
+);
+checar(
+  ambiente.auroraA === "convite-aurora-a" && ambiente.auroraB === "convite-aurora-b",
+  "a aurora da mesa está andando nas duas manchas",
+  "a aurora parou: a mesa volta a ser um retângulo preto e a silhueta perde o recorte contínuo",
+  `${ambiente.auroraA} / ${ambiente.auroraB}`,
+);
+checar(ambiente.brasa === "convite-brasa", "a brasa do botão respira", "a brasa do CTA parou");
+checar(!ambiente.estoura, "a capa não rola de lado", `a faixa estourou a tela (${ambiente.largura}px)`);
+
+/* ───────── o orçamento de propriedades animadas ─────────
+
+   Só `transform` e `opacity` animam nesta tela, mais duas exceções nomeadas:
+   `--brilho` (o ângulo interpolável do anel de metal) e `font-variation-settings`
+   no monograma do lacre, que é a emenda documentada no CLAUDE.md. Qualquer
+   terceira propriedade animada aqui é defeito de custo, não de gosto, e até hoje
+   nada guardava essa regra. */
+const propriedades = await pgConvite.evaluate(() => {
+  const permitido = new Set(["transform", "opacity", "--brilho"]);
+  const fora = [];
+  for (const a of document.getAnimations()) {
+    const alvo = a.effect?.target;
+    if (!alvo || !alvo.closest?.("#convite")) continue;
+    for (const q of a.effect.getKeyframes()) {
+      for (const prop of Object.keys(q)) {
+        if (["offset", "computedOffset", "easing", "composite"].includes(prop)) continue;
+        if (permitido.has(prop)) continue;
+        if (prop === "fontVariationSettings" && alvo.classList.contains("convite-lacre-marca")) continue;
+        fora.push(`${(alvo.className || "").toString().split(" ")[0] || alvo.tagName}:${prop}`);
+      }
+    }
+  }
+  return [...new Set(fora)];
+});
+checar(
+  propriedades.length === 0,
+  "só transform e opacity animam no convite (mais as duas exceções nomeadas)",
+  `${propriedades.length} propriedade(s) fora do orçamento`,
+  propriedades.join(", "),
+);
+
+/* ───────── contraste da tinta sobre o papel ─────────
+
+   O papel virou CLARO e a tinta virou escura: é a inversão inteira da peça. "O
+   nome do cliente ficou invisível" já aconteceu neste arquivo uma vez, com as
+   cores no sentido contrário, e nada no validador teria pego. */
+const contraste = await pgConvite.evaluate(() => {
+  const canal = (c) => {
+    const v = c / 255;
+    return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+  };
+  const lum = (cor) => {
+    const [r, g, b] = cor.match(/[\d.]+/g).map(Number);
+    return 0.2126 * canal(r) + 0.7152 * canal(g) + 0.0722 * canal(b);
+  };
+  /* O papel é um GRADIENTE, então `backgroundColor` da frente vem
+     `rgba(0, 0, 0, 0)` e a conta daria contraste contra preto: a primeira
+     versão desta checagem reprovou a peça inteira medindo tinta escura contra
+     um fundo que não existe. A cor de referência é o token do papel. */
+  const hex = getComputedStyle(document.querySelector("#convite")).getPropertyValue("--papel").trim();
+  const fundo = lum(
+    `rgb(${parseInt(hex.slice(1, 3), 16)}, ${parseInt(hex.slice(3, 5), 16)}, ${parseInt(hex.slice(5, 7), 16)})`,
+  );
+  return [".convite-nome", ".convite-etiqueta", ".convite-canto-esq", ".convite-linha"].map((sel) => {
+    const l = lum(getComputedStyle(document.querySelector(sel)).color);
+    const [a, b] = l > fundo ? [l, fundo] : [fundo, l];
+    return { sel, razao: Number(((a + 0.05) / (b + 0.05)).toFixed(2)) };
+  });
+});
+const fracos = contraste.filter((c) => c.razao < 4.5);
+checar(
+  fracos.length === 0,
+  `tinta legível sobre o papel (${contraste.map((c) => c.razao).join(", ")}:1)`,
+  `${fracos.length} texto(s) abaixo de 4.5:1 no envelope`,
+  fracos.map((c) => `${c.sel} ${c.razao}:1`).join(", "),
+);
 
 await pgConvite.locator("#convite button").click({ noWaitAfter: true });
 /** Congela a abertura num instante exato e mede o que está em cena. */
@@ -778,7 +924,7 @@ console.log("\n▸ convite em ponteiro fino");
 const ctxFino = await navegador.newContext({ viewport: { width: 1440, height: 900 } });
 const pgFino = await ctxFino.newPage();
 await pgFino.goto(BASE + CAMINHO, { waitUntil: "networkidle" });
-await pgFino.waitForTimeout(2400);
+await pgFino.waitForTimeout(3600);
 
 const dentro = await pgFino.evaluate(() => {
   const caixa = (sel) => document.querySelector(sel)?.getBoundingClientRect();
@@ -812,7 +958,17 @@ const direita = await pgFino.evaluate(() => ({
   palco: getComputedStyle(document.querySelector(".convite-palco")).transform,
   foco: getComputedStyle(document.querySelector(".convite-foco")).transform,
 }));
-const desloca = (t) => Number((t.match(/matrix\(1, 0, 0, 1, (-?[\d.]+)/) ?? [])[1] ?? 0);
+/* Com o tilt, `.convite-palco` computa `matrix3d` e `.convite-foco` continua em
+   `matrix` 2D. Nos dois o deslocamento em x é a coluna de translação (m41): a
+   matriz de perspectiva só mexe em m34 e as rotações vêm depois do translate.
+   Lendo só o formato 2D, a paralaxe passaria a devolver 0 e a asserção falharia
+   calada, dizendo que o efeito quebrou quando ele está funcionando. */
+const desloca = (t) => {
+  const m3 = t.match(/^matrix3d\((?:[-\d.e+]+,\s*){12}(-?[\d.e+]+)/);
+  if (m3) return Number(m3[1]);
+  const m2 = t.match(/^matrix\([-\d.e+]+, [-\d.e+]+, [-\d.e+]+, [-\d.e+]+, (-?[\d.e+]+)/);
+  return m2 ? Number(m2[1]) : 0;
+};
 checar(
   desloca(esquerda.palco) < -1 && desloca(direita.palco) > 1,
   `paralaxe segue o ponteiro (${desloca(esquerda.palco).toFixed(1)}px a ${desloca(direita.palco).toFixed(1)}px)`,
