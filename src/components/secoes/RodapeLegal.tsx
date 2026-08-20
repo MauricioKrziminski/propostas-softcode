@@ -42,18 +42,32 @@ export function RodapeLegal({
           <p className="numero mt-1">proposta.softcodedev.com.br/{caminho}</p>
         </div>
 
-        <div className="flex flex-wrap items-baseline justify-between gap-4">
-          <LogoSoftCode className="h-20 w-auto" />
+        {/* Logo e canais na MESMA margem do texto legal, um embaixo do outro.
+            Antes o site ficava jogado na ponta direita por um
+            `justify-between`, e ele era a única coisa do rodapé fora do eixo do
+            texto: lia como se pertencesse a outro bloco. */}
+        <LogoSoftCode className="h-20 w-auto" />
+
+        <p className="mt-4 flex flex-wrap items-baseline gap-x-6 gap-y-2 text-sm text-neblina">
           <a
             href={CONTATO.site}
             rel="noopener noreferrer nofollow"
             referrerPolicy="no-referrer"
             target="_blank"
-            className="alvo-toque text-sm text-neblina underline underline-offset-4 hover:text-acento"
+            className="alvo-toque underline underline-offset-4 hover:text-acento"
           >
             softcodedev.com.br
           </a>
-        </div>
+          <a
+            href={CONTATO.instagram}
+            rel="noopener noreferrer nofollow"
+            referrerPolicy="no-referrer"
+            target="_blank"
+            className="alvo-toque underline underline-offset-4 hover:text-acento"
+          >
+            Instagram
+          </a>
+        </p>
 
         <p className="mt-8 max-w-3xl text-xs leading-relaxed text-neblina">
           <strong className="text-navy">Sobre seus dados.</strong> Esta página
