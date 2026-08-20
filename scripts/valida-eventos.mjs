@@ -17,7 +17,8 @@
  *   6. o MESMO evento repetido gera OUTRA linha (nada deduplica: abrir duas
  *      vezes tem de avisar duas vezes);
  *   7. o teto diário existe e segura o repique;
- *   8. o aceite gera linha a cada clique, com opção, valor, IP e navegador.
+ *   8. o aceite gera linha a cada clique, com opção, valor, IP e navegador;
+ *   9. o expurgo apaga acesso com mais de 180 dias e PRESERVA o aceite.
  *
  * Ele limpa as próprias linhas no fim, inclusive se falhar no meio.
  */
@@ -120,6 +121,48 @@ try {
     "o teto diário segura em 40 e não deixa a caixa virar despejo",
     `o teto não segurou: ${await contar("convite_aberto")} linhas`,
   );
+
+  console.log("\n▸ o expurgo de 180 dias");
+
+  /* O rodapé promete ao cliente, em texto, que os registros de acesso são
+     apagados após 180 dias. Isso ficou sem implementação por muito tempo, e
+     promessa escrita ao titular sem nada por trás é pior do que não prometer.
+     O teste envelhece duas linhas na marra e chama o cron. */
+  const [prop] = await sql`select id from propostas where slug = 'barba-log'`;
+  const chaveAceiteVelho = "velho-a-" + Date.now();
+  await sql`
+    insert into proposta_eventos (proposta_id, tipo, chave, criado_em)
+    values
+      (${prop.id}, 'convite_aberto', ${"velho-" + Date.now()}, now() - interval '200 days'),
+      (${prop.id}, 'aceite',         ${chaveAceiteVelho}, now() - interval '200 days')`;
+
+  const antigos = async (tipo) => {
+    const [l] = await sql`
+      select count(*)::int as total from proposta_eventos
+      where proposta_id = ${prop.id} and tipo = ${tipo}
+        and criado_em < now() - interval '180 days'`;
+    return l.total;
+  };
+  checar((await antigos("convite_aberto")) > 0, "linha antiga de acesso plantada");
+
+  const r = await fetch(`${BASE}/api/pulso`);
+  const corpo = await r.json().catch(() => ({}));
+  checar(r.ok, `o cron do pulso respondeu (${r.status})`, `o pulso devolveu ${r.status}`);
+
+  checar(
+    (await antigos("convite_aberto")) === 0,
+    `acesso com mais de 180 dias foi apagado (${corpo.apagados ?? "?"} linha(s))`,
+    "o expurgo não apagou: a promessa do rodapé continua sem implementação",
+  );
+  checar(
+    (await antigos("aceite")) > 0,
+    "e o ACEITE antigo sobreviveu (é a comprovação, não é registro de acesso)",
+    "o expurgo apagou um aceite: isso destrói a prova do negócio fechado",
+  );
+
+  /* O aceite plantado sobreviveu de propósito, e é justamente por isso que ele
+     precisa sair agora: a checagem do aceite, logo abaixo, conta linhas. */
+  await sql`delete from proposta_eventos where chave = ${chaveAceiteVelho}`;
 
   console.log("\n▸ o aceite");
 

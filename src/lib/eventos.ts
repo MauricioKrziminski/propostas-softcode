@@ -138,6 +138,34 @@ async function eventosDeHoje(propostaId: string, tipo: TipoEvento): Promise<numb
   return Number(linha?.total ?? 0);
 }
 
+/**
+ * Apaga os registros de ACESSO com mais de 180 dias.
+ *
+ * O rodapé promete isso ao cliente em texto ("os registros de acesso são
+ * apagados após 180 dias"), e até agora não havia nada por trás: o único cron
+ * do projeto é o pulso, que roda `select 1` para o Supabase não hibernar.
+ * Promessa escrita ao titular sem implementação é pior do que não prometer.
+ *
+ * O ACEITE fica de fora, e não é esquecimento. Ele é a comprovação que a seção
+ * de aceite promete em texto (data, hora, IP e navegador) e é o que cumpre o
+ * papel da assinatura no PDF: apagá-lo em 180 dias destruiria a prova do
+ * negócio fechado. O que o rodapé promete apagar é registro de ACESSO, que é
+ * outra coisa, e o rodapé diz essa diferença.
+ *
+ * Roda no cron diário que já existe. Nunca derruba o pulso: quem chama trata a
+ * falha, porque manter o banco acordado importa mais do que expurgar hoje.
+ */
+export async function expurgarAcessosAntigos(dias = 180): Promise<number> {
+  const resultado = await bd().execute(sql`
+    delete from proposta_eventos
+    where tipo <> 'aceite'
+      and criado_em < now() - make_interval(days => ${dias})
+  `);
+  /* O driver devolve a contagem em `count`; o tipo do drizzle não promete isso,
+     então a leitura é defensiva. O número só serve para o log e a resposta. */
+  return Number((resultado as unknown as { count?: number }).count ?? 0);
+}
+
 /* ───────────────────────────── o e-mail ───────────────────────────── */
 
 const AGORA = new Intl.DateTimeFormat("pt-BR", {

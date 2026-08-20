@@ -145,11 +145,14 @@ export function RodapeLegal({
           <p className="max-w-4xl text-xs leading-relaxed text-neblina">
             <strong className="font-medium text-navy">Sobre seus dados.</strong>{" "}
             Esta página registra quando foi aberta e por qual navegador, para que
-            a SoftCode saiba acompanhar esta proposta no tempo certo. Se você
-            aceitar, guardamos data, hora, IP e navegador como comprovação. Não
-            usamos cookies e não há serviços de terceiros nesta página. Os
-            registros de acesso são apagados após 180 dias. Para consultar ou
-            excluir seus dados, escreva para{" "}
+            a SoftCode saiba acompanhar esta proposta no tempo certo. Esses
+            registros de acesso são apagados automaticamente após 180 dias. Se
+            você aceitar, guardamos data, hora, IP e navegador, e esse registro
+            fica guardado como comprovação do aceite. Seu navegador não recebe
+            cookie nenhum e não há script de terceiro nesta página; nos
+            bastidores, a hospedagem, o banco e o envio de e-mail são serviços
+            contratados pela SoftCode. Para consultar ou excluir seus dados,
+            escreva para{" "}
             <a
               href={`mailto:${CONTATO.emailDados}`}
               className="text-acento underline underline-offset-4"

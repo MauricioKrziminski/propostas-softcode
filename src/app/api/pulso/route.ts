@@ -1,4 +1,5 @@
 import { pulsar } from "@/lib/proposta/repositorio";
+import { expurgarAcessosAntigos } from "@/lib/eventos";
 
 /**
  * O batimento que mantém o banco acordado.
@@ -26,7 +27,20 @@ export async function GET(requisicao: Request) {
 
   try {
     await pulsar();
-    return Response.json({ ok: true }, { headers: { "Cache-Control": "no-store" } });
+
+    /* O expurgo pega carona no cron que já existe, e vem DEPOIS do pulso de
+       propósito: manter o banco acordado é o trabalho crítico desta rota, e
+       falhar em apagar hoje não pode custar isso. Por isso ele tem `try` só
+       dele. */
+    let apagados: number | null = null;
+    try {
+      apagados = await expurgarAcessosAntigos();
+      if (apagados > 0) console.info(`[pulso] ${apagados} registro(s) de acesso expurgado(s)`);
+    } catch (erro) {
+      console.error("[pulso] falhei em expurgar registros antigos:", erro);
+    }
+
+    return Response.json({ ok: true, apagados }, { headers: { "Cache-Control": "no-store" } });
   } catch (erro) {
     console.error("[pulso] banco não respondeu:", erro);
     return Response.json({ ok: false }, { status: 503 });

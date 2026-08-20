@@ -457,6 +457,23 @@ proposta**, o seed atual é a proposta real da Barba Log, não um exemplo.
 - **Cuidado ao testar:** local e produção usam o MESMO banco, e o teto é diário
   por proposta. Gastar o teto de um tipo em local significa não receber aviso
   daquele tipo em produção no mesmo dia.
+- **O que o rodapé promete ao titular, o código cumpre.** A frase "os registros
+  de acesso são apagados após 180 dias" ficou tempo demais sem nada por trás: o
+  único cron era o pulso, rodando `select 1`. Hoje o expurgo pega carona nesse
+  mesmo cron, DEPOIS do pulso e com `try` só dele, porque manter o banco
+  acordado é o trabalho crítico daquela rota e falhar em apagar hoje não pode
+  custar isso.
+- **O ACEITE nunca é expurgado, e isso é dito ao cliente.** Ele é a comprovação
+  que a seção de aceite promete em texto (data, hora, IP e navegador) e é o que
+  cumpre o papel da assinatura no PDF: apagá-lo em 180 dias destruiria a prova
+  do negócio fechado. O `valida:eventos` planta um acesso e um aceite com 200
+  dias, chama o cron, e exige que o primeiro suma e o segundo fique.
+- **Sobre cookies: o navegador do CLIENTE não recebe nenhum.** O único cookie do
+  projeto é o de sessão do painel, criado só depois da senha certa em `/painel`.
+  Não há `localStorage`, não há script de terceiro, não há analytics. Por isso
+  não existe banner de consentimento: ele anunciaria um rastreamento que não
+  acontece. Se um dia entrar qualquer script de terceiro, essa conta muda e o
+  texto do rodapé passa a estar errado.
 - **Evento nunca derruba a página.** Toda gravação e todo envio ficam dentro de
   `try`, e a rota `/api/eventos` responde 204 SEMPRE, achando a proposta ou não:
   um 404 ali diria "este slug existe", que é o que a página se recusa a dizer.
